@@ -40,7 +40,8 @@ if(NOT OpenCV_FOUND)
    endif()
 endif()
 
-find_package(Eigen3 3.1.0 REQUIRED)
+list(APPEND CMAKE_INCLUDE_PATH "/usr/local/include")
+find_package (Eigen3 3.4 REQUIRED NO_MODULE)
 find_package(Pangolin REQUIRED)
 
 include_directories(
