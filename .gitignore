@@ -24,3 +24,5 @@ build/
 lib/
 
 /cmake-build-debug/
+testing/cmake-build-debug
+.idea/
