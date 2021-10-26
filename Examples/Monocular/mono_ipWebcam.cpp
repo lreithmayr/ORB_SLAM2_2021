@@ -35,7 +35,7 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-    if(argc != 3)
+    if(argc != 4)
     {
         cerr << endl << "Usage: ./mono_ipWebcam path_to_vocabulary path_to_settings path_to_video" << endl;
         return 1;
@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 
     // Main loop
     cv::Mat img;
-    string cam_url = argv[3];
+    string cam_url = string(argv[3]);
     cv::VideoCapture cap(cam_url);
 
     while(true)
