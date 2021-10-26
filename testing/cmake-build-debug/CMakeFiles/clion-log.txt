@@ -7,6 +7,7 @@ CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
   CMake that the project does not need compatibility with older versions.
 
 
+-- Found OpenCV: /usr/local (found version "4.5.4") 
 -- Configuring done
 -- Generating done
 -- Build files have been written to: /home/lorenz/Projects/BA/01_Algorithms/ORB_SLAM2_MOD/testing/cmake-build-debug

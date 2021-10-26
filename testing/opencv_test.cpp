@@ -10,7 +10,7 @@ int main(int argc, char **argv) {
     string cam_url = "http://192.168.0.94:8080/";
     cv::VideoCapture cap(cam_url);
 
-    string window_name = "My First Video";
+    string window_name = "Window";
     namedWindow(window_name, cv::WINDOW_NORMAL);
 
     while (true) {
