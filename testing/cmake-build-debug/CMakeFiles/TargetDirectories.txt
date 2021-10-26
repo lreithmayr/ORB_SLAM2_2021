@@ -1,3 +1,0 @@
-/home/lorenz/Projects/BA/01_Algorithms/ORB_SLAM2_MOD/testing/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/lorenz/Projects/BA/01_Algorithms/ORB_SLAM2_MOD/testing/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/lorenz/Projects/BA/01_Algorithms/ORB_SLAM2_MOD/testing/cmake-build-debug/CMakeFiles/opencv_test.dir

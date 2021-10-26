@@ -7,8 +7,8 @@ using namespace std;
 
 int main(int argc, char **argv) {
     cv::Mat img;
-    string cam_url = "http://192.168.0.94:8080/";
-    cv::VideoCapture cap(cam_url);
+    string vid = "http://192.168.0.94:8080/video";
+    cv::VideoCapture cap(vid);
 
     string window_name = "Window";
     namedWindow(window_name, cv::WINDOW_NORMAL);
