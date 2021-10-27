@@ -53,6 +53,6 @@ dst = cv.undistort(img, mtx, dist, None, newcameramtx)
 x, y, w, h = roi
 dst = dst[y:y+h, x:x+w]
 
-# Write camera parameters to file
+# Write camera parameters to files
 np.savetxt("calib_matrix.txt", mtx)
 np.savetxt("dist_params.txt", dist)
