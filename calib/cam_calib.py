@@ -37,22 +37,22 @@ for fname in images:
 
 cv.destroyAllWindows()
 
-# h,w = img.shape[:2]
-
-"""
-Performing camera calibration by 
-passing the value of known 3D points (objpoints)
-and corresponding pixel coordinates of the 
-detected corners (imgpoints)
-"""
-
+# Calibrate camera and print calibration matrix
+# https://docs.opencv.org/4.5.3/d9/d0c/group__calib3d.html#ga3207604e4b1a1758aa66acb6ed5aa65d
 ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
 
-print("Camera matrix : \n")
-print(mtx)
-print("dist : \n")
-print(dist)
-print("rvecs : \n")
-print(rvecs)
-print("tvecs : \n")
-print(tvecs)
+# Undistortion
+
+img = cv.imread(images[0])
+h,  w = img.shape[:2]
+newcameramtx, roi = cv.getOptimalNewCameraMatrix(mtx, dist, (w,h), 1, (w,h))
+
+dst = cv.undistort(img, mtx, dist, None, newcameramtx)
+
+# Crop the image
+x, y, w, h = roi
+dst = dst[y:y+h, x:x+w]
+
+# Write camera parameters to file
+np.savetxt("calib_matrix.txt", mtx)
+np.savetxt("dist_params.txt", dist)
