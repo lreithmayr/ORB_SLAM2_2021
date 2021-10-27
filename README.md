@@ -7,8 +7,8 @@
 * Support for **compilers newer than C++11** implemented (tested with GCC 9.3.0)
   * **Pangolin v0.6** now supported
   * **Eigen 3.4** supported
-* Video input and live webcam feed now supported
-* Calibration tools added
+* **Video** input and live **webcam** feed now supported
+* **Calibration** tools added
 
 # ORB-SLAM2
 **Authors:** [Raul Mur-Artal](http://webdiis.unizar.es/~raulmur/), [Juan D. Tardos](http://webdiis.unizar.es/~jdtardos/), [J. M. M. Montiel](http://webdiis.unizar.es/~josemari/) and [Dorian Galvez-Lopez](http://doriangalvez.com/) ([DBoW2](https://github.com/dorian3d/DBoW2))
