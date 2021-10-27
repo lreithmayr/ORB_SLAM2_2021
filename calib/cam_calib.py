@@ -13,9 +13,9 @@ objp[:, :2] = np.mgrid[0:7, 0:6].T.reshape(-1, 2)
 
 # Arrays to store object points and image points from all the images_ocv.
 objpoints = []  # 3d point in real world space
-imgpoints = []  # 2d points in image plane.
+imgpoints = []  # 2d points in image plane
 
-images = glob.glob('images/*.jpg')
+images = glob.glob('images_ocv/*.jpg')
 for fname in images:
     if fname is None:
         break
@@ -26,8 +26,6 @@ for fname in images:
     # Find the chess board corners
     ret, corners = cv.findChessboardCorners(gray, (7, 6), None)
     cv.drawChessboardCorners(gray, (7, 6), corners, ret)
-    cv.imshow("g", gray)
-    cv.waitKey(5000000)
 
     # If found, add object points, image points (after refining them)
     if ret:
