@@ -280,8 +280,8 @@ public:
    * later when transforming image features into vectors.
    * Note that when using IDF or TF_IDF, the weight is the idf part, which
    * is equivalent to -log(f), where f is the frequency of the word
-   * (f = Ni/N, Ni: number of training images where the word is present, 
-   * N: number of training images).
+   * (f = Ni/N, Ni: number of training images_ocv where the word is present,
+   * N: number of training images_ocv).
    * Note that the old weight is forgotten, and subsequent calls to this 
    * function with a lower minWeight have no effect.
    * @return number of words stopped now

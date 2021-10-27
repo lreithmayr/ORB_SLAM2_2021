@@ -133,8 +133,8 @@ public:
     int N;
 
     // Vector of keypoints (original for visualization) and undistorted (actually used by the system).
-    // In the stereo case, mvKeysUn is redundant as images must be rectified.
-    // In the RGB-D case, RGB images can be distorted.
+    // In the stereo case, mvKeysUn is redundant as images_ocv must be rectified.
+    // In the RGB-D case, RGB images_ocv can be distorted.
     std::vector<cv::KeyPoint> mvKeys, mvKeysRight;
     std::vector<cv::KeyPoint> mvKeysUn;
 

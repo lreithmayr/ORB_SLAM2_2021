@@ -40,7 +40,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    // Retrieve paths to images
+    // Retrieve paths to images_ocv
     vector<string> vstrImageFilenames;
     vector<double> vTimestamps;
     LoadImages(string(argv[3]), string(argv[4]), vstrImageFilenames, vTimestamps);
@@ -49,7 +49,7 @@ int main(int argc, char **argv)
 
     if(nImages<=0)
     {
-        cerr << "ERROR: Failed to load images" << endl;
+        cerr << "ERROR: Failed to load images_ocv" << endl;
         return 1;
     }
 

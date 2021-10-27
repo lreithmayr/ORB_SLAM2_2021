@@ -41,7 +41,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    // Retrieve paths to images
+    // Retrieve paths to images_ocv
     vector<string> vstrImageLeft;
     vector<string> vstrImageRight;
     vector<double> vTimestamps;
@@ -64,7 +64,7 @@ int main(int argc, char **argv)
     cv::Mat imLeft, imRight;
     for(int ni=0; ni<nImages; ni++)
     {
-        // Read left and right images from file
+        // Read left and right images_ocv from file
         imLeft = cv::imread(vstrImageLeft[ni],CV_LOAD_IMAGE_UNCHANGED);
         imRight = cv::imread(vstrImageRight[ni],CV_LOAD_IMAGE_UNCHANGED);
         double tframe = vTimestamps[ni];
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 
         std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 
-        // Pass the images to the SLAM system
+        // Pass the images_ocv to the SLAM system
         SLAM.TrackStereo(imLeft,imRight,tframe);
 
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();

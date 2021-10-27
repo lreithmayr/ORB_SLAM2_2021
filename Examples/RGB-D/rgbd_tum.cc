@@ -40,23 +40,23 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    // Retrieve paths to images
+    // Retrieve paths to images_ocv
     vector<string> vstrImageFilenamesRGB;
     vector<string> vstrImageFilenamesD;
     vector<double> vTimestamps;
     string strAssociationFilename = string(argv[4]);
     LoadImages(strAssociationFilename, vstrImageFilenamesRGB, vstrImageFilenamesD, vTimestamps);
 
-    // Check consistency in the number of images and depthmaps
+    // Check consistency in the number of images_ocv and depthmaps
     int nImages = vstrImageFilenamesRGB.size();
     if(vstrImageFilenamesRGB.empty())
     {
-        cerr << endl << "No images found in provided path." << endl;
+        cerr << endl << "No images_ocv found in provided path." << endl;
         return 1;
     }
     else if(vstrImageFilenamesD.size()!=vstrImageFilenamesRGB.size())
     {
-        cerr << endl << "Different number of images for rgb and depth." << endl;
+        cerr << endl << "Different number of images_ocv for rgb and depth." << endl;
         return 1;
     }
 

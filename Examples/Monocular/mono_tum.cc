@@ -40,7 +40,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    // Retrieve paths to images
+    // Retrieve paths to images_ocv
     vector<string> vstrImageFilenames;
     vector<double> vTimestamps;
     string strFile = string(argv[3])+"/rgb.txt";
