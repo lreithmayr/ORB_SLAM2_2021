@@ -15,15 +15,19 @@ objp[:, :2] = np.mgrid[0:7, 0:6].T.reshape(-1, 2)
 objpoints = []  # 3d point in real world space
 imgpoints = []  # 2d points in image plane.
 
-images = glob.glob('images_ocv/*.jpg')
+images = glob.glob('images/*.jpg')
 for fname in images:
     if fname is None:
         break
+
     img = cv.imread(fname)
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
     # Find the chess board corners
     ret, corners = cv.findChessboardCorners(gray, (7, 6), None)
+    cv.drawChessboardCorners(gray, (7, 6), corners, ret)
+    cv.imshow("g", gray)
+    cv.waitKey(5000000)
 
     # If found, add object points, image points (after refining them)
     if ret:
@@ -44,14 +48,14 @@ ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.sha
 # Undistortion
 
 img = cv.imread(images[0])
-h,  w = img.shape[:2]
-newcameramtx, roi = cv.getOptimalNewCameraMatrix(mtx, dist, (w,h), 1, (w,h))
+h, w = img.shape[:2]
+newcameramtx, roi = cv.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))
 
 dst = cv.undistort(img, mtx, dist, None, newcameramtx)
 
 # Crop the image
 x, y, w, h = roi
-dst = dst[y:y+h, x:x+w]
+dst = dst[y:y + h, x:x + w]
 
 # Write camera parameters to files
 np.savetxt("calib_matrix.txt", mtx)
