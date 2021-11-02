@@ -98,3 +98,7 @@ target_link_libraries(mono_euroc ${PROJECT_NAME})
 add_executable(mono_ipWebcam
 Examples/Monocular/mono_ipWebcam.cpp)
 target_link_libraries(mono_ipWebcam ${PROJECT_NAME})
+
+add_executable(mono_video
+Examples/Monocular/mono_video.cpp)
+target_link_libraries(mono_video ${PROJECT_NAME})
