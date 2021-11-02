@@ -16,7 +16,7 @@ Camera.p1: 0.0
 Camera.p2: 0.0
 
 # Camera frames per second
-Camera.fps: 10.0
+Camera.fps: 25
 
 # Color order of the images_ocv (0: BGR, 1: RGB. It is ignored if images_ocv are grayscale)
 Camera.RGB: 1
