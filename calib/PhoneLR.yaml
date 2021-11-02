@@ -6,21 +6,21 @@
 
 # Intrinsic camera parameters
 # fx,fy: Focal length | cx, cy: Optical centers
-Camera.fx: 718.856
-Camera.fy: 718.856
-Camera.cx: 607.1928
-Camera.cy: 185.2157
+Camera.fx: 4.915137964919937303e+02
+Camera.fy: 4.932800443577967258e+02
+Camera.cx: 3.453503578949348594e+02
+Camera.cy: 2.413521763808633693e+02
 
 # Distortion coefficients
-Camera.k1: 0.0
-Camera.k2: 0.0
-Camera.p1: 0.0
-Camera.p2: 0.0
+Camera.k1: 5.415249593374731329e-01
+Camera.k2: -5.733557801433570411e+00
+Camera.p1: 8.356218489753373599e-03
+Camera.p2: 3.320417801991420309e-02
 
 # Camera frames per second
-Camera.fps: 10.0
+Camera.fps: 40
 
-# Color order of the images_ocv (0: BGR, 1: RGB. It is ignored if images_ocv are grayscale)
+# Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
 Camera.RGB: 1
 
 #--------------------------------------------------------------------------------------------
@@ -40,8 +40,8 @@ ORBextractor.nLevels: 8
 # Image is divided in a grid. At each cell FAST are extracted imposing a minimum response.
 # Firstly we impose iniThFAST. If no corners are detected we impose a lower value minThFAST
 # You can lower these values if your images_ocv have low contrast
-ORBextractor.iniThFAST: 20
-ORBextractor.minThFAST: 7
+ORBextractor.iniThFAST: 10
+ORBextractor.minThFAST: 2
 
 #--------------------------------------------------------------------------------------------
 # Viewer Parameters

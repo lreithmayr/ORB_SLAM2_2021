@@ -36,7 +36,7 @@ for fname in images:
         cv.drawChessboardCorners(img, (6, 8), corners2, ret)
         cv.imshow("foundCorners", gray)
         cv.imshow('img', img)
-        cv.waitKey(500)
+        cv.waitKey(50)
         print("Corners found.")
     else:
         print("No corners found.")
