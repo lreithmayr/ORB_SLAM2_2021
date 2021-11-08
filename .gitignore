@@ -28,3 +28,4 @@ testing/cmake-build-debug
 .idea/
 /calib/venv/
 /Examples/Monocular/mono_video
+scripts/CameraTrajectory.txt
