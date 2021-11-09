@@ -31,3 +31,8 @@ testing/cmake-build-debug
 scripts/CameraTrajectory.txt
 /scripts/StereoKitti_map_pts_and_keyframes.txt
 /scripts/stereoKitti_map_pts_out.obj
+/gridmapper/grid_map_StereoKitti_filtered_0_scale_3_resize_5_0.50_0.55.pgm
+/gridmapper/StereoKitti_filtered_0_scale_3_occupied_counter.txt
+/gridmapper/StereoKitti_filtered_0_scale_3_visit_counter.txt
+/gridmapper/grid_map_StereoKitti_filtered_0_scale_3_resize_50_0.50_0.55.pgm
+/gridmapper/grid_map_StereoKitti_filtered_0_scale_3_resize_1_0.50_0.55.pgm

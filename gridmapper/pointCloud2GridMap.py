@@ -54,16 +54,18 @@ def get_line_bresenham(start, end):
     return points
 
 
-seq_name = 'kitti_00'
+seq_name = 'StereoKitti'
 # seq_name = 'tum'
 # inverse of cell size
 scale_factor = 3
-resize_factor = 5
+resize_factor = 1
 filter_ground_points = 0
 load_counters = 0
 
-point_cloud_fname = '{:s}_map_pts_and_keyframes.txt'.format(seq_name)
-keyframe_trajectory_fname = '{:s}_key_frame_trajectory.txt'.format(seq_name)
+#point_cloud_fname = '{:s}_map_pts_and_keyframes.txt'.format(seq_name)
+
+point_cloud_fname = 'StereoKitti_map_pts_and_keyframes.txt'
+keyframe_trajectory_fname = 'CameraTrajectory.txt'
 visit_counter_fname = '{:s}_filtered_{:d}_scale_{:d}_visit_counter.txt'.format(
     seq_name, filter_ground_points, scale_factor)
 occupied_counter_fname = '{:s}_filtered_{:d}_scale_{:d}_occupied_counter.txt'.format(
@@ -95,7 +97,7 @@ if not counters_loaded:
     # keyframe_quaternions = keyframe_trajectory_data[:, 5:9]
 
     # read keyframes
-    keyframe_trajectory_data = open(keyframe_trajectory_fname, 'r').readlines()
+    keyframe_trajectory_data = open("../scripts/CameraTrajectory.txt", 'r').readlines()
     keyframe_timestamps = []
     keyframe_locations = []
     keyframe_quaternions = []
@@ -117,7 +119,7 @@ if not counters_loaded:
     n_keyframes = keyframe_locations.shape[0]
 
     # read point cloud
-    point_cloud_data = open(point_cloud_fname, 'r').readlines()
+    point_cloud_data = open("../scripts/StereoKitti_map_pts_and_keyframes.txt", 'r').readlines()
     point_locations = []
     point_timestamps = []
     n_lines = len(point_cloud_data)
