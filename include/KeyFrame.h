@@ -197,7 +197,7 @@ protected:
     cv::Mat Twc;
     cv::Mat Ow;
 
-    cv::Mat Cw; // Stereo middel point. Only for visualization
+    cv::Mat Cw; // Stereo middle point. Only for visualization
 
     // MapPoints associated to keypoints
     std::vector<MapPoint*> mvpMapPoints;

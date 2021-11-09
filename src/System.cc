@@ -439,8 +439,12 @@ void System::SaveTrajectoryKITTI(const string &filename)
 
     // For each frame we have a reference keyframe (lRit), the timestamp (lT) and a flag
     // which is true when tracking failed (lbL).
-    auto lRit = mpTracker->mlpReferences.begin();
+    auto lRit = mpTracker->mlpReferences.begin(); // mlpReferences: List of Reference Keyframes (mpReferenceKF)
     auto lT = mpTracker->mlFrameTimes.begin();
+
+    //mlRelativeFramePoses: List of Tcr (God, I hate these variable names so much!)
+    //Tcr = Tcw * Twc
+    // Apparently, the 2nd letter denotes the reference frame of the pose
     for(auto lit=mpTracker->mlRelativeFramePoses.begin(), lend=mpTracker->mlRelativeFramePoses.end();lit!=lend;lit++, lRit++, lT++)
     {
         ORB_SLAM2::KeyFrame* pKF = *lRit;
@@ -460,9 +464,21 @@ void System::SaveTrajectoryKITTI(const string &filename)
         cv::Mat Rwc = Tcw.rowRange(0,3).colRange(0,3).t();
         cv::Mat twc = -Rwc*Tcw.rowRange(0,3).col(3);
 
+        // Rwc: Rotation in SO(3) in camera reference frame
+        // twc: Translation in R³ in camera reference frame
+        /*
         f << setprecision(9) << Rwc.at<float>(0,0) << " " << Rwc.at<float>(0,1)  << " " << Rwc.at<float>(0,2) << " "  << twc.at<float>(0) << " " <<
              Rwc.at<float>(1,0) << " " << Rwc.at<float>(1,1)  << " " << Rwc.at<float>(1,2) << " "  << twc.at<float>(1) << " " <<
              Rwc.at<float>(2,0) << " " << Rwc.at<float>(2,1)  << " " << Rwc.at<float>(2,2) << " "  << twc.at<float>(2) << endl;
+        */
+
+        // Copied code from monocular keyframe trajectory (SaveTrajectoryTUM).
+        // Rwc is first transformed to quaternions (why shouldn't that work for the stereo case?).
+        // Output in each line is then: Timestamp, Translation Vector, Quaternions
+
+        vector<float> q = Converter::toQuaternion(Rwc);
+
+        f << setprecision(6) << *lT << " " <<  setprecision(9) << twc.at<float>(0) << " " << twc.at<float>(1) << " " << twc.at<float>(2) << " " << q[0] << " " << q[1] << " " << q[2] << " " << q[3] << endl;
     }
     f.close();
     cout << endl << "trajectory saved!" << endl;

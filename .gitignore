@@ -29,3 +29,5 @@ testing/cmake-build-debug
 /calib/venv/
 /Examples/Monocular/mono_video
 scripts/CameraTrajectory.txt
+/scripts/StereoKitti_map_pts_and_keyframes.txt
+/scripts/stereoKitti_map_pts_out.obj

@@ -20,7 +20,6 @@
 
 #include<iostream>
 #include<algorithm>
-#include<fstream>
 #include<iomanip>
 #include<chrono>
 
@@ -62,7 +61,7 @@ int main(int argc, char **argv)
 
     // Main loop
     cv::Mat imLeft, imRight;
-    for(int ni=0; ni<nImages; ni++)
+    for(int ni=0; ni<101; ni++)
     {
         // Read left and right images_ocv from file
         imLeft = cv::imread(vstrImageLeft[ni],CV_LOAD_IMAGE_UNCHANGED);
@@ -96,6 +95,9 @@ int main(int argc, char **argv)
 
         if(ttrack<T)
             usleep((T-ttrack)*1e6);
+
+        if (cv::waitKey(1) == 27)
+            break;
     }
 
     // Stop all threads
@@ -111,6 +113,10 @@ int main(int argc, char **argv)
     cout << "-------" << endl << endl;
     cout << "median tracking time: " << vTimesTrack[nImages/2] << endl;
     cout << "mean tracking time: " << totaltime/nImages << endl;
+
+    // Save map points
+    SLAM.getMap()->Save("stereoKitti_map_pts_out.obj");
+    SLAM.getMap()->SaveWithTimestamps("StereoKitti_map_pts_and_keyframes.txt");
 
     // Save camera trajectory
     SLAM.SaveTrajectoryKITTI("CameraTrajectory.txt");
