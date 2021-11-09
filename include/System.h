@@ -173,7 +173,7 @@ private:
     bool mbDeactivateLocalizationMode;
 
     // Tracking state
-    int mTrackingState;
+    int mTrackingState{};
     std::vector<MapPoint*> mTrackedMapPoints;
     std::vector<cv::KeyPoint> mTrackedKeyPointsUn;
     std::mutex mMutexState;
