@@ -1,6 +1,6 @@
 # Modification of [ORB SLAM 2](https://github.com/raulmur/ORB_SLAM2) by Mur-Artal et. al.
 
-**<span style="color:green">Changelog and Additions:</span>**
+**Changelog and Additions:**
 
 * Tested under **Ubuntu 20.04**
 * PR #970 implemented: Support for **OpenCV 4** (tested with OpenCV 4.5.4)
@@ -10,7 +10,7 @@
 * **Video** input and live **webcam** feed now supported
 * **Camera calibration** tools added
 
-**<span style="color:orange">TO-DO:</span>**
+**TO-DO:**
 * Grid map generation from point clouds for **navigation and path planning**
 * Implementing fusion of **wheel odometry** for added robustness when losing visual tracking
 
