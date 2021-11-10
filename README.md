@@ -14,7 +14,6 @@
 * Grid map generation from point clouds for **navigation and path planning**
 * Implementing fusion of **wheel odometry** for added robustness when losing visual tracking
 
-====================================================================================
 
 ## Related Publications:
 
