@@ -1,6 +1,6 @@
 # Modification of [ORB SLAM 2](https://github.com/raulmur/ORB_SLAM2) by Mur-Artal et. al.
 
-**Changelog and Additions:**
+**<span style="color:green">Changelog and Additions:</span>**
 
 * Tested under **Ubuntu 20.04**
 * PR #970 implemented: Support for **OpenCV 4** (tested with OpenCV 4.5.4)
@@ -10,11 +10,13 @@
 * **Video** input and live **webcam** feed now supported
 * **Camera calibration** tools added
 
-**TO-DO:**
+**<span style="color:orange">TO-DO:</span>**
 * Grid map generation from point clouds for **navigation and path planning**
 * Implementing fusion of **wheel odometry** for added robustness when losing visual tracking
 
-### Related Publications:
+====================================================================================
+
+## Related Publications:
 
 [Monocular] Raúl Mur-Artal, J. M. M. Montiel and Juan D. Tardós. **ORB-SLAM: A Versatile and Accurate Monocular SLAM System**. *IEEE Transactions on Robotics,* vol. 31, no. 5, pp. 1147-1163, 2015. (**2015 IEEE Transactions on Robotics Best Paper Award**). **[PDF](http://webdiis.unizar.es/~raulmur/MurMontielTardosTRO15.pdf)**.
 
