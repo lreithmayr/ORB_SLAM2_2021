@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import sys
 from transforms3d import quaternions
+import h5py
 
 
 def get_line_bresenham(start, end):
@@ -62,6 +63,9 @@ resize_factor = 1
 filter_ground_points = 0
 load_counters = 0
 
+# Read only first n lines of files (i.e. number of processed KFs)
+num_of_kfs = 200
+
 # point_cloud_fname = '{:s}_map_pts_and_keyframes.txt'.format(seq_name)
 
 point_cloud_fname = 'StereoKitti_map_pts_and_keyframes.txt'
@@ -102,6 +106,7 @@ if not counters_loaded:
     keyframe_locations = []
     keyframe_quaternions = []
     for line in keyframe_trajectory_data:
+        # line = keyframe_trajectory_data[i]
         line_tokens = line.strip().split()
         timestamp = float(line_tokens[0])
         keyframe_timestamps.append(timestamp)
@@ -112,7 +117,7 @@ if not counters_loaded:
         keyframe_z = float(line_tokens[3]) * scale_factor
         keyframe_locations.append([keyframe_x, keyframe_y, keyframe_z])
         
-        #Quaternions
+        # Quaternions
         keyframe_q0 = float(line_tokens[4])
         keyframe_q1 = float(line_tokens[5])
         keyframe_q2 = float(line_tokens[6])
@@ -227,6 +232,7 @@ if not counters_loaded:
 
     # print 'len(is_ground_point):', len(is_ground_point)
 
+    num_of_points = n_points
     for point_id in xrange(n_points):
         point_location = point_locations[point_id]
         for timestamp in point_timestamps[point_id]:
@@ -273,16 +279,12 @@ if not counters_loaded:
                 print 'Out of bound point: ({:d}, {:d}) -> ({:f}, {:f})'.format(
                     ray_points[-1][0], ray_points[-1][1], ray_point_x_norm, ray_point_z_norm)
                 sys.exit(0)
-        if (point_id + 1) % 1000 == 0:
-            print 'Done {:d} points of {:d}'.format(point_id + 1, n_points)
+        if (point_id + 1) % 100 == 0:
+            progress = (float(point_id + 1) / float(num_of_points)) * 100
+            print 'Processing Point Cloud: %s %%' % np.around(progress, 2)
 
-    print 'Saving counters to {:s} and {:s}'.format(occupied_counter_fname, visit_counter_fname)
-    np.savetxt(occupied_counter_fname, occupied_counter, fmt='%d')
-    np.savetxt(visit_counter_fname, visit_counter, fmt='%d')
-
-# occupied_counter_zeros = occupied_counter == 0
-# occupied_counter[occupied_counter_zeros] = 2 * visit_counter[occupied_counter_zeros]
-# grid_map = visit_counter.astype(np.float32) / occupied_counter.astype(np.float32)
+print 'Done!'
+print 'Projecting Grid Map.'
 
 free_thresh = 0.55
 occupied_thresh = 0.50
@@ -308,6 +310,8 @@ if resize_factor != 1:
     grid_map_resized = cv2.resize(grid_map_thresh, grid_res_resized)
 else:
     grid_map_resized = grid_map_thresh
+
+print "Grid Map finished."
 
 out_fname = 'grid_map_{:s}_filtered_{:d}_scale_{:d}_resize_{:d}_{:.2f}_{:.2f}'.format(
     seq_name, filter_ground_points, scale_factor, resize_factor, occupied_thresh, free_thresh)
