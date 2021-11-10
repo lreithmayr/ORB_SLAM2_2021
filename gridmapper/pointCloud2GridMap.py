@@ -9,38 +9,38 @@ def get_line_bresenham(start, end):
     Produces a list of tuples from start and end
     """
     # Setup initial conditions
-    x1, y1 = start
-    x2, y2 = end
-    dx = x2 - x1
-    dy = y2 - y1
+    x0, y0 = start
+    x1, y1 = end
+    dx = x1 - x0
+    dy = y1 - y0
 
     # Determine how steep the line is
     is_steep = abs(dy) > abs(dx)
 
     # Rotate line
     if is_steep:
+        x0, y0 = y0, x0
         x1, y1 = y1, x1
-        x2, y2 = y2, x2
 
     # Swap start and end points if necessary and store swap state
     swapped = False
-    if x1 > x2:
-        x1, x2 = x2, x1
-        y1, y2 = y2, y1
+    if x0 > x1:
+        x0, x1 = x1, x0
+        y0, y1 = y1, y0
         swapped = True
 
     # Recalculate differentials
-    dx = x2 - x1
-    dy = y2 - y1
+    dx = x1 - x0
+    dy = y1 - y0
 
     # Calculate error
     error = int(dx / 2.0)
-    ystep = 1 if y1 < y2 else -1
+    ystep = 1 if y0 < y1 else -1
 
     # Iterate over bounding box generating points between start and end
-    y = y1
+    y = y0
     points = []
-    for x in range(x1, x2 + 1):
+    for x in range(x0, x1 + 1):
         coord = (y, x) if is_steep else (x, y)
         points.append(coord)
         error -= abs(dy)
@@ -62,7 +62,7 @@ resize_factor = 1
 filter_ground_points = 0
 load_counters = 0
 
-#point_cloud_fname = '{:s}_map_pts_and_keyframes.txt'.format(seq_name)
+# point_cloud_fname = '{:s}_map_pts_and_keyframes.txt'.format(seq_name)
 
 point_cloud_fname = 'StereoKitti_map_pts_and_keyframes.txt'
 keyframe_trajectory_fname = 'CameraTrajectory.txt'
@@ -104,13 +104,20 @@ if not counters_loaded:
     for line in keyframe_trajectory_data:
         line_tokens = line.strip().split()
         timestamp = float(line_tokens[0])
+        keyframe_timestamps.append(timestamp)
+       
+        # Translation vector
         keyframe_x = float(line_tokens[1]) * scale_factor
         keyframe_y = float(line_tokens[2]) * scale_factor
         keyframe_z = float(line_tokens[3]) * scale_factor
-        keyframe_timestamps.append(timestamp)
         keyframe_locations.append([keyframe_x, keyframe_y, keyframe_z])
-        keyframe_quaternions.append([float(line_tokens[4]), float(line_tokens[5]),
-                                     float(line_tokens[6]), float(line_tokens[7])])
+        
+        #Quaternions
+        keyframe_q0 = float(line_tokens[4])
+        keyframe_q1 = float(line_tokens[5])
+        keyframe_q2 = float(line_tokens[6])
+        keyframe_q3 = float(line_tokens[7])
+        keyframe_quaternions.append([keyframe_q0, keyframe_q1, keyframe_q2, keyframe_q3])
 
     keyframe_locations_dict = dict(zip(keyframe_timestamps, keyframe_locations))
     keyframe_quaternions_dict = dict(zip(keyframe_timestamps, keyframe_quaternions))
