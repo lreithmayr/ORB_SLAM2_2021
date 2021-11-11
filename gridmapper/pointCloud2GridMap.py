@@ -41,8 +41,8 @@ def get_line_bresenham(start, end):
     # Iterate over bounding box generating points between start and end
     y = y0
     points = []
-    for x in range(x0, x1 + 1):
-        coord = (y, x) if is_steep else (x, y)
+    for x_coord in range(x0, x1 + 1):
+        coord = (y, x_coord) if is_steep else (x_coord, y)
         points.append(coord)
         error -= abs(dy)
         if error < 0:
@@ -55,21 +55,28 @@ def get_line_bresenham(start, end):
     return points
 
 
-seq_name = 'StereoKitti'
-# seq_name = 'tum'
+reduced = 1
+
+seq_name = 'stKi'
 # inverse of cell size
-scale_factor = 3
+scale_factor = 1
 resize_factor = 1
 filter_ground_points = 0
 load_counters = 0
 
-# Read only first n lines of files (i.e. number of processed KFs)
-num_of_kfs = 200
+if reduced == 1:
+    point_cloud_fname = '{:s}_map_pts_and_keyframes_red.txt'.format(seq_name)
+    keyframe_trajectory_fname = '{:s}_CameraTrajectory_red.txt'.format(seq_name)
+    kf_data_path = "../scripts/{:s}".format(keyframe_trajectory_fname)
+    pc_data_path = "../scripts/{:s}".format(point_cloud_fname)
+    print "======== \n \n Using reduced dataset. \n \n"
+else:
+    point_cloud_fname = '{:s}_map_pts_and_keyframes_full.txt'.format(seq_name)
+    keyframe_trajectory_fname = '{:s}_CameraTrajectory_full.txt'.format(seq_name)
+    kf_data_path = "../scripts/{:s}".format(keyframe_trajectory_fname)
+    pc_data_path = "../scripts/{:s}".format(point_cloud_fname)
+    print "Using full dataset."
 
-# point_cloud_fname = '{:s}_map_pts_and_keyframes.txt'.format(seq_name)
-
-point_cloud_fname = 'StereoKitti_map_pts_and_keyframes.txt'
-keyframe_trajectory_fname = 'CameraTrajectory.txt'
 visit_counter_fname = '{:s}_filtered_{:d}_scale_{:d}_visit_counter.txt'.format(
     seq_name, filter_ground_points, scale_factor)
 occupied_counter_fname = '{:s}_filtered_{:d}_scale_{:d}_occupied_counter.txt'.format(
@@ -101,7 +108,7 @@ if not counters_loaded:
     # keyframe_quaternions = keyframe_trajectory_data[:, 5:9]
 
     # read keyframes
-    keyframe_trajectory_data = open("../scripts/CameraTrajectory.txt", 'r').readlines()
+    keyframe_trajectory_data = open(kf_data_path, 'r').readlines()
     keyframe_timestamps = []
     keyframe_locations = []
     keyframe_quaternions = []
@@ -131,7 +138,7 @@ if not counters_loaded:
     n_keyframes = keyframe_locations.shape[0]
 
     # read point cloud
-    point_cloud_data = open("../scripts/StereoKitti_map_pts_and_keyframes.txt", 'r').readlines()
+    point_cloud_data = open(pc_data_path, 'r').readlines()
     point_locations = []
     point_timestamps = []
     n_lines = len(point_cloud_data)
@@ -281,7 +288,7 @@ if not counters_loaded:
                 sys.exit(0)
         if (point_id + 1) % 100 == 0:
             progress = (float(point_id + 1) / float(num_of_points)) * 100
-            print 'Processing Point Cloud: %s %%' % np.around(progress, 2)
+            print 'Processing Point Cloud: %s %%' % np.around(progress, 0)
 
 print 'Done!'
 print 'Projecting Grid Map.'
@@ -291,7 +298,7 @@ occupied_thresh = 0.50
 
 grid_map = np.zeros(grid_res, dtype=np.float32)
 grid_map_thresh = np.zeros(grid_res, dtype=np.uint8)
-for x in xrange(grid_res[0]):
+for counter, x in enumerate(xrange(grid_res[0])):
     for z in xrange(grid_res[1]):
         if visit_counter[x, z] == 0 or occupied_counter[x, z] == 0:
             grid_map[x, z] = 0.5
@@ -303,9 +310,12 @@ for x in xrange(grid_res[0]):
             grid_map_thresh[x, z] = 128
         else:
             grid_map_thresh[x, z] = 0
+    progress = (counter / len(range(grid_res[0]))) * 100
+    print 'Processing Grid Map: %s %%' % np.around(progress, 0)
 
 if resize_factor != 1:
     grid_res_resized = (grid_res[0] * resize_factor, grid_res[1] * resize_factor)
+    print 'grid_res: ', grid_res
     print 'grid_res_resized: ', grid_res_resized
     grid_map_resized = cv2.resize(grid_map_thresh, grid_res_resized)
 else:
