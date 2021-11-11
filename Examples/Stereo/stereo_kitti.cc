@@ -33,8 +33,8 @@ void LoadImages(const string &strPathToSequence, vector<string> &vstrImageLeft,
                 vector<string> &vstrImageRight, vector<double> &vTimestamps);
 
 int main(int argc, char **argv) {
-    if (argc != 4) {
-        cerr << endl << "Usage: ./stereo_kitti path_to_vocabulary path_to_settings path_to_sequence" << endl;
+    if (argc != 5) {
+        cerr << endl << "Usage: ./stereo_kitti path_to_vocabulary path_to_settings path_to_sequence full/reduced" << endl;
         return 1;
     }
 
@@ -58,8 +58,13 @@ int main(int argc, char **argv) {
     cout << "Images in the sequence: " << nImages << endl << endl;
 
     // Main loop
-    // const int nImages_var = nImages;
-    const int nImages_var = 100;
+    int nImages_var;
+    if (string(argv[4]) == "reduced") {
+        nImages_var = 100;
+    } else {
+        nImages_var = nImages;
+    }
+
     cv::Mat imLeft, imRight;
     for (int ni = 0; ni < nImages_var; ni++) {
         // Read left and right images_ocv from file

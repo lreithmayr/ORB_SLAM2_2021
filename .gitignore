@@ -28,7 +28,7 @@ testing/cmake-build-debug
 .idea/
 /calib/venv/
 /Examples/Monocular/mono_video
-scripts/CameraTrajectory.txt
+/scripts/CameraTrajectory.txt
 /scripts/StereoKitti_map_pts_and_keyframes.txt
 /scripts/stereoKitti_map_pts_out.obj
 /gridmapper/grid_map_StereoKitti_filtered_0_scale_3_resize_5_0.50_0.55.pgm
@@ -37,8 +37,6 @@ scripts/CameraTrajectory.txt
 /gridmapper/grid_map_StereoKitti_filtered_0_scale_3_resize_50_0.50_0.55.pgm
 /gridmapper/grid_map_StereoKitti_filtered_0_scale_3_resize_1_0.50_0.55.pgm
 
-scripts/stKi_CameraTrajectory_red.txt
-scripts/stKi_map_pts_and_keyframes_red.txt
-scripts/stKi_map_pts_out_red.obj
-/gridmapper/grid_map_stKi_filtered_0_scale_1_resize_1_0.50_0.55.pgm
-/gridmapper/maps/
+/scripts/stKi_CameraTrajectory_red.txt
+/scripts/stKi_map_pts_and_keyframes_red.txt
+/scripts/stKi_map_pts_out_red.obj
