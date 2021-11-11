@@ -7,7 +7,7 @@ https://github.com/abhineet123/ORB_SLAM2/blob/master/pointCloudToGridMap2D.py
 """
 
 import numpy as np
-import cv2
+import cv2 as cv
 import sys
 from transforms3d import quaternions
 import h5py
@@ -67,7 +67,7 @@ reduced = 1
 
 seq_name = 'stKi'
 
-scale_factor = 1
+scale_factor = 5
 resize_factor = 1
 filter_ground_points = 0
 load_counters = 0
@@ -75,10 +75,12 @@ load_counters = 0
 if reduced == 1:
     point_cloud_fname = '{:s}_map_pts_and_keyframes_red.txt'.format(seq_name)
     keyframe_trajectory_fname = '{:s}_CameraTrajectory_red.txt'.format(seq_name)
+    out_fname = 'grid_map_red'
     print "======== \n \n Using reduced dataset. \n \n ======== "
 else:
     point_cloud_fname = '{:s}_map_pts_and_keyframes_full.txt'.format(seq_name)
     keyframe_trajectory_fname = '{:s}_CameraTrajectory_full.txt'.format(seq_name)
+    out_fname = 'grid_map_full'
     print "======== \n \n Using full dataset. \n \n ======== "
 
 kf_data_path = "./trajectories/{:s}".format(keyframe_trajectory_fname)
@@ -315,11 +317,4 @@ else:
 
 print "Grid Map finished."
 
-if reduced == 1:
-    out_fname = 'grid_map_red'
-else:
-    out_fname = 'grid_map_full'
-
-cv2.imwrite('./maps/{:s}.pgm'.format(out_fname), grid_map_resized)
-cv2.imshow(out_fname, grid_map_resized)
-cv2.waitKey(0)
+cv.imwrite('./maps/{:s}.pgm'.format(out_fname), grid_map_resized)
