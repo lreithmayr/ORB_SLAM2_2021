@@ -1,3 +1,9 @@
+"""
+Modified version of:
+
+https://github.com/abhineet123/ORB_SLAM2/blob/master/pointCloudToGridMap2D.py
+"""
+
 import numpy as np
 import cv2
 import sys
@@ -5,7 +11,7 @@ from transforms3d import quaternions
 import h5py
 
 
-def get_line_bresenham(start, end):
+def line_bresenham(start, end):
     """Bresenham's Line Algorithm
     Produces a list of tuples from start and end
     """
@@ -54,11 +60,10 @@ def get_line_bresenham(start, end):
         points.reverse()
     return points
 
-
 reduced = 1
 
 seq_name = 'stKi'
-# inverse of cell size
+
 scale_factor = 1
 resize_factor = 1
 filter_ground_points = 0
@@ -102,10 +107,6 @@ if load_counters:
         counters_loaded = False
 
 if not counters_loaded:
-    # keyframe_trajectory_data = np.loadtxt(keyframe_trajectory_fname, dtype=np.float32)
-    # keyframe_timestamps = keyframe_trajectory_data[:, 0]
-    # keyframe_locations = keyframe_trajectory_data[:, 1:4]
-    # keyframe_quaternions = keyframe_trajectory_data[:, 5:9]
 
     # read keyframes
     keyframe_trajectory_data = open(kf_data_path, 'r').readlines()
@@ -113,7 +114,6 @@ if not counters_loaded:
     keyframe_locations = []
     keyframe_quaternions = []
     for line in keyframe_trajectory_data:
-        # line = keyframe_trajectory_data[i]
         line_tokens = line.strip().split()
         timestamp = float(line_tokens[0])
         keyframe_timestamps.append(timestamp)
@@ -172,7 +172,8 @@ if not counters_loaded:
                     key_frame_id += 1
             if keyframe_quaternion is None:
                 raise StandardError('No valid keyframes found for point {:d}'.format(n_points))
-            # normalize quaternion
+
+            # Normalize quaternion
             keyframe_quaternion /= np.linalg.norm(keyframe_quaternion)
             keyframe_rotation = quaternions.quat2mat(keyframe_quaternion)
             keyframe_translation = np.matrix(keyframe_location).transpose()
@@ -182,7 +183,8 @@ if not counters_loaded:
             transform_mat[3, 3] = 1
             point_location = np.matrix([point_x, point_y, point_z, 1]).transpose()
             transformed_point_location = np.matrix(transform_mat) * point_location
-            # homogeneous to non homogeneous coordinates
+
+            # Homogeneous to non homogeneous coordinates
             transformed_point_height = transformed_point_location[1] / transformed_point_location[3]
             if transformed_point_height < 0:
                 is_ground_point[-1] = True
@@ -230,14 +232,10 @@ if not counters_loaded:
     grid_cell_size_x = (grid_max_x - grid_min_x) / float(grid_res[0])
     grid_cell_size_z = (grid_max_z - grid_min_z) / float(grid_res[1])
 
-    # print 'using cell size: {:f} x {:f}'.format(grid_cell_size_x, grid_cell_size_z)
-
     norm_factor_x = float(grid_res[0] - 1) / float(grid_max_x - grid_min_x)
     norm_factor_z = float(grid_res[1] - 1) / float(grid_max_z - grid_min_z)
     print 'norm_factor_x: ', norm_factor_x
     print 'norm_factor_z: ', norm_factor_z
-
-    # print 'len(is_ground_point):', len(is_ground_point)
 
     num_of_points = n_points
     for point_id in xrange(n_points):
@@ -252,18 +250,13 @@ if not counters_loaded:
             keyframe_z = int(keyframe_location[2])
             point_x = int(point_location[0])
             point_z = int(point_location[2])
-            ray_points = get_line_bresenham([keyframe_x, keyframe_z], [point_x, point_z])
+            ray_points = line_bresenham([keyframe_x, keyframe_z], [point_x, point_z])
             n_ray_pts = len(ray_points)
 
             for ray_point_id in xrange(n_ray_pts - 1):
                 ray_point_x_norm = int(np.floor((ray_points[ray_point_id][0] - grid_min_x) * norm_factor_x))
                 ray_point_z_norm = int(np.floor((ray_points[ray_point_id][1] - grid_min_z) * norm_factor_z))
-                # start_x = ray_point_x_norm - resize_factor / 2
-                # start_z = ray_point_z_norm - resize_factor / 2
-                # end_x = ray_point_x_norm + resize_factor / 2
-                # end_z = ray_point_z_norm + resize_factor / 2
                 try:
-                    # visit_counter[start_x:end_x, start_z:end_z] += 1
                     visit_counter[ray_point_x_norm, ray_point_z_norm] += 1
                 except IndexError:
                     print 'Out of bound point: ({:d}, {:d}) -> ({:f}, {:f})'.format(
@@ -272,10 +265,7 @@ if not counters_loaded:
                     sys.exit(0)
             ray_point_x_norm = int(np.floor((ray_points[-1][0] - grid_min_x) * norm_factor_x))
             ray_point_z_norm = int(np.floor((ray_points[-1][1] - grid_min_z) * norm_factor_z))
-            # start_x = ray_point_x_norm - resize_factor / 2
-            # start_z = ray_point_z_norm - resize_factor / 2
-            # end_x = ray_point_x_norm + resize_factor / 2
-            # end_z = ray_point_z_norm + resize_factor / 2
+
             try:
                 if is_ground_point[point_id]:
                     visit_counter[ray_point_x_norm, ray_point_z_norm] += 1
@@ -310,7 +300,7 @@ for counter, x in enumerate(xrange(grid_res[0])):
             grid_map_thresh[x, z] = 128
         else:
             grid_map_thresh[x, z] = 0
-    progress = (counter / len(range(grid_res[0]))) * 100
+    progress = (float(counter) / float(len(range(grid_res[0])))) * 100
     print 'Processing Grid Map: %s %%' % np.around(progress, 0)
 
 if resize_factor != 1:
@@ -325,6 +315,6 @@ print "Grid Map finished."
 
 out_fname = 'grid_map_{:s}_filtered_{:d}_scale_{:d}_resize_{:d}_{:.2f}_{:.2f}'.format(
     seq_name, filter_ground_points, scale_factor, resize_factor, occupied_thresh, free_thresh)
-cv2.imwrite('{:s}.pgm'.format(out_fname), grid_map_resized)
+cv2.imwrite('./maps/{:s}.pgm'.format(out_fname), grid_map_resized)
 cv2.imshow(out_fname, grid_map_resized)
 cv2.waitKey(0)

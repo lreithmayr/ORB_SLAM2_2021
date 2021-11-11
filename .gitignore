@@ -40,3 +40,5 @@ scripts/CameraTrajectory.txt
 scripts/stKi_CameraTrajectory_red.txt
 scripts/stKi_map_pts_and_keyframes_red.txt
 scripts/stKi_map_pts_out_red.obj
+/gridmapper/grid_map_stKi_filtered_0_scale_1_resize_1_0.50_0.55.pgm
+/gridmapper/maps/
