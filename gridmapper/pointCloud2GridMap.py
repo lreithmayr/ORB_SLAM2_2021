@@ -69,13 +69,13 @@ if reduced == 1:
     keyframe_trajectory_fname = '{:s}_CameraTrajectory_red.txt'.format(seq_name)
     kf_data_path = "../scripts/{:s}".format(keyframe_trajectory_fname)
     pc_data_path = "../scripts/{:s}".format(point_cloud_fname)
-    print "======== \n \n Using reduced dataset. \n \n"
+    print "======== \n \n Using reduced dataset. \n \n ======== "
 else:
     point_cloud_fname = '{:s}_map_pts_and_keyframes_full.txt'.format(seq_name)
     keyframe_trajectory_fname = '{:s}_CameraTrajectory_full.txt'.format(seq_name)
     kf_data_path = "../scripts/{:s}".format(keyframe_trajectory_fname)
     pc_data_path = "../scripts/{:s}".format(point_cloud_fname)
-    print "Using full dataset."
+    print "======== \n \n Using full dataset. \n \n ======== "
 
 visit_counter_fname = '{:s}_filtered_{:d}_scale_{:d}_visit_counter.txt'.format(
     seq_name, filter_ground_points, scale_factor)
