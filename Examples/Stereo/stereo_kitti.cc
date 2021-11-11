@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
     // Main loop
     int nImages_var;
     if (string(argv[4]) == "reduced") {
-        nImages_var = 100;
+        nImages_var = 500;
     } else {
         nImages_var = nImages;
     }

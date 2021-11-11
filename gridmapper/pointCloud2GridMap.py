@@ -62,6 +62,7 @@ def line_bresenham(start, end):
         points.reverse()
     return points
 
+
 reduced = 1
 
 seq_name = 'stKi'
@@ -74,7 +75,6 @@ load_counters = 0
 if reduced == 1:
     point_cloud_fname = '{:s}_map_pts_and_keyframes_red.txt'.format(seq_name)
     keyframe_trajectory_fname = '{:s}_CameraTrajectory_red.txt'.format(seq_name)
-
     print "======== \n \n Using reduced dataset. \n \n ======== "
 else:
     point_cloud_fname = '{:s}_map_pts_and_keyframes_full.txt'.format(seq_name)
@@ -315,8 +315,11 @@ else:
 
 print "Grid Map finished."
 
-out_fname = 'grid_map_{:s}_filtered_{:d}_scale_{:d}_resize_{:d}_{:.2f}_{:.2f}'.format(
-    seq_name, filter_ground_points, scale_factor, resize_factor, occupied_thresh, free_thresh)
+if reduced == 1:
+    out_fname = 'grid_map_red'
+else:
+    out_fname = 'grid_map_full'
+
 cv2.imwrite('./maps/{:s}.pgm'.format(out_fname), grid_map_resized)
 cv2.imshow(out_fname, grid_map_resized)
 cv2.waitKey(0)
