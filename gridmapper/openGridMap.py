@@ -1,4 +1,6 @@
 import cv2 as cv
+import Tkinter as tk
+import PIL.Image, PIL.ImageTk
 
 # Reduced: 500 images of KITTI 00
 # Full: Full Sequence of KITTI 00
@@ -11,9 +13,18 @@ else:
 
 gmap = cv.imread("./maps/{:s}".format(map_name), cv.IMREAD_UNCHANGED)
 
-window = cv.namedWindow("GridMap", cv.WINDOW_NORMAL)
-cv.resizeWindow(window, 800, 600)
+window = tk.Tk()
+window.title("Grid Map")
 
-cv.imshow(window, gmap)
-if cv.waitKey(0) == 27:
-    cv.destroyAllWindows()
+height, width = gmap.shape
+print height, width
+canvas = tk.Canvas(window, width=width, height=height)
+canvas.pack()
+
+photo = PIL.ImageTk.PhotoImage(image=PIL.Image.fromarray(gmap))
+
+# Add a PhotoImage to the Canvas
+canvas.create_image(0, 0, image=photo, anchor=tk.NW)
+
+# Run the window loop
+window.mainloop()

@@ -10,7 +10,7 @@ import numpy as np
 import cv2 as cv
 import sys
 from transforms3d import quaternions
-import h5py
+from tqdm import tqdm
 
 
 def line_bresenham(start, end):
@@ -67,7 +67,7 @@ reduced = 1
 
 seq_name = 'stKi'
 
-scale_factor = 5
+scale_factor = 1
 resize_factor = 1
 filter_ground_points = 0
 load_counters = 0
@@ -241,8 +241,9 @@ if not counters_loaded:
     print 'norm_factor_x: ', norm_factor_x
     print 'norm_factor_z: ', norm_factor_z
 
+    print "\n Processing Point Cloud:"
     num_of_points = n_points
-    for point_id in xrange(n_points):
+    for point_id in tqdm(xrange(n_points)):
         point_location = point_locations[point_id]
         for timestamp in point_timestamps[point_id]:
             try:
@@ -280,19 +281,16 @@ if not counters_loaded:
                 print 'Out of bound point: ({:d}, {:d}) -> ({:f}, {:f})'.format(
                     ray_points[-1][0], ray_points[-1][1], ray_point_x_norm, ray_point_z_norm)
                 sys.exit(0)
-        if (point_id + 1) % 100 == 0:
-            progress = (float(point_id + 1) / float(num_of_points)) * 100
-            print 'Processing Point Cloud: %s %%' % np.around(progress, 0)
 
-print 'Done!'
-print 'Projecting Grid Map.'
+print 'Point Cloud processed!'
+print '\n Projecting Grid Map:'
 
 free_thresh = 0.55
 occupied_thresh = 0.50
 
 grid_map = np.zeros(grid_res, dtype=np.float32)
 grid_map_thresh = np.zeros(grid_res, dtype=np.uint8)
-for counter, x in enumerate(xrange(grid_res[0])):
+for x in tqdm(xrange(grid_res[0])):
     for z in xrange(grid_res[1]):
         if visit_counter[x, z] == 0 or occupied_counter[x, z] == 0:
             grid_map[x, z] = 0.5
@@ -304,8 +302,6 @@ for counter, x in enumerate(xrange(grid_res[0])):
             grid_map_thresh[x, z] = 128
         else:
             grid_map_thresh[x, z] = 0
-    progress = (float(counter) / float(len(range(grid_res[0])))) * 100
-    print 'Processing Grid Map: %s %%' % np.around(progress, 0)
 
 if resize_factor != 1:
     grid_res_resized = (grid_res[0] * resize_factor, grid_res[1] * resize_factor)
