@@ -1,6 +1,9 @@
 import cv2 as cv
 import Tkinter as tk
-import PIL.Image, PIL.ImageTk
+import Tix
+from PIL import Image, ImageTk
+from tkscrolledframe import ScrolledFrame
+
 
 # Reduced: 500 images of KITTI 00
 # Full: Full Sequence of KITTI 00
@@ -14,17 +17,28 @@ else:
 gmap = cv.imread("./maps/{:s}".format(map_name), cv.IMREAD_UNCHANGED)
 
 window = tk.Tk()
-window.title("Grid Map")
 
 height, width = gmap.shape
 print height, width
-canvas = tk.Canvas(window, width=width, height=height)
+
+sf = ScrolledFrame(window, width=800, height=600)
+sf.pack(side="top", expand=1, fill="both")
+
+# Bind the arrow keys and scroll wheel
+sf.bind_arrow_keys(window)
+sf.bind_scroll_wheel(window)
+
+# Create a frame within the ScrolledFrame
+inner_frame = sf.display_widget(tk.Frame)
+
+canvas = tk.Canvas(inner_frame, width=width, height=height)
 canvas.pack()
 
-photo = PIL.ImageTk.PhotoImage(image=PIL.Image.fromarray(gmap))
+photo = ImageTk.PhotoImage(image=Image.fromarray(gmap))
 
 # Add a PhotoImage to the Canvas
 canvas.create_image(0, 0, image=photo, anchor=tk.NW)
 
 # Run the window loop
 window.mainloop()
+
