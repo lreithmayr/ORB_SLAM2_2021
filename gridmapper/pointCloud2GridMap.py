@@ -63,10 +63,10 @@ def line_bresenham(start, end):
     return points
 
 
-reduced = 1
+reduced = 0
 
 seq_name = 'stKi'
-
+# seq_name = 'monoKi'
 scale_factor = 1
 resize_factor = 1
 filter_ground_points = 0
@@ -75,12 +75,12 @@ load_counters = 0
 if reduced == 1:
     point_cloud_fname = '{:s}_map_pts_and_keyframes_red.txt'.format(seq_name)
     keyframe_trajectory_fname = '{:s}_CameraTrajectory_red.txt'.format(seq_name)
-    out_fname = 'grid_map_red'
+    out_fname = '{:s}_grid_map_red'.format(seq_name)
     print "======== \n \n Using reduced dataset. \n \n ======== "
 else:
     point_cloud_fname = '{:s}_map_pts_and_keyframes_full.txt'.format(seq_name)
     keyframe_trajectory_fname = '{:s}_CameraTrajectory_full.txt'.format(seq_name)
-    out_fname = 'grid_map_full'
+    out_fname = '{:s}_grid_map_full'.format(seq_name)
     print "======== \n \n Using full dataset. \n \n ======== "
 
 kf_data_path = "./trajectories/{:s}".format(keyframe_trajectory_fname)
@@ -307,7 +307,7 @@ if resize_factor != 1:
     grid_res_resized = (grid_res[0] * resize_factor, grid_res[1] * resize_factor)
     print 'grid_res: ', grid_res
     print 'grid_res_resized: ', grid_res_resized
-    grid_map_resized = cv2.resize(grid_map_thresh, grid_res_resized)
+    grid_map_resized = cv.resize(grid_map_thresh, grid_res_resized)
 else:
     grid_map_resized = grid_map_thresh
 

@@ -35,9 +35,9 @@ void LoadImages(const string &strSequence, vector<string> &vstrImageFilenames,
 
 int main(int argc, char **argv)
 {
-    if(argc != 4)
+    if(argc != 5)
     {
-        cerr << endl << "Usage: ./mono_kitti path_to_vocabulary path_to_settings path_to_sequence" << endl;
+        cerr << endl << "Usage: ./mono_kitti path_to_vocabulary path_to_settings path_to_sequence reduced/full" << endl;
         return 1;
     }
 
@@ -47,13 +47,19 @@ int main(int argc, char **argv)
     LoadImages(string(argv[3]), vstrImageFilenames, vTimestamps);
 
     int nImages = vstrImageFilenames.size();
+    int nImages_var;
+    if (string(argv[4]) == "reduced") {
+        nImages_var = 500;
+    } else {
+        nImages_var = nImages;
+    }
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
     ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,true);
 
     // Vector for tracking time statistics
     vector<float> vTimesTrack;
-    vTimesTrack.resize(nImages);
+    vTimesTrack.resize(nImages_var);
 
     cout << endl << "-------" << endl;
     cout << "Start processing sequence ..." << endl;
@@ -61,7 +67,7 @@ int main(int argc, char **argv)
 
     // Main loop
     cv::Mat im;
-    for(int ni=0; ni<nImages; ni++)
+    for(int ni=0; ni<nImages_var; ni++)
     {
         // Read image from file
         im = cv::imread(vstrImageFilenames[ni],CV_LOAD_IMAGE_UNCHANGED);
@@ -86,7 +92,7 @@ int main(int argc, char **argv)
 
         // Wait to load the next frame
         double T=0;
-        if(ni<nImages-1)
+        if(ni<nImages_var-1)
             T = vTimestamps[ni+1]-tframe;
         else if(ni>0)
             T = tframe-vTimestamps[ni-1];
@@ -101,17 +107,27 @@ int main(int argc, char **argv)
     // Tracking time statistics
     sort(vTimesTrack.begin(),vTimesTrack.end());
     float totaltime = 0;
-    for(int ni=0; ni<nImages; ni++)
+    for(int ni=0; ni<nImages_var; ni++)
     {
         totaltime+=vTimesTrack[ni];
     }
     cout << "-------" << endl << endl;
-    cout << "median tracking time: " << vTimesTrack[nImages/2] << endl;
-    cout << "mean tracking time: " << totaltime/nImages << endl;
+    cout << "median tracking time: " << vTimesTrack[nImages_var/2] << endl;
+    cout << "mean tracking time: " << totaltime/nImages_var << endl;
 
-    // Save camera trajectory
-    SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");
+    if (nImages_var == nImages) {
+        SLAM.getMap()->Save("../gridmapper/trajectories/monoKi_map_pts_out_full.obj");
+        SLAM.getMap()->SaveWithTimestamps("../gridmapper/trajectories/monoKi_map_pts_and_keyframes_full.txt");
 
+        // Save camera trajectory
+        SLAM.SaveKeyFrameTrajectoryTUM("../gridmapper/trajectories/monoKi_CameraTrajectory_full.txt");
+    } else {
+        SLAM.getMap()->Save("../gridmapper/trajectories/monoKi_map_pts_out_red.obj");
+        SLAM.getMap()->SaveWithTimestamps("../gridmapper/trajectories/monoKi_map_pts_and_keyframes_red.txt");
+
+        // Save camera trajectory
+        SLAM.SaveKeyFrameTrajectoryTUM("../gridmapper/trajectories/monoKi_CameraTrajectory_red.txt");
+    }
     return 0;
 }
 
