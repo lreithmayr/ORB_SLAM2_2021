@@ -46,24 +46,26 @@ int main(int argc, char **argv) {
 
     const int nImages = vstrImageLeft.size();
 
-    // Create SLAM system. It initializes all system threads and gets ready to process frames.
-    ORB_SLAM2::System SLAM(argv[1], argv[2], ORB_SLAM2::System::STEREO, true);
-
-    // Vector for tracking time statistics
-    vector<float> vTimesTrack;
-    vTimesTrack.resize(nImages);
-
-    cout << endl << "-------" << endl;
-    cout << "Start processing sequence ..." << endl;
-    cout << "Images in the sequence: " << nImages << endl << endl;
-
-    // Main loop
     int nImages_var;
     if (string(argv[4]) == "reduced") {
         nImages_var = 500;
     } else {
         nImages_var = nImages;
     }
+
+    // Create SLAM system. It initializes all system threads and gets ready to process frames.
+    ORB_SLAM2::System SLAM(argv[1], argv[2], ORB_SLAM2::System::STEREO, true);
+
+    // Vector for tracking time statistics
+    vector<float> vTimesTrack;
+    vTimesTrack.resize(nImages_var);
+
+    cout << endl << "-------" << endl;
+    cout << "Start processing sequence ..." << endl;
+    cout << "Images in the sequence: " << nImages_var << endl << endl;
+
+    // Main loop
+
 
     cv::Mat imLeft, imRight;
     for (int ni = 0; ni < nImages_var; ni++) {
@@ -91,7 +93,7 @@ int main(int argc, char **argv) {
 
         // Wait to load the next frame
         double T = 0;
-        if (ni < nImages - 1)
+        if (ni < nImages_var - 1)
             T = vTimestamps[ni + 1] - tframe;
         else if (ni > 0)
             T = tframe - vTimestamps[ni - 1];
@@ -109,12 +111,12 @@ int main(int argc, char **argv) {
     // Tracking time statistics
     sort(vTimesTrack.begin(), vTimesTrack.end());
     float totaltime = 0;
-    for (int ni = 0; ni < nImages; ni++) {
+    for (int ni = 0; ni < nImages_var; ni++) {
         totaltime += vTimesTrack[ni];
     }
     cout << "-------" << endl << endl;
-    cout << "median tracking time: " << vTimesTrack[nImages / 2] << endl;
-    cout << "mean tracking time: " << totaltime / nImages << endl;
+    cout << "median tracking time: " << vTimesTrack[nImages_var / 2] << endl;
+    cout << "mean tracking time: " << totaltime / nImages_var << endl;
 
     // Save map points
     if (nImages_var == nImages) {
