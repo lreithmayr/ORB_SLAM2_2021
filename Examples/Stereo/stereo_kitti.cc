@@ -122,13 +122,13 @@ int main(int argc, char **argv) {
         SLAM.getMap()->SaveWithTimestamps("../gridmapper/trajectories/stKi_map_pts_and_keyframes_full.txt");
 
         // Save camera trajectory
-        SLAM.SaveTrajectoryKITTI("../gridmapper/trajectories/stKi_CameraTrajectory_full.txt");
+        SLAM.SaveKeyFrameTrajectoryKITTI("../gridmapper/trajectories/stKi_KeyFrameTrajectory_full.txt");
     } else {
         SLAM.getMap()->Save("../gridmapper/trajectories/stKi_map_pts_out_red.obj");
         SLAM.getMap()->SaveWithTimestamps("../gridmapper/trajectories/stKi_map_pts_and_keyframes_red.txt");
 
         // Save camera trajectory
-        SLAM.SaveTrajectoryKITTI("../gridmapper/trajectories/stKi_CameraTrajectory_red.txt");
+        SLAM.SaveKeyFrameTrajectoryKITTI("../gridmapper/trajectories/stKi_KeyFrameTrajectory_red.txt");
     }
     return 0;
 }
