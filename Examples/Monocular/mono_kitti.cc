@@ -120,13 +120,13 @@ int main(int argc, char **argv)
         SLAM.getMap()->SaveWithTimestamps("../gridmapper/trajectories/monoKi_map_pts_and_keyframes_full.txt");
 
         // Save camera trajectory
-        SLAM.SaveKeyFrameTrajectoryTUM("../gridmapper/trajectories/monoKi_CameraTrajectory_full.txt");
+        SLAM.SaveKeyFrameTrajectoryTUM("../gridmapper/trajectories/monoKi_KeyFrameTrajectory_full.txt");
     } else {
         SLAM.getMap()->Save("../gridmapper/trajectories/monoKi_map_pts_out_red.obj");
         SLAM.getMap()->SaveWithTimestamps("../gridmapper/trajectories/monoKi_map_pts_and_keyframes_red.txt");
 
         // Save camera trajectory
-        SLAM.SaveKeyFrameTrajectoryTUM("../gridmapper/trajectories/monoKi_CameraTrajectory_red.txt");
+        SLAM.SaveKeyFrameTrajectoryTUM("../gridmapper/trajectories/monoKi_KeyFrameTrajectory_red.txt");
     }
     return 0;
 }

@@ -63,11 +63,10 @@ def line_bresenham(start, end):
     return points
 
 
+stereo = 0
 reduced = 1
 
-cam_type = "s"
-
-if cam_type == "s":
+if stereo == 1:
     seq_name = 'stKi'
 else:
     seq_name = 'monoKi'

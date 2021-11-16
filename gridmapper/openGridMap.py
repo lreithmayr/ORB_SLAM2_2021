@@ -4,14 +4,14 @@ import Tix
 from PIL import Image, ImageTk
 from tkscrolledframe import ScrolledFrame
 
-cam_type = "s"
+stereo = 0
+reduced = 1
 
-if cam_type == "s":
+if stereo == 1:
     seq_name = 'stKi'
 else:
     seq_name = 'monoKi'
 
-reduced = 1
 if reduced == 1:
     map_name = '{:s}_grid_map_red.pgm'.format(seq_name)
 else:
