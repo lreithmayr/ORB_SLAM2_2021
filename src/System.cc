@@ -378,7 +378,6 @@ void System::SaveTrajectoryTUM(const string &filename)
     cout << endl << "trajectory saved!" << endl;
 }
 
-
 void System::SaveKeyFrameTrajectoryTUM(const string &filename)
 {
     cout << endl << "Saving keyframe trajectory to " << filename << " ..." << endl;
@@ -466,22 +465,53 @@ void System::SaveTrajectoryKITTI(const string &filename)
 
         // Rwc: Rotation in SO(3) in camera reference frame
         // twc: Translation in R³ in camera reference frame
-        /*
+
         f << setprecision(9) << Rwc.at<float>(0,0) << " " << Rwc.at<float>(0,1)  << " " << Rwc.at<float>(0,2) << " "  << twc.at<float>(0) << " " <<
              Rwc.at<float>(1,0) << " " << Rwc.at<float>(1,1)  << " " << Rwc.at<float>(1,2) << " "  << twc.at<float>(1) << " " <<
              Rwc.at<float>(2,0) << " " << Rwc.at<float>(2,1)  << " " << Rwc.at<float>(2,2) << " "  << twc.at<float>(2) << endl;
-        */
+
 
         // Copied code from monocular keyframe trajectory (SaveTrajectoryTUM).
-        // Rwc is first transformed to quaternions (why shouldn't that work for the stereo case?).
+        // Rwc is first transformed to quaternions (why shouldn't that work for the stereo case?...Update: It somehow doesn't...c'mon man!).
         // Output in each line is then: Timestamp, Translation Vector, Quaternions
-
+        /*
         vector<float> q = Converter::toQuaternion(Rwc);
 
-        f << setprecision(6) << *lT << " " <<  setprecision(9) << twc.at<float>(0) << " " << twc.at<float>(1) << " " << twc.at<float>(2) << " " << q[0] << " " << q[1] << " " << q[2] << " " << q[3] << endl;
+        f << setprecision(6) << *lT << " " <<  setprecision(7) << twc.at<float>(0) << " " << twc.at<float>(1) << " " << twc.at<float>(2)
+        << " " << q[0] << " " << q[1] << " " << q[2] << " " << q[3] << endl;
+        */
+
     }
     f.close();
     cout << endl << "trajectory saved!" << endl;
+}
+
+void System::SaveKeyFrameTrajectoryKITTI(const string &filename)
+{
+    cout << endl << "Saving KF trajectory to " << filename << "..." << endl;
+
+    vector<KeyFrame*> KFs = mpMap->GetAllKeyFrames();
+    sort(KFs.begin(),KFs.end(), KeyFrame::lId);
+
+    ofstream f;
+    f.open(filename.c_str());
+    f << fixed;
+
+    for(auto KF : KFs)
+    {
+        if (KF->isBad())
+            continue;
+
+        cv::Mat R = KF->GetRotation().t();
+        vector<float> q = Converter::toQuaternion(R);
+        cv::Mat t = KF->GetCameraCenter();
+
+        f << setprecision(6) << KF->mTimeStamp << setprecision(7) << " " << t.at<float>(0) << " " << t.at<float>(1) << " " << t.at<float>(2)
+         << " " << q[0] << " " << q[1] << " " << q[2] << " " << q[3] << endl;
+    }
+
+    f.close();
+    cout << endl << "Trajectory saved!" << endl;
 }
 
 int System::GetTrackingState()

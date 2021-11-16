@@ -70,7 +70,7 @@ void KeyFrame::ComputeBoW()
 void KeyFrame::SetPose(const cv::Mat &Tcw_)
 {
     unique_lock<mutex> lock(mMutexPose);
-    Tcw_.copyTo(Tcw);
+    Tcw_.copyTo(Tcw) ;
     cv::Mat Rcw = Tcw.rowRange(0,3).colRange(0,3);
     cv::Mat tcw = Tcw.rowRange(0,3).col(3);
     cv::Mat Rwc = Rcw.t();
