@@ -65,8 +65,6 @@ int main(int argc, char **argv) {
     cout << "Images in the sequence: " << nImages_var << endl << endl;
 
     // Main loop
-
-
     cv::Mat imLeft, imRight;
     for (int ni = 0; ni < nImages_var; ni++) {
         // Read left and right images_ocv from file

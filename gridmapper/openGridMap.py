@@ -19,6 +19,8 @@ else:
 
 gmap = cv.imread("./maps/{:s}".format(map_name), cv.IMREAD_UNCHANGED)
 
+# gmap = cv.imread("/home/lorenz/Projects/BA/01_Algorithms/ORB_SLAM2_MOD/gridmapper/maps/monoKitti_gridMap_CPP_red.pgm")
+
 while True:
     cv.imshow("test", gmap)
     if cv.waitKey(0) == 27:

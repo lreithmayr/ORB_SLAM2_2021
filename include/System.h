@@ -124,6 +124,8 @@ public:
 
     void SaveKeyFrameTrajectoryKITTI(const string &filename);
 
+    void SaveGridMapTUM(const string &filename);
+
     // TODO: Save/Load functions
     // SaveMap(const string &filename);
     // LoadMap(const string &filename);
