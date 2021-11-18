@@ -25,6 +25,7 @@
 #include"MapPoint.h"
 #include"KeyFrame.h"
 #include<pangolin/pangolin.h>
+#include <opencv2/imgcodecs/legacy/constants_c.h>
 
 #include<mutex>
 

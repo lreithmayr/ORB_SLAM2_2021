@@ -24,13 +24,14 @@
 #include <vector>
 #include <list>
 #include <set>
+#include <opencv2/imgcodecs/legacy/constants_c.h>
 
 #include "KeyFrame.h"
 #include "Frame.h"
 #include "ORBVocabulary.h"
 
 #include<mutex>
-
+#include "BoostArchiver.h"
 
 namespace ORB_SLAM2
 {
@@ -43,7 +44,7 @@ class KeyFrameDatabase
 {
 public:
 
-    KeyFrameDatabase(const ORBVocabulary &voc);
+    KeyFrameDatabase(ORBVocabulary *voc);
 
    void add(KeyFrame* pKF);
 
@@ -57,10 +58,20 @@ public:
    // Relocalization
    std::vector<KeyFrame*> DetectRelocalizationCandidates(Frame* F);
 
+public:
+   // for serialization
+   KeyFrameDatabase() {}
+   void SetORBvocabulary(ORBVocabulary *porbv) {mpVoc=porbv;}
+private:
+   // serialize is recommended to be private
+   friend class boost::serialization::access;
+   template<class Archive>
+   void serialize(Archive &ar, const unsigned int version);
+
 protected:
 
   // Associated vocabulary
-  const ORBVocabulary* mpVoc;
+  ORBVocabulary* mpVoc;
 
   // Inverted file
   std::vector<list<KeyFrame*> > mvInvertedFile;

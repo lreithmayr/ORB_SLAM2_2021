@@ -1,5 +1,7 @@
 #!/bin/bash
 
+rm -rf ./build/*
+
 echo "Configuring and building Thirdparty/DBoW2 ..."
 
 cd Thirdparty/DBoW2
@@ -31,3 +33,10 @@ mkdir build
 cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release
 make -j8 2>> OS2_output_file.txt
+
+cd ..
+
+cd Vocabulary
+echo "Converting vocabulary to binary version"
+./bin_vocabulary
+cd ..

@@ -22,6 +22,7 @@
 #define FRAME_H
 
 #include<vector>
+#include <opencv2/imgcodecs/legacy/constants_c.h>
 
 #include "MapPoint.h"
 #include "Thirdparty/DBoW2/DBoW2/BowVector.h"
@@ -30,8 +31,8 @@
 #include "KeyFrame.h"
 #include "ORBextractor.h"
 
+
 #include <opencv2/opencv.hpp>
-#include <opencv2/imgcodecs/legacy/constants_c.h>
 
 namespace ORB_SLAM2
 {
@@ -133,8 +134,8 @@ public:
     int N;
 
     // Vector of keypoints (original for visualization) and undistorted (actually used by the system).
-    // In the stereo case, mvKeysUn is redundant as images_ocv must be rectified.
-    // In the RGB-D case, RGB images_ocv can be distorted.
+    // In the stereo case, mvKeysUn is redundant as images must be rectified.
+    // In the RGB-D case, RGB images can be distorted.
     std::vector<cv::KeyPoint> mvKeys, mvKeysRight;
     std::vector<cv::KeyPoint> mvKeysUn;
 

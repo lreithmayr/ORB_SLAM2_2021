@@ -18,8 +18,10 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
 
+
 #include<iostream>
 #include<algorithm>
+#include<fstream>
 #include<iomanip>
 #include<chrono>
 
@@ -32,13 +34,15 @@ using namespace std;
 void LoadImages(const string &strPathToSequence, vector<string> &vstrImageLeft,
                 vector<string> &vstrImageRight, vector<double> &vTimestamps);
 
-int main(int argc, char **argv) {
-    if (argc != 5) {
-        cerr << endl << "Usage: ./stereo_kitti path_to_vocabulary path_to_settings path_to_sequence full/reduced" << endl;
+int main(int argc, char **argv)
+{
+    if(argc != 5)
+    {
+        cerr << endl << "Usage: ./stereo_kitti path_to_vocabulary path_to_settings path_to_sequence" << endl;
         return 1;
     }
 
-    // Retrieve paths to images_ocv
+    // Retrieve paths to images
     vector<string> vstrImageLeft;
     vector<string> vstrImageRight;
     vector<double> vTimestamps;
@@ -54,25 +58,27 @@ int main(int argc, char **argv) {
     }
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
-    ORB_SLAM2::System SLAM(argv[1], argv[2], ORB_SLAM2::System::STEREO, true);
+    ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::STEREO,true, true);
 
     // Vector for tracking time statistics
     vector<float> vTimesTrack;
-    vTimesTrack.resize(nImages_var);
+    vTimesTrack.resize(nImages);
 
     cout << endl << "-------" << endl;
     cout << "Start processing sequence ..." << endl;
-    cout << "Images in the sequence: " << nImages_var << endl << endl;
+    cout << "Images in the sequence: " << nImages << endl << endl;   
 
     // Main loop
     cv::Mat imLeft, imRight;
-    for (int ni = 0; ni < nImages_var; ni++) {
-        // Read left and right images_ocv from file
-        imLeft = cv::imread(vstrImageLeft[ni], CV_LOAD_IMAGE_UNCHANGED);
-        imRight = cv::imread(vstrImageRight[ni], CV_LOAD_IMAGE_UNCHANGED);
+    for(int ni=0; ni<nImages_var; ni++)
+    {
+        // Read left and right images from file
+        imLeft = cv::imread(vstrImageLeft[ni],CV_LOAD_IMAGE_UNCHANGED);
+        imRight = cv::imread(vstrImageRight[ni],CV_LOAD_IMAGE_UNCHANGED);
         double tframe = vTimestamps[ni];
 
-        if (imLeft.empty()) {
+        if(imLeft.empty())
+        {
             cerr << endl << "Failed to load image at: "
                  << string(vstrImageLeft[ni]) << endl;
             return 1;
@@ -81,57 +87,42 @@ int main(int argc, char **argv) {
         std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 
         // Pass the images to the SLAM system
-        SLAM.TrackStereo(imLeft, imRight, tframe);
+        SLAM.TrackStereo(imLeft,imRight,tframe);
 
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
 
-        double ttrack = std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
+        double ttrack= std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
 
-        vTimesTrack[ni] = ttrack;
+        vTimesTrack[ni]=ttrack;
 
         // Wait to load the next frame
-        double T = 0;
-        if (ni < nImages_var - 1)
-            T = vTimestamps[ni + 1] - tframe;
-        else if (ni > 0)
-            T = tframe - vTimestamps[ni - 1];
+        double T=0;
+        if(ni<nImages-1)
+            T = vTimestamps[ni+1]-tframe;
+        else if(ni>0)
+            T = tframe-vTimestamps[ni-1];
 
-        if (ttrack < T)
-            usleep((T - ttrack) * 1e6);
-
-        if (cv::waitKey(1) == 27)
-            break;
+        if(ttrack<T)
+            std::this_thread::sleep_for(std::chrono::microseconds(static_cast<size_t>((T-ttrack)*1e6)));
     }
 
     // Stop all threads
     SLAM.Shutdown();
 
     // Tracking time statistics
-    sort(vTimesTrack.begin(), vTimesTrack.end());
+    sort(vTimesTrack.begin(),vTimesTrack.end());
     float totaltime = 0;
-    for (int ni = 0; ni < nImages_var; ni++) {
-        totaltime += vTimesTrack[ni];
+    for(int ni=0; ni<nImages; ni++)
+    {
+        totaltime+=vTimesTrack[ni];
     }
     cout << "-------" << endl << endl;
-    cout << "median tracking time: " << vTimesTrack[nImages_var / 2] << endl;
-    cout << "mean tracking time: " << totaltime / nImages_var << endl;
+    cout << "median tracking time: " << vTimesTrack[nImages/2] << endl;
+    cout << "mean tracking time: " << totaltime/nImages << endl;
 
-    // Save map points
-    if (nImages_var == nImages) {
-        SLAM.getMap()->Save("../gridmapper/trajectories/stKi_map_pts_out_full.obj");
-        SLAM.getMap()->SaveWithTimestamps("../gridmapper/trajectories/stKi_map_pts_and_keyframes_full.txt");
+    // Save camera trajectory
+    SLAM.SaveTrajectoryKITTI("CameraTrajectory.txt");
 
-        // Save camera trajectory
-        SLAM.SaveTrajectoryKITTI("../gridmapper/trajectories/stKi_KeyFrameTrajectory_full.txt");
-    } else {
-        SLAM.getMap()->Save("../gridmapper/trajectories/stKi_map_pts_out_red.obj");
-        SLAM.getMap()->SaveWithTimestamps("../gridmapper/trajectories/stKi_map_pts_and_keyframes_red.txt");
-
-        // Save camera trajectory
-        // SLAM.SaveKeyFrameTrajectoryKITTI("../gridmapper/trajectories/stKi_KeyFrameTrajectory_red.txt");
-
-        SLAM.SaveTrajectoryKITTI("../gridmapper/trajectories/testing/stereo_traj_noQuaternions.txt");
-    }
     return 0;
 }
 

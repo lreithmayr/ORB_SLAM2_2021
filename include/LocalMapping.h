@@ -26,6 +26,7 @@
 #include "LoopClosing.h"
 #include "Tracking.h"
 #include "KeyFrameDatabase.h"
+#include <opencv2/imgcodecs/legacy/constants_c.h>
 
 #include <mutex>
 

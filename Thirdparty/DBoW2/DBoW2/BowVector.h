@@ -52,12 +52,12 @@ enum ScoringType
   DOT_PRODUCT,
 };
 
-/// Vector of words to represent images_ocv
+/// Vector of words to represent images
 class BowVector: 
 	public std::map<WordId, WordValue>
 {
 public:
-
+    typedef std::map<WordId, WordValue> super;
 	/** 
 	 * Constructor
 	 */

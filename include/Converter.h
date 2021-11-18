@@ -26,6 +26,7 @@
 #include<Eigen/Dense>
 #include"Thirdparty/g2o/g2o/types/types_six_dof_expmap.h"
 #include"Thirdparty/g2o/g2o/types/types_seven_dof_expmap.h"
+#include <opencv2/imgcodecs/legacy/constants_c.h>
 
 namespace ORB_SLAM2
 {

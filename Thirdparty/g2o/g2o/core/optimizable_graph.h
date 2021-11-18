@@ -76,7 +76,7 @@ namespace g2o {
 
     /**
      * \brief data packet for a vertex. Extend this class to store in the vertices
-     * the potential additional information you need (e.g. images_ocv, laser scans, ...).
+     * the potential additional information you need (e.g. images, laser scans, ...).
      */
     class  Data : public HyperGraph::HyperGraphElement
     {

@@ -22,6 +22,7 @@
 
 #include<opencv2/opencv.hpp>
 #include "Frame.h"
+#include <opencv2/imgcodecs/legacy/constants_c.h>
 
 
 namespace ORB_SLAM2

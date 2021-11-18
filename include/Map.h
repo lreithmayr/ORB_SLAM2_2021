@@ -24,9 +24,11 @@
 #include "MapPoint.h"
 #include "KeyFrame.h"
 #include <set>
+#include <opencv2/imgcodecs/legacy/constants_c.h>
 
 #include <mutex>
 
+#include "BoostArchiver.h"
 
 
 namespace ORB_SLAM2
@@ -39,15 +41,6 @@ class Map
 {
 public:
     Map();
-
-    bool Save(const string &filename);
-    bool SaveWithTimestamps(const string &filename);
-    bool SaveWithPose(const string &filename);
-
-    void _WriteMapPoint(ofstream &f, MapPoint* mp,
-                        const std::string &end_marker = "\n");
-    void _WriteMapPointObj(ofstream &f, MapPoint* mp,
-                           const std::string &end_marker="\n");
 
     void AddKeyFrame(KeyFrame* pKF);
     void AddMapPoint(MapPoint* pMP);
@@ -74,6 +67,13 @@ public:
 
     // This avoid that two points are created simultaneously in separate threads (id conflict)
     std::mutex mMutexPointCreation;
+
+
+private:
+    // serialize is recommended to be private
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive &ar, const unsigned int version);
 
 protected:
     std::set<MapPoint*> mspMapPoints;
