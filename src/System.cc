@@ -318,6 +318,7 @@ void System::Shutdown()
         pangolin::BindToContext("ORB-SLAM2: Map Viewer");
 }
 
+// Save Stereo Trajectory TUM
 void System::SaveTrajectoryTUM(const string &filename)
 {
     cout << endl << "Saving camera trajectory to " << filename << " ..." << endl;
@@ -343,7 +344,7 @@ void System::SaveTrajectoryTUM(const string &filename)
     // Frames not localized (tracking failure) are not saved.
 
     // For each frame we have a reference keyframe (lRit), the timestamp (lT) and a flag
-    // which is true when tracking failed (lbL).
+    // which is true when tracking fail
     auto lRit = mpTracker->mlpReferences.begin();
     auto lT = mpTracker->mlFrameTimes.begin();
     auto lbL = mpTracker->mlbLost.begin();
@@ -373,11 +374,13 @@ void System::SaveTrajectoryTUM(const string &filename)
         vector<float> q = Converter::toQuaternion(Rwc);
 
         f << setprecision(6) << *lT << " " <<  setprecision(9) << twc.at<float>(0) << " " << twc.at<float>(1) << " " << twc.at<float>(2) << " " << q[0] << " " << q[1] << " " << q[2] << " " << q[3] << endl;
+
     }
     f.close();
     cout << endl << "trajectory saved!" << endl;
 }
 
+// Save Mono Trajectory TUM
 void System::SaveKeyFrameTrajectoryTUM(const string &filename)
 {
     cout << endl << "Saving keyframe trajectory to " << filename << " ..." << endl;
@@ -412,6 +415,7 @@ void System::SaveKeyFrameTrajectoryTUM(const string &filename)
     cout << endl << "trajectory saved!" << endl;
 }
 
+// Save Stereo Trajectory KITTI
 void System::SaveTrajectoryKITTI(const string &filename)
 {
     cout << endl << "Saving camera trajectory to " << filename << " ..." << endl;
@@ -444,31 +448,32 @@ void System::SaveTrajectoryKITTI(const string &filename)
     //mlRelativeFramePoses: List of Tcr (God, I hate these variable names so much!)
     //Tcr = Tcw * Twc
     // Apparently, the 2nd letter denotes the reference frame of the pose
-    for(auto lit=mpTracker->mlRelativeFramePoses.begin(), lend=mpTracker->mlRelativeFramePoses.end();lit!=lend;lit++, lRit++, lT++)
-    {
-        ORB_SLAM2::KeyFrame* pKF = *lRit;
+    for(auto lit=mpTracker->mlRelativeFramePoses.begin(), lend=mpTracker->mlRelativeFramePoses.end();lit!=lend;lit++, lRit++, lT++) {
+        ORB_SLAM2::KeyFrame *pKF = *lRit;
 
-        cv::Mat Trw = cv::Mat::eye(4,4,CV_32F);
+        cv::Mat Trw = cv::Mat::eye(4, 4, CV_32F);
 
-        while(pKF->isBad())
-        {
-          //  cout << "bad parent" << endl;
-            Trw = Trw*pKF->mTcp;
+        while (pKF->isBad()) {
+            //  cout << "bad parent" << endl;
+            Trw = Trw * pKF->mTcp;
             pKF = pKF->GetParent();
         }
 
-        Trw = Trw*pKF->GetPose()*Two;
+        Trw = Trw * pKF->GetPose() * Two;
 
-        cv::Mat Tcw = (*lit)*Trw;
-        cv::Mat Rwc = Tcw.rowRange(0,3).colRange(0,3).t();
-        cv::Mat twc = -Rwc*Tcw.rowRange(0,3).col(3);
+        cv::Mat Tcw = (*lit) * Trw;
+        cv::Mat Rwc = Tcw.rowRange(0, 3).colRange(0, 3).t();
+        cv::Mat twc = -Rwc * Tcw.rowRange(0, 3).col(3);
 
         // Rwc: Rotation in SO(3) in camera reference frame
         // twc: Translation in R³ in camera reference frame
 
-        f << setprecision(9) << Rwc.at<float>(0,0) << " " << Rwc.at<float>(0,1)  << " " << Rwc.at<float>(0,2) << " "  << twc.at<float>(0) << " " <<
-             Rwc.at<float>(1,0) << " " << Rwc.at<float>(1,1)  << " " << Rwc.at<float>(1,2) << " "  << twc.at<float>(1) << " " <<
-             Rwc.at<float>(2,0) << " " << Rwc.at<float>(2,1)  << " " << Rwc.at<float>(2,2) << " "  << twc.at<float>(2) << endl;
+        f << setprecision(9) << Rwc.at<float>(0, 0) << " " << Rwc.at<float>(0, 1) << " " << Rwc.at<float>(0, 2) << " "
+          << twc.at<float>(0) << " " <<
+          Rwc.at<float>(1, 0) << " " << Rwc.at<float>(1, 1) << " " << Rwc.at<float>(1, 2) << " " << twc.at<float>(1)
+          << " " <<
+          Rwc.at<float>(2, 0) << " " << Rwc.at<float>(2, 1) << " " << Rwc.at<float>(2, 2) << " " << twc.at<float>(2)
+          << endl;
 
 
         // Copied code from monocular keyframe trajectory (SaveTrajectoryTUM).
@@ -480,38 +485,9 @@ void System::SaveTrajectoryKITTI(const string &filename)
         f << setprecision(6) << *lT << " " <<  setprecision(7) << twc.at<float>(0) << " " << twc.at<float>(1) << " " << twc.at<float>(2)
         << " " << q[0] << " " << q[1] << " " << q[2] << " " << q[3] << endl;
         */
-
     }
     f.close();
     cout << endl << "trajectory saved!" << endl;
-}
-
-void System::SaveKeyFrameTrajectoryKITTI(const string &filename)
-{
-    cout << endl << "Saving KF trajectory to " << filename << "..." << endl;
-
-    vector<KeyFrame*> KFs = mpMap->GetAllKeyFrames();
-    sort(KFs.begin(),KFs.end(), KeyFrame::lId);
-
-    ofstream f;
-    f.open(filename.c_str());
-    f << fixed;
-
-    for(auto KF : KFs)
-    {
-        if (KF->isBad())
-            continue;
-
-        cv::Mat R = KF->GetRotation().t();
-        vector<float> q = Converter::toQuaternion(R);
-        cv::Mat t = KF->GetCameraCenter();
-
-        f << setprecision(6) << KF->mTimeStamp << setprecision(7) << " " << t.at<float>(0) << " " << t.at<float>(1) << " " << t.at<float>(2)
-         << " " << q[0] << " " << q[1] << " " << q[2] << " " << q[3] << endl;
-    }
-
-    f.close();
-    cout << endl << "Trajectory saved!" << endl;
 }
 
 void System::SaveGridMapTUM(const string &filename)
