@@ -130,7 +130,7 @@ int main(int argc, char **argv) {
         // Save camera trajectory
         // SLAM.SaveKeyFrameTrajectoryKITTI("../gridmapper/trajectories/stKi_KeyFrameTrajectory_red.txt");
 
-        SLAM.SaveTrajectoryKITTI("../gridmapper/trajectories/testing/stereo_traj_noQuaternions.txt")
+        SLAM.SaveTrajectoryKITTI("../gridmapper/trajectories/testing/stereo_traj_noQuaternions.txt");
     }
     return 0;
 }
