@@ -4,8 +4,8 @@ namespace ORB_SLAM2
 {
     MapProcessor::MapProcessor()
     {
-        map = new Map();
-        keyFrameDatabase = new KeyFrameDatabase();
+        //map = new Map();
+        //keyFrameDatabase = new KeyFrameDatabase();
 
         // Load ORB Vocabulary
         vocFile = "../../Vocabulary/ORBvoc.bin";
@@ -23,7 +23,7 @@ namespace ORB_SLAM2
         {
             cerr << "Cannot Open Mapfile: " << mapfile << " , You need create it first!" << std::endl;
         }
-        cout << "Loading Mapfile: " << mapfile << std::flush;
+        cout << "Loading Mapfile: " << mapfile << endl;
         boost::archive::binary_iarchive ia(in, boost::archive::no_header);
         ia >> map;
         ia >> keyFrameDatabase;

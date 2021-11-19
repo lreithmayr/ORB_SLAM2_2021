@@ -12,7 +12,6 @@ class MapProcessor
 {
 public:
     MapProcessor();
-
     vector<KeyFrame*> loadMap(const string &filename);
 
 private:
