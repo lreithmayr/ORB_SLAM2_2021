@@ -27,6 +27,7 @@ find_package(Pangolin REQUIRED)
 include_directories(
 ${PROJECT_SOURCE_DIR}
 ${PROJECT_SOURCE_DIR}/include
+${PROJECT_SOURCE_DIR}/gridmapper/include
 ${EIGEN3_INCLUDE_DIR}
 ${Pangolin_INCLUDE_DIRS}
 )
@@ -53,6 +54,7 @@ src/KeyFrameDatabase.cc
 src/Sim3Solver.cc
 src/Initializer.cc
 src/Viewer.cc
+gridmapper/src/MapProcessor.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -83,6 +85,13 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/Stereo)
 add_executable(stereo_kitti
 Examples/Stereo/stereo_kitti.cc)
 target_link_libraries(stereo_kitti ${PROJECT_NAME})
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/gridmapper/src)
+
+add_executable(gridmapper
+gridmapper/src/gridmapper.cpp)
+target_link_libraries(gridmapper ${PROJECT_NAME})
+
 
 # add_executable(stereo_euroc
 # Examples/Stereo/stereo_euroc.cc)
