@@ -12,7 +12,8 @@ class MapProcessor
 {
 public:
     MapProcessor();
-    vector<KeyFrame*> loadMap(const string &filename);
+    void loadMap(const string &filename);
+    vector<ORB_SLAM2::KeyFrame*> getAllKeyFrames();
 
 private:
     Map* map;

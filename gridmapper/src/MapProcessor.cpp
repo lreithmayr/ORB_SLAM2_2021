@@ -4,8 +4,8 @@ namespace ORB_SLAM2
 {
     MapProcessor::MapProcessor()
     {
-        //map = new Map();
-        //keyFrameDatabase = new KeyFrameDatabase();
+        map = new Map();
+        keyFrameDatabase = new KeyFrameDatabase();
 
         // Load ORB Vocabulary
         vocFile = "../../Vocabulary/ORBvoc.bin";
@@ -14,7 +14,7 @@ namespace ORB_SLAM2
         cout << "Vocabulary loaded!" << endl << endl;
     }
 
-    vector<KeyFrame*> MapProcessor::loadMap(const string &filename)
+    void MapProcessor::loadMap(const string &filename)
     {
         mapfile = filename;
         // unique_lock<mutex>MapPointGlobal(MapPoint::mGlobalMutex);
@@ -27,6 +27,7 @@ namespace ORB_SLAM2
         boost::archive::binary_iarchive ia(in, boost::archive::no_header);
         ia >> map;
         ia >> keyFrameDatabase;
+
         keyFrameDatabase->SetORBvocabulary(vocabulary);
         cout << " ...done" << std::endl;
         cout << "Map Reconstructing" << flush;
@@ -41,8 +42,11 @@ namespace ORB_SLAM2
         Frame::nNextId = mnFrameId;
         cout << " ...done" << endl;
         in.close();
-        return KFs;
     }
 
-
+    vector<ORB_SLAM2::KeyFrame*> MapProcessor::getAllKeyFrames()
+    {
+        vector<ORB_SLAM2::KeyFrame*> KFs = map->GetAllKeyFrames();
+        return KFs;
+    }
 }
