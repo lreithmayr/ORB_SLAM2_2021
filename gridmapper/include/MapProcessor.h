@@ -4,6 +4,7 @@
 #endif //ORB_SLAM2_MOD_MAPPROCESSOR_H
 
 #include "System.h"
+#include "Converter.h"
 
 namespace ORB_SLAM2
 {
@@ -12,8 +13,9 @@ class MapProcessor
 {
 public:
     explicit MapProcessor(const string &filename);
-    // vector<ORB_SLAM2::KeyFrame*> getAllKeyFrames();
     void SaveGridMapKITTI(const string &filename);
+    void SaveTrajectoryKITTI(const string &filename);
+    void SavePointCloud(const string &filename);
     static void OpenMap(const string &filename);
 
 private:

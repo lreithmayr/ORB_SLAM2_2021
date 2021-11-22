@@ -62,20 +62,22 @@ def line_bresenham(start, end):
         points.reverse()
     return points
 
-
-stereo = 0
+"""
+stereo = 1
 reduced = 1
 
 if stereo == 1:
     seq_name = 'stKi'
 else:
     seq_name = 'monoKi'
+"""
 
 scale_factor = 1
 resize_factor = 1
 filter_ground_points = 0
 load_counters = 0
 
+"""
 if reduced == 1:
     point_cloud_fname = '{:s}_map_pts_and_keyframes_red.txt'.format(seq_name)
     keyframe_trajectory_fname = '{:s}_KeyFrameTrajectory_red.txt'.format(seq_name)
@@ -86,9 +88,15 @@ else:
     keyframe_trajectory_fname = '{:s}_KeyFrameTrajectory_full.txt'.format(seq_name)
     out_fname = '{:s}_grid_map_full'.format(seq_name)
     print "======== \n \n Using full dataset. \n \n ======== "
+"""
+
+seq_name = "stereo_kitti"
+out_fname = '{:s}_gm_from_binary'.format(seq_name)
+keyframe_trajectory_fname = "stereo_kitti_traj_Quaternions.txt"
+point_cloud_fname = "stereo_kitti_mapPoints.txt"
 
 kf_data_path = "./trajectories/{:s}".format(keyframe_trajectory_fname)
-pc_data_path = "./trajectories/{:s}".format(point_cloud_fname)
+pc_data_path = "./point_clouds/{:s}".format(point_cloud_fname)
 
 visit_counter_fname = '{:s}_filtered_{:d}_scale_{:d}_visit_counter.txt'.format(
     seq_name, filter_ground_points, scale_factor)
@@ -318,3 +326,9 @@ else:
 print "Grid Map finished."
 
 cv.imwrite('./maps/{:s}.pgm'.format(out_fname), grid_map_resized)
+while True:
+    cv.imshow("Grid Map", grid_map_resized)
+    if cv.waitKey(0) == 27:
+        break
+
+cv.destroyAllWindows()
