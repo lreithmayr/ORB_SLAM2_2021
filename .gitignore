@@ -39,4 +39,7 @@ testing/cmake-build-debug
 
 /scripts/stKi_CameraTrajectory_red.txt
 /scripts/stKi_map_pts_and_keyframes_red.txt
-/scripts/stKi_map_pts_out_red.obj!/.idea/
+/scripts/stKi_map_pts_out_red.obj!/
+.idea/
+/gridmapper/src/gridmapper
+
