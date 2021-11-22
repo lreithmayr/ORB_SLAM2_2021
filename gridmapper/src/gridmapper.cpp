@@ -2,10 +2,11 @@
 
 int main()
 {
+    // Initialize Map Processor and load map from binary file "map.bin"
     ORB_SLAM2::MapProcessor map("../../scripts/map.bin");
 
-    vector<ORB_SLAM2::KeyFrame*> KFs = map.getAllKeyFrames();
-
-    std::cout << KFs.size() << endl;
-    return 0;
+    // Process the raw point cloud map into a grid map and open it
+    const std::string gridMap_path = "../maps/GridMap_stereoKITTI.pgm";
+    map.SaveGridMapKITTI(gridMap_path);
+    ORB_SLAM2::MapProcessor::OpenMap(gridMap_path);
 }

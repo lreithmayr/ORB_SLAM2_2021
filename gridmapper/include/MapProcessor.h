@@ -12,7 +12,9 @@ class MapProcessor
 {
 public:
     explicit MapProcessor(const string &filename);
-    vector<ORB_SLAM2::KeyFrame*> getAllKeyFrames();
+    // vector<ORB_SLAM2::KeyFrame*> getAllKeyFrames();
+    void SaveGridMapKITTI(const string &filename);
+    static void OpenMap(const string &filename);
 
 private:
     Map* map;
