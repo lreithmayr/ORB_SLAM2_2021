@@ -11,13 +11,13 @@ namespace ORB_SLAM2
 class MapProcessor
 {
 public:
-    MapProcessor();
-    void loadMap(const string &filename);
+    explicit MapProcessor(const string &filename);
     vector<ORB_SLAM2::KeyFrame*> getAllKeyFrames();
 
 private:
     Map* map;
     string mapfile;
+    vector<KeyFrame*> KFs;
     KeyFrameDatabase* keyFrameDatabase;
     ORBVocabulary* vocabulary;
     string vocFile;

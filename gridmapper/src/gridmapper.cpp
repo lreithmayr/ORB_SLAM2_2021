@@ -2,12 +2,10 @@
 
 int main()
 {
-    ORB_SLAM2::MapProcessor mapProcessor;
+    ORB_SLAM2::MapProcessor map("../../scripts/map.bin");
 
-    mapProcessor.loadMap("../../scripts/map.bin");
-    vector<ORB_SLAM2::KeyFrame*> KFs = mapProcessor.getAllKeyFrames();
+    vector<ORB_SLAM2::KeyFrame*> KFs = map.getAllKeyFrames();
 
-    cv::Mat Two = KFs[0]->GetPoseInverse();
-    std::cout << Two.at<float>(0, 0) << endl;
+    std::cout << KFs.size() << endl;
     return 0;
 }
