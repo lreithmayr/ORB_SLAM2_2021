@@ -91,9 +91,9 @@ else:
 """
 
 seq_name = "stereo_kitti"
-out_fname = '{:s}_gm_from_binary'.format(seq_name)
-keyframe_trajectory_fname = "stereo_kitti_traj_Quaternions.txt"
-point_cloud_fname = "stereo_kitti_mapPoints.txt"
+out_fname = '{:s}_gm_from_binary_03red'.format(seq_name)
+keyframe_trajectory_fname = "stereo_kitti_traj_Quaternions_03red.txt"
+point_cloud_fname = "stereo_kitti_mapPoints_03red.txt"
 
 kf_data_path = "./trajectories/{:s}".format(keyframe_trajectory_fname)
 pc_data_path = "./point_clouds/{:s}".format(point_cloud_fname)

@@ -19,7 +19,7 @@ Camera.width: 1241
 Camera.height: 376
 
 # Camera frames per second 
-Camera.fps: 10.0
+Camera.fps: 25.0
 
 # stereo baseline times fx
 Camera.bf: 379.8145
@@ -64,3 +64,8 @@ Viewer.ViewpointY: -100
 Viewer.ViewpointZ: -0.1
 Viewer.ViewpointF: 2000
 
+#--------------------------------------------------------------------------------------------
+# Map Parameters
+#--------------------------------------------------------------------------------------------
+
+Map.mapfile: map_07_stereo.bin

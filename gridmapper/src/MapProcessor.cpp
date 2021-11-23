@@ -18,11 +18,14 @@ namespace ORB_SLAM2
         }
         cout << "Loading Mapfile: " << mapfile << endl;
         boost::archive::binary_iarchive ia(in, boost::archive::no_header);
+
+        // Retrieve Map and KF Database from stored map
         ia >> map;
         ia >> keyFrameDatabase;
 
         keyFrameDatabase->SetORBvocabulary(vocabulary);
         cout << " ...done" << std::endl;
+
         cout << "Map Reconstructing" << flush;
         KFs = map->GetAllKeyFrames();
         unsigned long mnFrameId = 0;
@@ -269,5 +272,54 @@ namespace ORB_SLAM2
                break;
         }
         cv::destroyAllWindows();
+    }
+
+    void MapProcessor::OpenMapPangolin()
+    {
+        std::string settings_path = "Examples/Stereo/KITTI03.yaml";
+
+        MapDrawer mapDrawer(map, settings_path);
+
+        cv::FileStorage fSettings(settings_path, cv::FileStorage::READ);
+
+        // float viewpointX = fSettings["Viewer.ViewpointX"];
+        // float viewpointY = fSettings["Viewer.ViewpointY"];
+        // float viewpointZ = fSettings["Viewer.ViewpointZ"];
+        // float viewpointF = fSettings["Viewer.ViewpointF"];
+
+        pangolin::CreateWindowAndBind("ORB-SLAM2: Map Viewer",1024,768);
+
+        // 3D Mouse handler requires depth testing to be enabled
+        glEnable(GL_DEPTH_TEST);
+
+        // Issue specific OpenGl we might need
+        glEnable (GL_BLEND);
+        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        pangolin::OpenGlRenderState s_cam(
+               /* pangolin::ProjectionMatrix(1024,768,viewpointF,viewpointF,512,389,0.1,1000),
+                pangolin::ModelViewLookAt(viewpointX,viewpointY,viewpointZ, 0,0,0,0.0,-1.0, 0.0)
+        );*/
+                pangolin::ProjectionMatrix(640,480,420,420,320,240,0.1,1000),
+                pangolin::ModelViewLookAt(-0,0.5,-3, 0,0,0, pangolin::AxisY)
+        );
+
+        // Add named OpenGL viewport to window and provide 3D Handler
+        pangolin::View& d_cam = pangolin::CreateDisplay()
+                .SetBounds(0.0, 1.0, pangolin::Attach::Pix(175), 1.0, 1024.0f/768.0f)
+                .SetHandler(new pangolin::Handler3D(s_cam));
+
+        while(!pangolin::ShouldQuit())
+        {
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glClearColor(1.0f,1.0f,1.0f,1.0f);
+
+            // s_cam.SetModelViewMatrix(pangolin::ModelViewLookAt(viewpointX,viewpointY,viewpointZ, 0,0,0,0.0,-1.0, 0.0));
+            d_cam.Activate(s_cam);
+
+            mapDrawer.DrawMapPoints();
+
+            pangolin::FinishFrame();
+        }
     }
 }

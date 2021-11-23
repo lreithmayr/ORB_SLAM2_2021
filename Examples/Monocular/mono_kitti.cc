@@ -55,7 +55,7 @@ int main(int argc, char **argv)
     }
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
-    ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,true);
+    ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,true, true);
 
     // Vector for tracking time statistics
     vector<float> vTimesTrack;
@@ -115,23 +115,8 @@ int main(int argc, char **argv)
     cout << "median tracking time: " << vTimesTrack[nImages_var/2] << endl;
     cout << "mean tracking time: " << totaltime/nImages_var << endl;
 
-    if (nImages_var == nImages) {
-         SLAM.getMap()->Save("../gridmapper/trajectories/monoKi_map_pts_out_full.obj");
-         SLAM.getMap()->SaveWithTimestamps("../gridmapper/trajectories/monoKi_map_pts_and_keyframes_full.txt");
+    SLAM.SaveKeyFrameTrajectoryTUM("../gridmapper/trajectories/testing/mono_traj_noQuaternions_red.txt");
 
-        // Save camera trajectory
-         SLAM.SaveKeyFrameTrajectoryTUM("../gridmapper/trajectories/monoKi_KeyFrameTrajectory_full.txt");
-
-    } else {
-        SLAM.getMap()->Save("../gridmapper/trajectories/monoKi_map_pts_out_red.obj");
-        SLAM.getMap()->SaveWithTimestamps("../gridmapper/trajectories/monoKi_map_pts_and_keyframes_red.txt");
-
-        // Save camera trajectory
-        //SLAM.SaveKeyFrameTrajectoryTUM("../gridmapper/trajectories/monoKi_KeyFrameTrajectory_red.txt");
-
-        // Save trajectory without quaternions (for testing)
-        SLAM.SaveTrajectoryTUM("../gridmapper/trajectories/testing/mono_traj_noQuaternions_red.txt");
-    }
     return 0;
 }
 

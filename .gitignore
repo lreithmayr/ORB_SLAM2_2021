@@ -43,3 +43,18 @@ testing/cmake-build-debug
 .idea/
 /gridmapper/src/gridmapper
 
+/gridmapper/trajectories/stereo_kitti_traj_Quaternions_03red.txt
+/Vocabulary/ORBvoc.bin
+/gridmapper/trajectories/stereo_kitti_traj_Quaternions_03red.txt
+
+/Vocabulary/
+
+/gridmapper/trajectories/stereo_kitti_traj_Quaternions.txt
+/gridmapper/maps/GridMap_stereoKITTI_03red.pgm
+
+/gridmapper/maps/stereo_kitti_gm_from_binary.pgm
+
+/gridmapper/maps/stereo_kitti_gm_from_binary_03red.pgm
+/Examples/Monocular/map_07_mono.bin
+/Examples/Stereo/map_07_stereo.bin
+/Vocabulary/bin_vocabulary
