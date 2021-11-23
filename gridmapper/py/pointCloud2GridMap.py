@@ -90,8 +90,8 @@ else:
     print "======== \n \n Using full dataset. \n \n ======== "
 """
 
-seq_name = "stereo_kitti"
-out_fname = '{:s}_gm_from_binary_03red'.format(seq_name)
+seq_name = "mono_kitti"
+out_fname = '{:s}_gm_from_binary_07-full'.format(seq_name)
 keyframe_trajectory_fname = "stereo_kitti_traj_Quaternions_03red.txt"
 point_cloud_fname = "stereo_kitti_mapPoints_03red.txt"
 
