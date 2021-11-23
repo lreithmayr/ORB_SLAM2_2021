@@ -115,7 +115,7 @@ int main(int argc, char **argv)
     cout << "median tracking time: " << vTimesTrack[nImages_var/2] << endl;
     cout << "mean tracking time: " << totaltime/nImages_var << endl;
 
-    SLAM.SaveKeyFrameTrajectoryTUM("../gridmapper/trajectories/testing/mono_traj_noQuaternions_red.txt");
+    // SLAM.SaveKeyFrameTrajectoryTUM("../../gridmapper/trajectories/kft_mono.txt");
 
     return 0;
 }

@@ -55,6 +55,5 @@ testing/cmake-build-debug
 /gridmapper/maps/stereo_kitti_gm_from_binary.pgm
 
 /gridmapper/maps/stereo_kitti_gm_from_binary_03red.pgm
-/Examples/Monocular/map_07_mono.bin
-/Examples/Stereo/map_07_stereo.bin
 /Vocabulary/bin_vocabulary
+/gridmapper/maps/

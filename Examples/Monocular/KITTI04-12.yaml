@@ -59,4 +59,4 @@ Viewer.ViewpointF: 2000
 # Map Parameters
 #--------------------------------------------------------------------------------------------
 
-Map.mapfile: map_07_mono.bin
+Map.mapfile: ../../gridmapper/maps/map_07_mono.bin
