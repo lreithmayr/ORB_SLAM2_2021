@@ -329,7 +329,7 @@ namespace ORB_SLAM2
             cloud[i].z = MPs[i]->GetWorldPos().at<float>(2);
         }
 
-        pcl::io::savePCDFileASCII ("test_pcd.pcd", cloud);
+        pcl::io::savePCDFileASCII ("../point_clouds/test_pcd.pcd", cloud);
         std::cerr << "Saved " << cloud.size () << " data points to test_pcd.pcd." << std::endl;
     }
 }
