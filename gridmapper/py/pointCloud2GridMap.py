@@ -62,38 +62,16 @@ def line_bresenham(start, end):
         points.reverse()
     return points
 
-"""
-stereo = 1
-reduced = 1
-
-if stereo == 1:
-    seq_name = 'stKi'
-else:
-    seq_name = 'monoKi'
-"""
 
 scale_factor = 1
 resize_factor = 1
 filter_ground_points = 0
 load_counters = 0
 
-"""
-if reduced == 1:
-    point_cloud_fname = '{:s}_map_pts_and_keyframes_red.txt'.format(seq_name)
-    keyframe_trajectory_fname = '{:s}_KeyFrameTrajectory_red.txt'.format(seq_name)
-    out_fname = '{:s}_grid_map_red'.format(seq_name)
-    print "======== \n \n Using reduced dataset. \n \n ======== "
-else:
-    point_cloud_fname = '{:s}_map_pts_and_keyframes_full.txt'.format(seq_name)
-    keyframe_trajectory_fname = '{:s}_KeyFrameTrajectory_full.txt'.format(seq_name)
-    out_fname = '{:s}_grid_map_full'.format(seq_name)
-    print "======== \n \n Using full dataset. \n \n ======== "
-"""
-
 seq_name = "mono_kitti"
 out_fname = '{:s}_gm_from_binary_07-full'.format(seq_name)
-keyframe_trajectory_fname = "stereo_kitti_traj_Quaternions_03red.txt"
-point_cloud_fname = "stereo_kitti_mapPoints_03red.txt"
+keyframe_trajectory_fname = "tr_07_mono.txt"
+point_cloud_fname = "pc_07_mono.txt"
 
 kf_data_path = "./trajectories/{:s}".format(keyframe_trajectory_fname)
 pc_data_path = "./point_clouds/{:s}".format(point_cloud_fname)

@@ -2,7 +2,7 @@
 
 namespace ORB_SLAM2
 {
-    MapProcessor::MapProcessor(const std::string &filename): map(new Map), keyFrameDatabase(new KeyFrameDatabase), vocabulary(new ORBVocabulary)
+    MapProcessor::MapProcessor(const std::string &filename): map(), keyFrameDatabase(), vocabulary(new ORBVocabulary())
     {
         // Load ORB Vocabulary
         vocFile = "../../Vocabulary/ORBvoc.bin";
@@ -10,7 +10,6 @@ namespace ORB_SLAM2
         cout << "Vocabulary loaded!" << endl << endl;
 
         mapfile = filename;
-        // unique_lock<mutex>MapPointGlobal(MapPoint::mGlobalMutex);
         std::ifstream in(filename, std::ios_base::binary);
         if (!in)
         {
@@ -282,11 +281,6 @@ namespace ORB_SLAM2
 
         cv::FileStorage fSettings(settings_path, cv::FileStorage::READ);
 
-        // float viewpointX = fSettings["Viewer.ViewpointX"];
-        // float viewpointY = fSettings["Viewer.ViewpointY"];
-        // float viewpointZ = fSettings["Viewer.ViewpointZ"];
-        // float viewpointF = fSettings["Viewer.ViewpointF"];
-
         pangolin::CreateWindowAndBind("ORB-SLAM2: Map Viewer",1024,768);
 
         // 3D Mouse handler requires depth testing to be enabled
@@ -297,9 +291,6 @@ namespace ORB_SLAM2
         glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         pangolin::OpenGlRenderState s_cam(
-               /* pangolin::ProjectionMatrix(1024,768,viewpointF,viewpointF,512,389,0.1,1000),
-                pangolin::ModelViewLookAt(viewpointX,viewpointY,viewpointZ, 0,0,0,0.0,-1.0, 0.0)
-        );*/
                 pangolin::ProjectionMatrix(640,480,420,420,320,240,0.1,1000),
                 pangolin::ModelViewLookAt(-0,0.5,-3, 0,0,0, pangolin::AxisY)
         );
@@ -314,9 +305,8 @@ namespace ORB_SLAM2
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glClearColor(1.0f,1.0f,1.0f,1.0f);
 
-            // s_cam.SetModelViewMatrix(pangolin::ModelViewLookAt(viewpointX,viewpointY,viewpointZ, 0,0,0,0.0,-1.0, 0.0));
             d_cam.Activate(s_cam);
-
+            mapDrawer.DrawKeyFrames(true, true);
             mapDrawer.DrawMapPoints();
 
             pangolin::FinishFrame();
