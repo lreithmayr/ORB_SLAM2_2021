@@ -3,6 +3,9 @@
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
+#include <pcl/filters/statistical_outlier_removal.h>
+#include <pcl/visualization/cloud_viewer.h>
+
 #include "System.h"
 #include "Converter.h"
 
@@ -29,8 +32,10 @@ public:
 
     void OpenMapPangolin();
 
-    void ConvertToPCL();
+    // Converts the MPs saved in the map to a PCL point cloud and saves it as .pcd
+    void ConvertMPsToPCL();
 
+    static void RemoveOutliers(const string& pcl_filename, const string& pcl_outfn);
 
 private:
     Map* map;

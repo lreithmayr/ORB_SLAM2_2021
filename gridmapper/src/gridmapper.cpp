@@ -14,5 +14,8 @@ int main()
 
     // map.OpenMapPangolin();
 
-    map.ConvertToPCL();
+    map.ConvertMPsToPCL();
+    ORB_SLAM2::MapProcessor::RemoveOutliers("../point_clouds/test_pcd.pcd", "../point_clouds/filtered_test_pcd.pcd");
+
+    return 0;
 }
