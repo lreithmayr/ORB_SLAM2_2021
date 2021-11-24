@@ -59,3 +59,5 @@ testing/cmake-build-debug
 /gridmapper/maps/
 /gridmapper/src/test_pcd.pcd
 /Vocabulary/bin_vocabulary
+/gridmapper/point_clouds/filtered_test_pcd.pcd
+/gridmapper/point_clouds/test_pcd.pcd
