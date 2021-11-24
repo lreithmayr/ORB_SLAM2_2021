@@ -37,6 +37,8 @@ public:
 
     static void RemoveOutliers(const string& pcl_filename, const string& pcl_outfn);
 
+    static void ViewPC(const string& pcl_filename);
+
 private:
     Map* map;
     string mapfile;

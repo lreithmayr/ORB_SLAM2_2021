@@ -363,4 +363,23 @@ namespace ORB_SLAM2
         // sor.filter (*cloud_filtered);
         // writer.write<pcl::PointXYZ> ("table_scene_lms400_outliers.pcd", *cloud_filtered, false);
     }
+
+    void MapProcessor::ViewPC(const string& filename)
+    {
+        pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
+
+        // Fill in the cloud data
+        pcl::PCDReader reader;
+        // Replace the path below with the path where you saved your file
+        reader.read<pcl::PointXYZ> (filename, *cloud);
+
+        pcl::visualization::CloudViewer viewer ("Simple Cloud Viewer");
+        viewer.showCloud (cloud);
+
+        while (!viewer.wasStopped())
+        {
+            // Stuff
+        }
+    }
+
 }
