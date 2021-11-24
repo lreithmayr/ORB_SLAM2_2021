@@ -1,8 +1,8 @@
 #ifndef ORB_SLAM2_MOD_MAPPROCESSOR_H
 #define ORB_SLAM2_MOD_MAPPROCESSOR_H
 
-#endif //ORB_SLAM2_MOD_MAPPROCESSOR_H
-
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
 #include "System.h"
 #include "Converter.h"
 
@@ -27,7 +27,10 @@ public:
     // Opens the generated grid map as a pgm file.
     static void OpenMap(const string& filename);
 
-    void OpenMapPangolin ();
+    void OpenMapPangolin();
+
+    void ConvertToPCL();
+
 
 private:
     Map* map;
@@ -39,3 +42,5 @@ private:
 };
 
 }
+
+#endif //ORB_SLAM2_MOD_MAPPROCESSOR_H

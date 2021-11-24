@@ -23,6 +23,7 @@ endif()
 list(APPEND CMAKE_INCLUDE_PATH "/usr/local/include")
 find_package (Eigen3 3.4 REQUIRED NO_MODULE)
 find_package(Pangolin REQUIRED)
+find_package(PCL 1.12 REQUIRED)
 
 include_directories(
 ${PROJECT_SOURCE_DIR}
@@ -30,6 +31,7 @@ ${PROJECT_SOURCE_DIR}/include
 ${PROJECT_SOURCE_DIR}/gridmapper/include
 ${EIGEN3_INCLUDE_DIR}
 ${Pangolin_INCLUDE_DIRS}
+${PCL_INCLUDE_DIR}
 )
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
@@ -57,9 +59,13 @@ src/Viewer.cc
 gridmapper/src/MapProcessor.cpp
 )
 
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
+
 target_link_libraries(${PROJECT_NAME}
 ${OpenCV_LIBS}
 ${EIGEN3_LIBS}
+${PCL_LIBRARIES}
 ${Pangolin_LIBRARIES}
 ${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so
 ${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so

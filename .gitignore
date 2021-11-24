@@ -57,3 +57,4 @@ testing/cmake-build-debug
 /gridmapper/maps/stereo_kitti_gm_from_binary_03red.pgm
 /Vocabulary/bin_vocabulary
 /gridmapper/maps/
+/gridmapper/src/test_pcd.pcd

@@ -312,4 +312,24 @@ namespace ORB_SLAM2
             pangolin::FinishFrame();
         }
     }
+
+    void MapProcessor::ConvertToPCL()
+    {
+        const vector<MapPoint*> &MPs = map->GetAllMapPoints();
+        pcl::PointCloud<pcl::PointXYZ> cloud;
+        cloud.width = map->GetAllMapPoints().size();
+        cloud.height = 1;
+        cloud.is_dense = true;
+        cloud.points.resize (cloud.width * cloud.height);
+
+        for (uint32_t i = 0; i < cloud.width; i++)
+        {
+            cloud[i].x = MPs[i]->GetWorldPos().at<float>(0);
+            cloud[i].y = MPs[i]->GetWorldPos().at<float>(1);
+            cloud[i].z = MPs[i]->GetWorldPos().at<float>(2);
+        }
+
+        pcl::io::savePCDFileASCII ("test_pcd.pcd", cloud);
+        std::cerr << "Saved " << cloud.size () << " data points to test_pcd.pcd." << std::endl;
+    }
 }

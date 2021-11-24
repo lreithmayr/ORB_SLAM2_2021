@@ -12,6 +12,7 @@ int main()
     // map.SaveTrajectoryKITTI("../trajectories/stereo_kitti_traj_Quaternions_03red.txt");
     // map.SavePointCloud("../point_clouds/stereo_kitti_mapPoints_03red.txt");
 
-    map.OpenMapPangolin();
+    // map.OpenMapPangolin();
 
+    map.ConvertToPCL();
 }
