@@ -313,55 +313,47 @@ namespace ORB_SLAM2
         }
     }
 
-    void MapProcessor::ConvertMPsToPCL()
+    void MapProcessor::FilterOutliers(const string& outfn)
     {
-        const vector<MapPoint*> &MPs = map->GetAllMapPoints();
-        pcl::PointCloud<pcl::PointXYZ> cloud;
-        cloud.width = map->GetAllMapPoints().size();
-        cloud.height = 1;
-        cloud.is_dense = true;
-        cloud.points.resize (cloud.width * cloud.height);
+        const vector<MapPoint*> MPs = map->GetAllMapPoints();
 
-        for (uint32_t i = 0; i < cloud.width; i++)
+        pcl::PointCloud<PointXYZid> init_cloud;
+        init_cloud.width = map->GetAllMapPoints().size();
+        init_cloud.height = 1;
+        init_cloud.is_dense = true;
+        init_cloud.points.resize (init_cloud.width * init_cloud.height);
+
+        for (uint32_t i = 0; i < init_cloud.width; i++)
         {
-            cloud[i].x = MPs[i]->GetWorldPos().at<float>(0);
-            cloud[i].y = MPs[i]->GetWorldPos().at<float>(1);
-            cloud[i].z = MPs[i]->GetWorldPos().at<float>(2);
+            init_cloud[i].x = MPs[i]->GetWorldPos().at<float>(0);
+            init_cloud[i].y = MPs[i]->GetWorldPos().at<float>(1);
+            init_cloud[i].z = MPs[i]->GetWorldPos().at<float>(2);
+            init_cloud[i].id = MPs[i]->mnId;
         }
 
-        pcl::io::savePCDFileASCII ("../point_clouds/test_pcd.pcd", cloud);
-        std::cerr << "Saved " << cloud.size () << " data points to test_pcd.pcd." << std::endl;
-    }
+        pcl::PointCloud<PointXYZid>::Ptr cloud_filtered (new pcl::PointCloud<PointXYZid>);
+        pcl::PointCloud<PointXYZid>::Ptr cloud_ptr(new pcl::PointCloud<PointXYZid>);
+        *cloud_ptr = init_cloud;
 
-    void MapProcessor::RemoveOutliers(const string& pcl_filename, const string& pcl_outfn)
-    {
-        pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
-        pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>);
-
-         // Fill in the cloud data
-        pcl::PCDReader reader;
-        // Replace the path below with the path where you saved your file
-        reader.read<pcl::PointXYZ> (pcl_filename, *cloud);
-
-        std::cerr << "Cloud before filtering: " << std::endl;
-        std::cerr << *cloud << std::endl;
+        std::cout << "Cloud before filtering: " << std::endl;
+        std::cout << *cloud_ptr << std::endl;
 
         // Create the filtering object
-        pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
-        sor.setInputCloud (cloud);
+        pcl::StatisticalOutlierRemoval<PointXYZid> sor;
+        sor.setInputCloud (cloud_ptr);
         sor.setMeanK (50);
         sor.setStddevMulThresh (1.0);
         sor.filter (*cloud_filtered);
 
-        std::cerr << "Cloud after filtering: " << std::endl;
-        std::cerr << *cloud_filtered << std::endl;
+        std::cout << "Cloud after filtering: " << std::endl;
+        std::cout << *cloud_filtered << std::endl;
 
         pcl::PCDWriter writer;
-        writer.write<pcl::PointXYZ> (pcl_outfn, *cloud_filtered, false);
+        writer.write<PointXYZid> (outfn, *cloud_filtered, false);
 
-        // sor.setNegative (true);
-        // sor.filter (*cloud_filtered);
-        // writer.write<pcl::PointXYZ> ("table_scene_lms400_outliers.pcd", *cloud_filtered, false);
+        sor.setNegative (true);
+        sor.filter (*cloud_filtered);
+        writer.write<PointXYZid> ("../point_clouds/outliers.pcd", *cloud_filtered, false);
     }
 
     void MapProcessor::ViewPC(const string& filename)
@@ -378,7 +370,6 @@ namespace ORB_SLAM2
 
         while (!viewer.wasStopped())
         {
-            // Stuff
         }
     }
 

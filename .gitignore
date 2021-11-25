@@ -61,3 +61,6 @@ testing/cmake-build-debug
 /Vocabulary/bin_vocabulary
 /gridmapper/point_clouds/filtered_test_pcd.pcd
 /gridmapper/point_clouds/test_pcd.pcd
+/gridmapper/point_clouds/elevation_map.bag
+/gridmapper/point_clouds/filtered_pc_stereo07.pcd
+/gridmapper/point_clouds/
