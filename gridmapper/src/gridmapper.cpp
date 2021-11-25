@@ -6,7 +6,9 @@ int main()
     std::string camera = "Stereo";
 
     std::string pc_path = "../point_clouds/";
-    std::string pc_name = "filtered_pc_stereo07.pcd";
+    std::string filtered = "filtered_pc_stereo07.pcd";
+    std::string outliers = "outliers.pcd";
+    std::string unfiltered = "unfiltered.pcd";
 
     // Initialize Map Processor and load map from binary file "map.bin"
     std::string map_path =  bin_map[camera];
@@ -17,9 +19,9 @@ int main()
 
     // map.OpenMapPangolin();
 
-    map.FilterOutliers(pc_path + pc_name);
+    map.FilterOutliers(pc_path + filtered);
 
-    ORB_SLAM2::MapProcessor::ViewPC(pc_path + pc_name);
+    ORB_SLAM2::MapProcessor::ViewPC(pc_path + filtered);
 
     return 0;
 }
