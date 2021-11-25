@@ -338,6 +338,9 @@ namespace ORB_SLAM2
         std::cout << "Cloud before filtering: " << std::endl;
         std::cout << *cloud_ptr << std::endl;
 
+        pcl::PCDWriter writer;
+        writer.write<PointXYZid> ("../point_clouds/unfiltered.pcd", *cloud_ptr, false);
+
         // Create the filtering object
         pcl::StatisticalOutlierRemoval<PointXYZid> sor;
         sor.setInputCloud (cloud_ptr);
@@ -348,7 +351,6 @@ namespace ORB_SLAM2
         std::cout << "Cloud after filtering: " << std::endl;
         std::cout << *cloud_filtered << std::endl;
 
-        pcl::PCDWriter writer;
         writer.write<PointXYZid> (outfn, *cloud_filtered, false);
 
         sor.setNegative (true);
