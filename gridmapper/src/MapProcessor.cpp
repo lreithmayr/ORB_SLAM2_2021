@@ -381,5 +381,4 @@ namespace ORB_SLAM2
         {
         }
     }
-
 }
