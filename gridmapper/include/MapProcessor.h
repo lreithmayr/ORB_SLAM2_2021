@@ -63,7 +63,6 @@ namespace ORB_SLAM2
         vector<KeyFrame*> KFs;
         KeyFrameDatabase* keyFrameDatabase;
         ORBVocabulary* vocabulary;
-        string vocFile;
     };
 }
 

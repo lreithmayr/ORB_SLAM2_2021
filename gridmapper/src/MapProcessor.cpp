@@ -2,11 +2,11 @@
 
 namespace ORB_SLAM2
 {
-    MapProcessor::MapProcessor(const std::string &filename): map(), keyFrameDatabase(), vocabulary(new ORBVocabulary())
+    MapProcessor::MapProcessor(const std::string &filename): map(), keyFrameDatabase(), vocabulary(new ORBVocabulary)
     {
         // Load ORB Vocabulary
-        vocFile = "../../Vocabulary/ORBvoc.bin";
-        vocabulary->loadFromBinaryFile(vocFile);
+        std::string vocFile = "../../Vocabulary/ORBvoc.bin";
+        (void)vocabulary->loadFromBinaryFile(vocFile);
         cout << "Vocabulary loaded!" << endl << endl;
 
         mapfile = filename;
@@ -32,13 +32,16 @@ namespace ORB_SLAM2
             it->SetORBvocabulary(vocabulary);
             it->ComputeBoW();
             if (it->mnFrameId > mnFrameId)
+            {
                 mnFrameId = it->mnFrameId;
+            }
         }
         Frame::nNextId = mnFrameId;
         cout << " ...done" << endl;
         in.close();
     }
 
+    /*
     void MapProcessor::SaveGridMapKITTI(const string &filename)
     {
         cout << endl << "Saving grid map to " << filename << " ..." << endl;
@@ -184,6 +187,7 @@ namespace ORB_SLAM2
         f.close();
         cout << endl << "Grid map saved!" << endl;
     }
+    */
 
     void MapProcessor::SaveTrajectoryKITTI(const string &filename)
     {
@@ -275,7 +279,7 @@ namespace ORB_SLAM2
 
     void MapProcessor::OpenMapPangolin()
     {
-        std::string settings_path = "Examples/Stereo/KITTI03.yaml";
+        std::string settings_path = "Examples/Stereo/KITTI04-12.yaml";
 
         MapDrawer mapDrawer(map, settings_path);
 
@@ -315,7 +319,7 @@ namespace ORB_SLAM2
 
     void MapProcessor::FilterOutliers(const string& outfn)
     {
-        const vector<MapPoint*> MPs = map->GetAllMapPoints();
+        vector<MapPoint*> MPs = map->GetAllMapPoints();
 
         pcl::PointCloud<PointXYZid> init_cloud;
         init_cloud.width = map->GetAllMapPoints().size();
@@ -331,6 +335,7 @@ namespace ORB_SLAM2
             init_cloud[i].id = MPs[i]->mnId;
         }
 
+        pcl::PointCloud<PointXYZid>::Ptr cloud_outliers (new pcl::PointCloud<PointXYZid>);
         pcl::PointCloud<PointXYZid>::Ptr cloud_filtered (new pcl::PointCloud<PointXYZid>);
         pcl::PointCloud<PointXYZid>::Ptr cloud_ptr(new pcl::PointCloud<PointXYZid>);
         *cloud_ptr = init_cloud;
@@ -354,8 +359,23 @@ namespace ORB_SLAM2
         writer.write<PointXYZid> (outfn, *cloud_filtered, false);
 
         sor.setNegative (true);
-        sor.filter (*cloud_filtered);
-        writer.write<PointXYZid> ("../point_clouds/outliers.pcd", *cloud_filtered, false);
+        sor.filter (*cloud_outliers);
+        writer.write<PointXYZid> ("../point_clouds/outliers.pcd", *cloud_outliers, false);
+
+        uint32_t outlier_id;
+
+        for(auto mp: MPs)
+        {
+            for (auto outlier: *cloud_outliers)
+            {
+                outlier_id = outlier.id;
+                if (mp->mnId == outlier_id)
+                {
+                    map->EraseMapPoint(mp);
+                    break;
+                }
+            }
+        }
     }
 
     void MapProcessor::ViewPC(const string& filename)

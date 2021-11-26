@@ -14,14 +14,11 @@ int main()
     std::string map_path =  bin_map[camera];
     ORB_SLAM2::MapProcessor map(map_path);
 
-    // map.SaveTrajectoryKITTI("../trajectories/stereo_kitti_traj_Quaternions_03red.txt");
-    // map.SavePointCloud("../point_clouds/stereo_kitti_mapPoints_03red.txt");
-
-    // map.OpenMapPangolin();
-
     map.FilterOutliers(pc_path + filtered);
 
-    ORB_SLAM2::MapProcessor::ViewPC(pc_path + filtered);
+    // ORB_SLAM2::MapProcessor::ViewPC(pc_path + filtered);
+
+    map.OpenMapPangolin();
 
     return 0;
 }
