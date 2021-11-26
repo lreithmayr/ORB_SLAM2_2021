@@ -39,21 +39,18 @@ namespace ORB_SLAM2
         explicit MapProcessor(const string& filename);
 
         // Generates occupancy grid map from KFs and Map Points. Bugged.
-        void SaveGridMapKITTI(const string& filename);
+        void SaveGridMapKITTI(const string& output_fn);
 
         // Saves KF trajectory in txt file. Translation t and Quaternions.
-        void SaveTrajectoryKITTI(const string& filename);
+        void SaveTrajectoryKITTI(const string& output_fn);
 
         // Extracts map points and the timestamps at which they are observed in different KFs
-        void SavePointCloud(const string& filename);
-
-        // Opens the generated grid map as a pgm file.
-        static void OpenMap(const string& filename);
+        void SavePointCloud(const string& output_fn);
 
         void OpenMapPangolin();
 
         // Converts the MPs saved in the map to a PCL point cloud and saves it as .pcd
-        void FilterOutliers(const string& outfn);
+        void FilterOutliers();
 
         static void ViewPC(const string& pcl_filename);
 

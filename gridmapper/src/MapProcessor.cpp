@@ -41,16 +41,15 @@ namespace ORB_SLAM2
         in.close();
     }
 
-    /*
-    void MapProcessor::SaveGridMapKITTI(const string &filename)
+    void MapProcessor::SaveGridMapKITTI(const string &output_fn)
     {
-        cout << endl << "Saving grid map to " << filename << " ..." << endl;
+        cout << endl << "Saving grid map to " << output_fn << " ..." << endl;
         vector<MapPoint *> MPs = map->GetAllMapPoints();
 
         // Transform all keyframes so that the first keyframe is at the origin.
         // After a loop closure the first keyframe might not be at the origin.
         ofstream f;
-        f.open(filename.c_str());
+        f.open(output_fn.c_str());
         //f << fixed;
 
         f << "P2" << endl;
@@ -187,11 +186,10 @@ namespace ORB_SLAM2
         f.close();
         cout << endl << "Grid map saved!" << endl;
     }
-    */
 
-    void MapProcessor::SaveTrajectoryKITTI(const string &filename)
+    void MapProcessor::SaveTrajectoryKITTI(const string &output_fn)
     {
-        cout << endl << "Saving camera trajectory to " << filename << " ..." << endl;
+        cout << endl << "Saving camera trajectory to " << output_fn << " ..." << endl;
 
         KFs = map->GetAllKeyFrames();
         sort(KFs.begin(), KFs.end(), KeyFrame::lId);
@@ -201,7 +199,7 @@ namespace ORB_SLAM2
         cv::Mat Two = KFs[0]->GetPoseInverse();
 
         ofstream f;
-        f.open(filename.c_str());
+        f.open(output_fn.c_str());
         f << fixed;
 
         // Frame pose is stored relative to its reference keyframe (which is optimized by BA and pose graph).
@@ -241,10 +239,10 @@ namespace ORB_SLAM2
         cout << endl << "trajectory saved!" << endl;
     }
 
-    void MapProcessor::SavePointCloud(const string &filename)
+    void MapProcessor::SavePointCloud(const string &output_fn)
     {
-        cout << "Saving map points along with keyframe pose to " << filename << endl;
-        ofstream fout(filename.c_str(), ios::out);
+        cout << "Saving map points along with keyframe pose to " << output_fn << endl;
+        ofstream fout(output_fn.c_str(), ios::out);
         vector<MapPoint *> MPs = map->GetAllMapPoints();
         cout << "  writing " << MPs.size() << " map points" << endl;
 
@@ -263,18 +261,6 @@ namespace ORB_SLAM2
             fout << endl;
         }
         fout.close();
-    }
-
-    void MapProcessor::OpenMap(const string &path)
-    {
-        cv::Mat gmap = cv::imread(path);
-        while(true)
-        {
-           cv::imshow("Grid Map", gmap);
-           if (cv::waitKey(0) == 27)
-               break;
-        }
-        cv::destroyAllWindows();
     }
 
     void MapProcessor::OpenMapPangolin()
@@ -317,7 +303,7 @@ namespace ORB_SLAM2
         }
     }
 
-    void MapProcessor::FilterOutliers(const string& outfn)
+    void MapProcessor::FilterOutliers()
     {
         vector<MapPoint*> MPs = map->GetAllMapPoints();
 
@@ -340,11 +326,11 @@ namespace ORB_SLAM2
         pcl::PointCloud<PointXYZid>::Ptr cloud_ptr(new pcl::PointCloud<PointXYZid>);
         *cloud_ptr = init_cloud;
 
-        std::cout << "Cloud before filtering: " << std::endl;
-        std::cout << *cloud_ptr << std::endl;
+        // std::cout << "Cloud before filtering: " << std::endl;
+        // std::cout << *cloud_ptr << std::endl;
 
-        pcl::PCDWriter writer;
-        writer.write<PointXYZid> ("../point_clouds/unfiltered.pcd", *cloud_ptr, false);
+        //pcl::PCDWriter writer;
+        //writer.write<PointXYZid> ("../point_clouds/unfiltered.pcd", *cloud_ptr, false);
 
         // Create the filtering object
         pcl::StatisticalOutlierRemoval<PointXYZid> sor;
@@ -356,11 +342,12 @@ namespace ORB_SLAM2
         std::cout << "Cloud after filtering: " << std::endl;
         std::cout << *cloud_filtered << std::endl;
 
-        writer.write<PointXYZid> (outfn, *cloud_filtered, false);
+        // writer.write<PointXYZid> (outfn, *cloud_filtered, false);
 
         sor.setNegative (true);
         sor.filter (*cloud_outliers);
-        writer.write<PointXYZid> ("../point_clouds/outliers.pcd", *cloud_outliers, false);
+
+        // writer.write<PointXYZid> ("../point_clouds/outliers.pcd", *cloud_outliers, false);
 
         uint32_t outlier_id;
 

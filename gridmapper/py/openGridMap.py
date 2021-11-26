@@ -1,28 +1,16 @@
 import cv2 as cv
-import Tkinter as tk
-import Tix
-from PIL import Image, ImageTk
-from tkscrolledframe import ScrolledFrame
+import os
 
-stereo = 0
-reduced = 1
+print os.getcwd()
 
-if stereo == 1:
-    seq_name = 'stKi'
-else:
-    seq_name = 'monoKi'
 
-if reduced == 1:
-    map_name = '{:s}_grid_map_red.pgm'.format(seq_name)
-else:
-    map_name = '{:s}_grid_map_full.pgm'.format(seq_name)
-
+map_name = "gridmap_py_kitti_stereo07.pgm"
 gmap = cv.imread("./maps/{:s}".format(map_name), cv.IMREAD_UNCHANGED)
 
 # gmap = cv.imread("/home/lorenz/Projects/BA/01_Algorithms/ORB_SLAM2_MOD/gridmapper/maps/monoKitti_gridMap_CPP_red.pgm")
 
 while True:
-    cv.imshow("test", gmap)
+    cv.imshow("Grid Map", gmap)
     if cv.waitKey(0) == 27:
         break
 

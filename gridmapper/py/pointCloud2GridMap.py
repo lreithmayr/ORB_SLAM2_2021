@@ -11,6 +11,7 @@ import cv2 as cv
 import sys
 from transforms3d import quaternions
 from tqdm import tqdm
+import os
 
 
 def line_bresenham(start, end):
@@ -63,17 +64,17 @@ def line_bresenham(start, end):
     return points
 
 
-scale_factor = 1
+scale_factor = 2
 resize_factor = 1
 filter_ground_points = 0
 load_counters = 0
 
-seq_name = "mono_kitti"
-out_fname = '{:s}_gm_from_binary_07-full'.format(seq_name)
-keyframe_trajectory_fname = "tr_07_mono.txt"
-point_cloud_fname = "pc_07_mono.txt"
+seq_name = "stereo_kitti"
+out_fname = 'gridmap_py_kitti_stereo07'
+keyframe_trajectory_fname = "traj_kitti_stereo07.txt"
+point_cloud_fname = "mps_and_kfs_kitti_stereo07.txt"
 
-kf_data_path = "./trajectories/{:s}".format(keyframe_trajectory_fname)
+kf_data_path = "./point_clouds/{:s}".format(keyframe_trajectory_fname)
 pc_data_path = "./point_clouds/{:s}".format(point_cloud_fname)
 
 visit_counter_fname = '{:s}_filtered_{:d}_scale_{:d}_visit_counter.txt'.format(
