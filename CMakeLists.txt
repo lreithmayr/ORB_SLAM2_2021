@@ -9,7 +9,6 @@ MESSAGE("Build type: " ${CMAKE_BUILD_TYPE})
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall  -O3 -march=native ")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall   -O3 -march=native")
-set(CMAKE_PREFIX_PATH _PATH "/opt/ros/noetic;${CMAKE_MODULE_PATH}")
 
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 
@@ -25,41 +24,7 @@ list(APPEND CMAKE_INCLUDE_PATH "/usr/local/include")
 find_package (Eigen3 3.4 REQUIRED NO_MODULE)
 find_package(Pangolin REQUIRED)
 find_package(PCL 1.12 REQUIRED)
-find_package(catkin REQUIRED COMPONENTS
-        roscpp
-        grid_map_core
-        grid_map_msgs
-        grid_map_cv
-        sensor_msgs
-        nav_msgs
-        std_msgs
-        geometry_msgs
-        cv_bridge
-        rosbag
-        tf
-        visualization_msgs
-        )
 
-catkin_package(
-        INCLUDE_DIRS
-        include
-        LIBRARIES
-        ${PROJECT_NAME}
-        CATKIN_DEPENDS
-        roscpp
-        grid_map_core
-        grid_map_msgs
-        grid_map_cv
-        sensor_msgs
-        nav_msgs
-        std_msgs
-        geometry_msgs
-        cv_bridge
-        rosbag
-        tf
-        visualization_msgs
-        DEPENDS
-)
 include_directories(
 ${PROJECT_SOURCE_DIR}
 ${PROJECT_SOURCE_DIR}/include
@@ -67,8 +32,6 @@ ${PROJECT_SOURCE_DIR}/gridmapper/include
 ${EIGEN3_INCLUDE_DIR}
 ${Pangolin_INCLUDE_DIRS}
 ${PCL_INCLUDE_DIR}
-${catkin_INCLUDE_DIRS}
-/opt/ros/noetic/include
 )
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
@@ -93,12 +56,10 @@ src/KeyFrameDatabase.cc
 src/Sim3Solver.cc
 src/Initializer.cc
 src/Viewer.cc
-# gridmapper/src/MapProcessor.cpp
+gridmapper/src/MapProcessor.cpp
 )
 
-link_directories(${PCL_LIBRARY_DIRS}
-        /opt/ros/indigo/lib
-        )
+link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
 target_link_libraries(${PROJECT_NAME}
@@ -125,16 +86,11 @@ add_executable(stereo_kitti
 Examples/Stereo/stereo_kitti.cc)
 target_link_libraries(stereo_kitti ${PROJECT_NAME})
 
-add_executable(stereo_kitti_ros
-        Examples/Stereo/stereo_kitti_ros.cc)
-target_link_libraries(stereo_kitti_ros ${PROJECT_NAME})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/gridmapper/src)
 
-
-# set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/gridmapper/src)
-#
-# add_executable(gridmapper
-# gridmapper/src/gridmapper.cpp)
-# target_link_libraries(gridmapper ${PROJECT_NAME})
+add_executable(gridmapper
+gridmapper/src/gridmapper.cpp)
+target_link_libraries(gridmapper ${PROJECT_NAME})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/Monocular)
 
