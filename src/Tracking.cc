@@ -1229,7 +1229,6 @@ void Tracking::UpdateLocalPoints()
     }
 }
 
-
 void Tracking::UpdateLocalKeyFrames()
 {
     // Each map point vote for the keyframes in which it has been observed
@@ -1355,7 +1354,7 @@ bool Tracking::Relocalization()
     const int nKFs = vpCandidateKFs.size();
 
     // We perform first an ORB matching with each candidate
-    // If enough matches are found we setup a PnP solver
+    // If enough matches are found we set up a PnP solver
     ORBmatcher matcher(0.75,true);
 
     vector<PnPsolver*> vpPnPsolvers;

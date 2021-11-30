@@ -28,16 +28,64 @@
 
 #include<pangolin/pangolin.h>
 
+#include <ros/ros.h>
+#include<sensor_msgs/PointCloud2.h>
+#include<pcl_conversions/pcl_conversions.h>
+
+#include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
+#include <pcl/filters/statistical_outlier_removal.h>
+#include <pcl/visualization/cloud_viewer.h>
+
+
 #include<System.h>
 
 using namespace std;
 
-
 void LoadImages(const string &strPathToSequence, vector<string> &vstrImageLeft,
                 vector<string> &vstrImageRight, vector<double> &vTimestamps);
 
+void PublishPointCloud(vector<ORB_SLAM2::MapPoint*>& MPs, ros::NodeHandle& nh, ros::Publisher& pub_pc2)
+{
+    pcl::PointCloud<pcl::PointXYZ> init_cloud;
+    init_cloud.width = MPs.size();
+    init_cloud.height = 1;
+    init_cloud.is_dense = true;
+    init_cloud.points.resize (init_cloud.width * init_cloud.height);
+
+    for (uint32_t i = 0; i < init_cloud.width; i++)
+    {
+        init_cloud[i].x = MPs[i]->GetWorldPos().at<float>(0);
+        init_cloud[i].y = MPs[i]->GetWorldPos().at<float>(1);
+        init_cloud[i].z = MPs[i]->GetWorldPos().at<float>(2);
+    }
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_outliers (new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>);
+    *cloud_ptr = init_cloud;
+
+    // Create the filtering object
+    pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
+    sor.setInputCloud (cloud_ptr);
+    sor.setMeanK (50);
+    sor.setStddevMulThresh (1.0);
+    sor.filter (*cloud_filtered);
+
+    sensor_msgs::PointCloud2 cloud_msg;
+    pcl::toROSMsg(*cloud_filtered, cloud_msg);
+
+    nh.advertise<sensor_msgs::PointCloud2>(nh.resolveName("Point Cloud"), 1);
+    pub_pc2.publish(cloud_msg);
+}
+
 int main(int argc, char **argv)
 {
+    ros::init(argc, argv, "Publisher");
+    ros::start();
+    ros::NodeHandle nh;
+    ros::Publisher pub_pc2;
+
     if(argc != 5)
     {
         cerr << endl << "Usage: ./stereo_kitti path_to_vocabulary path_to_settings path_to_sequence" << endl;
@@ -90,6 +138,10 @@ int main(int argc, char **argv)
 
         // Pass the images to the SLAM system
         SLAM.TrackStereo(imLeft,imRight,tframe);
+
+        vector<ORB_SLAM2::MapPoint*> MPs = SLAM.GetTrackedMapPoints();
+        PublishPointCloud(MPs, nh, pub_pc2);
+        ros::spin();
 
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
 
@@ -163,4 +215,3 @@ void LoadImages(const string &strPathToSequence, vector<string> &vstrImageLeft,
         vstrImageRight[i] = strPrefixRight + ss.str() + ".png";
     }
 }
-
