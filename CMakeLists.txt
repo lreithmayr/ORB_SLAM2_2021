@@ -24,14 +24,19 @@ list(APPEND CMAKE_INCLUDE_PATH "/usr/local/include")
 find_package (Eigen3 3.4 REQUIRED NO_MODULE)
 find_package(Pangolin REQUIRED)
 find_package(PCL 1.12 REQUIRED)
+find_package(catkin REQUIRED COMPONENTS
+        roscpp
+        sensor_msgs
+        )
 
 include_directories(
 ${PROJECT_SOURCE_DIR}
 ${PROJECT_SOURCE_DIR}/include
-${PROJECT_SOURCE_DIR}/gridmapper/include
+# ${PROJECT_SOURCE_DIR}/gridmapper/include
 ${EIGEN3_INCLUDE_DIR}
 ${Pangolin_INCLUDE_DIRS}
 ${PCL_INCLUDE_DIR}
+${catkin_INCLUDE_DIRS}
 )
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
@@ -56,7 +61,7 @@ src/KeyFrameDatabase.cc
 src/Sim3Solver.cc
 src/Initializer.cc
 src/Viewer.cc
-gridmapper/src/MapProcessor.cpp
+# gridmapper/src/MapProcessor.cpp
 )
 
 link_directories(${PCL_LIBRARY_DIRS})
@@ -69,6 +74,7 @@ ${PCL_LIBRARIES}
 ${Pangolin_LIBRARIES}
 ${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so
 ${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
+${catkin_LIBRARIES}
 )
 
 message(STATUS "Compile With map save/load function")
@@ -86,19 +92,18 @@ add_executable(stereo_kitti
 Examples/Stereo/stereo_kitti.cc)
 target_link_libraries(stereo_kitti ${PROJECT_NAME})
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/gridmapper/src)
+add_executable(ros_stereo_kitti
+        Examples/Stereo/ros_stereo_kitti.cc)
+target_link_libraries(ros_stereo_kitti ${PROJECT_NAME})
 
-add_executable(gridmapper
-gridmapper/src/gridmapper.cpp)
-target_link_libraries(gridmapper ${PROJECT_NAME})
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/Monocular)
-
-add_executable(mono_kitti
-Examples/Monocular/mono_kitti.cc)
-target_link_libraries(mono_kitti ${PROJECT_NAME})
+# set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/gridmapper/src)
+#
+# add_executable(gridmapper
+# gridmapper/src/gridmapper.cpp)
+# target_link_libraries(gridmapper ${PROJECT_NAME})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Vocabulary)
+
 add_executable(bin_vocabulary Vocabulary/bin_vocabulary.cpp)
 target_link_libraries(bin_vocabulary ${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so ${OpenCV_LIBS})
 

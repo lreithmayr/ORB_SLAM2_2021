@@ -64,3 +64,4 @@ testing/cmake-build-debug
 /gridmapper/point_clouds/elevation_map.bag
 /gridmapper/point_clouds/filtered_pc_stereo07.pcd
 /gridmapper/point_clouds/
+/Examples/Stereo/ros_stereo_kitti

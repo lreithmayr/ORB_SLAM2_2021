@@ -29,8 +29,8 @@
 #include<pangolin/pangolin.h>
 
 #include <ros/ros.h>
-#include<sensor_msgs/PointCloud2.h>
-#include<pcl_conversions/pcl_conversions.h>
+#include <sensor_msgs/PointCloud2.h>
+#include <pcl_conversions/pcl_conversions.h>
 
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
@@ -140,8 +140,8 @@ int main(int argc, char **argv)
         SLAM.TrackStereo(imLeft,imRight,tframe);
 
         vector<ORB_SLAM2::MapPoint*> MPs = SLAM.GetTrackedMapPoints();
-        PublishPointCloud(MPs, nh, pub_pc2);
-        ros::spin();
+        // PublishPointCloud(MPs, nh, pub_pc2);
+        //ros::spin();
 
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
 
