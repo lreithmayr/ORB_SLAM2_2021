@@ -9,7 +9,7 @@
   * **Eigen 3.4** supported
 * **Video** input and live **webcam** feed now supported
 * **Camera calibration** tools added
-* **Map saving and loading** thanks to Alkaid Benetnash "https://github.com/Alkaid-Benetnash/ORB_SLAM2"
+* **Map saving and loading** thanks to Alkaid Benetnash "https://github.com/Alkaid-Benetnash/ORB_SLAM2" (requires **Boost Serialization 1.71 or lower**)
 
 **TO-DO:**
 * Grid map generation from point clouds in binary map for **navigation and path planning**
