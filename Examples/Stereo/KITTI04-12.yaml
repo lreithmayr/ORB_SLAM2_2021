@@ -19,7 +19,7 @@ Camera.width: 1241
 Camera.height: 376
 
 # Camera frames per second 
-Camera.fps: 25.0
+Camera.fps: 10.0
 
 # stereo baseline times fx
 Camera.bf: 379.8145
@@ -68,4 +68,4 @@ Viewer.ViewpointF: 2000
 # Map Parameters
 #--------------------------------------------------------------------------------------------
 
-Map.mapfile: ../../gridmapper/maps/map_07_stereo.bin
+Map.mapfile: ../gridmapper/maps/map_07_stereo.bin

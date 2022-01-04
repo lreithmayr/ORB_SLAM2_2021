@@ -78,8 +78,16 @@ add_executable(stereo_kitti
 Examples/Stereo/stereo_kitti.cc)
 target_link_libraries(stereo_kitti ${PROJECT_NAME})
 
+add_executable(arducam_stereo Examples/Stereo/arducam_stereoHAT.cpp)
+include_directories(arducam_stereo
+/home/pi/Libraries/MIPI_Camera/RPI
+)
+target_link_libraries(arducam_stereo 
+${OpenCV_LIBS} 
+/home/pi/Libraries/MIPI_Camera/RPI/lib/libarducam_mipicamera.so
+)
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Vocabulary)
 
 add_executable(bin_vocabulary Vocabulary/bin_vocabulary.cpp)
 target_link_libraries(bin_vocabulary ${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so ${OpenCV_LIBS})
-
