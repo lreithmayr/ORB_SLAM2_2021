@@ -1,9 +1,0 @@
-Gtk-Message: 09:26:34.474: Failed to load module "canberra-gtk-module"
-Gtk-Message: 09:26:34.499: Failed to load module "canberra-gtk-module"
-libEGL warning: DRI2: failed to authenticate
-[2375:2375:0104/092636.713021:ERROR:gpu_init.cc(441)] Passthrough is not supported, GL is egl
-[2375:2375:0104/092637.205997:ERROR:viz_main_impl.cc(162)] Exiting GPU process due to errors during initialization
-[2405:2405:0104/092637.758221:ERROR:gpu_init.cc(441)] Passthrough is not supported, GL is swiftshader
-[2323:2460:0104/092641.767108:ERROR:object_proxy.cc(622)] Failed to call method: org.freedesktop.DBus.Properties.Get: object_path= /org/freedesktop/UPower: org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.UPower was not provided by any .service files
-[2323:2460:0104/092641.796802:ERROR:object_proxy.cc(622)] Failed to call method: org.freedesktop.UPower.GetDisplayDevice: object_path= /org/freedesktop/UPower: org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.UPower was not provided by any .service files
-[2323:2460:0104/092641.798178:ERROR:object_proxy.cc(622)] Failed to call method: org.freedesktop.UPower.EnumerateDevices: object_path= /org/freedesktop/UPower: org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.UPower was not provided by any .service files
