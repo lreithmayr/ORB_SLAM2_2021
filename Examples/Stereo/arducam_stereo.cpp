@@ -12,10 +12,12 @@
 #include<iostream>
 #include <vector>
 
-cv::Mat dynamicThreWihteBalance(cv::Mat image);
-int getWhitePointThre(cv::Mat whiteRegion);
-void WhitePointMask(cv::Mat Cr, cv::Mat Cb, cv::Mat RL);
-cv::Mat choiceWhitePoint(cv::Mat YCrCb, int mBlocks, int nBlocks);
+#include"System.h"
+
+// cv::Mat dynamicThreWihteBalance(cv::Mat image);
+// int getWhitePointThre(cv::Mat whiteRegion);
+// void WhitePointMask(cv::Mat Cr, cv::Mat Cb, cv::Mat RL);
+// cv::Mat choiceWhitePoint(cv::Mat YCrCb, int mBlocks, int nBlocks);
 
 #define VCOS_ALIGN_DOWN(p,n) (((ptrdiff_t)(p)) & ~((n)-1))
 #define VCOS_ALIGN_UP(p,n) VCOS_ALIGN_DOWN((ptrdiff_t)(p)+(n)-1,(n))
@@ -29,8 +31,9 @@ using namespace std;
 // #define SOFTWARE_AE_AWB
 
 int frame_count = 0;
-Mat *get_image(CAMERA_INSTANCE camera_instance, int width, int height) {
-    IMAGE_FORMAT fmt = {IMAGE_ENCODING_I420, 50};
+Mat *get_image(CAMERA_INSTANCE camera_instance, int width, int height) 
+{
+    IMAGE_FORMAT fmt = {IMAGE_ENCODING_I420, 100};
     BUFFER *buffer = arducam_capture(camera_instance, &fmt, 3000);
     if (!buffer) 
         return NULL;
@@ -45,6 +48,7 @@ Mat *get_image(CAMERA_INSTANCE camera_instance, int width, int height) {
     return image;
 }
 
+/*
 void CountTemperature(const Mat result,Mat &Temperature ,const short phi=180)
 {
     Mat_<Vec3f>::const_iterator rit=result.begin<Vec3f>();
@@ -242,11 +246,11 @@ Mat dynamicThreWihteBalance(Mat image)
 
 	return image;
 }
+*/
 
 int main(int argc, char **argv) 
 {
     CAMERA_INSTANCE camera_instance;
-    char file_name[100];
 
     LOG("Open Camera...");
     int res = arducam_init_camera(&camera_instance);
@@ -257,6 +261,7 @@ int main(int argc, char **argv)
 
     int width = 640*2;
     int height = 480;
+
     res = arducam_set_resolution(camera_instance, &width, &height);
     if (res) {
          LOG("set resolution status = %d", res);
@@ -266,6 +271,8 @@ int main(int argc, char **argv)
          LOG("Notice:You can use the list_format sample program to see the resolution and control supported by the camera.");
     }
 
+//    arducam_set_mode(camera_instance, 10);
+//    printCurrentMode(camera_instance);
 
     #if defined(SOFTWARE_AE_AWB)
         LOG("Enable Software Auto Exposure...");
