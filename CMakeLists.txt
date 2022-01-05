@@ -78,7 +78,7 @@ add_executable(stereo_kitti
 Examples/Stereo/stereo_kitti.cc)
 target_link_libraries(stereo_kitti ${PROJECT_NAME})
 
-add_executable(arducam_stereo Examples/Stereo/arducam_stereoHAT.cpp)
+add_executable(arducam_stereo Examples/Stereo/arducam_stereo.cpp)
 include_directories(arducam_stereo
 /home/pi/Libraries/MIPI_Camera/RPI
 )
