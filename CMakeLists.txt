@@ -83,8 +83,8 @@ include_directories(arducam_stereo
 /home/pi/Libraries/MIPI_Camera/RPI
 )
 target_link_libraries(arducam_stereo 
-${OpenCV_LIBS} 
 /home/pi/Libraries/MIPI_Camera/RPI/lib/libarducam_mipicamera.so
+${PROJECT_NAME}
 )
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Vocabulary)
