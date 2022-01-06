@@ -184,6 +184,11 @@ cv::Mat System::TrackStereo(const cv::Mat &imLeft, const cv::Mat &imRight, const
 
     unique_lock<mutex> lock2(mMutexState);
     mTrackingState = mpTracker->mState;
+    if (mTrackingState == 2)
+        std::cout << "State: Tracking!" << endl;
+    else if (mTrackingState == 3)
+        std::cout << "State: Tracking lost! Relocalizing." << endl;
+
     mTrackedMapPoints = mpTracker->mCurrentFrame.mvpMapPoints;
     mTrackedKeyPointsUn = mpTracker->mCurrentFrame.mvKeysUn;
     return Tcw;
