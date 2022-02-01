@@ -55,6 +55,11 @@ int main(int argc, char **argv)
     int width = 640*2;
     int height = 480;
 
+    //res = arducam_set_mode(camera_instance, 10); 
+//    struct format fmt;
+//    fmt.mode = 10; 
+//    std::cout << fmt.mode << endl;
+    
     res = arducam_set_resolution(camera_instance, &width, &height);
     if (res) {
          LOG("set resolution status = %d", res);
@@ -63,16 +68,18 @@ int main(int argc, char **argv)
          LOG("Current resolution is %dx%d", width, height);
          LOG("Notice:You can use the list_format sample program to see the resolution and control supported by the camera.");
     }
+    
 
     while(true)
     {
-        cv::Mat *image = get_image(camera_instance, width, height);
+        cv::Mat* image = get_image(camera_instance, width, height);
         if(!image)
             continue;
 	    cv::Mat img = *image;	
 	    cv::Mat imLeft = img(cv::Rect(0, 0, (width/2), height));
 	    cv::Mat imRight = img(cv::Rect((width/2), 0, (width/2), height)); 
 
+        // FIXME: Get actual time between frames.
         double tframe = (double) 21.00053;
 
         SLAM.TrackStereo(imLeft, imRight, tframe);
