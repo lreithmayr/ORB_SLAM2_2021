@@ -6,37 +6,99 @@
 
 # fx,fy: Focal length | cx, cy: Optical centers
 # Camera calibration and distortion parameters (OpenCV) 
-Camera.fx: 718.856
-Camera.fy: 718.856
-Camera.cx: 607.1928
-Camera.cy: 185.2157
+Camera.fx: 5.568288241868309569e+02
+Camera.fy: 5.568288241868309569e+02 
+Camera.cx: 3.213230165659570048e+02
+Camera.cy: 2.374022171235515088e+02
 
 Camera.k1: 0.0
 Camera.k2: 0.0
 Camera.p1: 0.0
 Camera.p2: 0.0
 
-Camera.width: 1241
-Camera.height: 376
+Camera.width: 640
+Camera.height: 480
 
 # Camera frames per second 
-Camera.fps: 10.0
+Camera.fps: 45.0
 
-# stereo baseline times fx
-Camera.bf: 386.1448
+# stereo baseline [m] times fx
+Camera.bf: 45.3432
 
 # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
 Camera.RGB: 1
 
 # Close/Far threshold. Baseline times.
-ThDepth: 35
+ThDepth: 50 
+
+#--------------------------------------------------------------------------------------------
+# Stereo Rectification. Only if you need to pre-rectify the images.
+# Camera.fx, .fy, etc must be the same as in LEFT.P
+#--------------------------------------------------------------------------------------------
+LEFT.height: 480
+LEFT.width: 640
+
+# dist_coeffs_left
+LEFT.D: !!opencv-matrix
+   rows: 1
+   cols: 5
+   dt: d
+   data:[-8.532379936023476441e-02, 9.821986911689003508e-01, 0.0, 0.0, -3.328705363506744508e+00]
+
+# cam_mats_left
+LEFT.K: !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [5.568288241868309569e+02, 0.0, 3.213230165659570048e+02, 0.0, 5.568288241868309569e+02, 2.3740221712355150, 0.0, 0.0, 1.0]
+
+# rect_trans_left
+LEFT.R:  !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [9.998948179779830747e-01, -4.347053904651112730e-03, -1.383676635367858676e-02, 4.373632527562792624e-03, 9.999886473060990433e-01, 1.891189422611824810e-03, 1.382838816674159498e-02, -1.951507434885074027e-03, 9.999024788945378717e-01]
+
+# proj_mats_left
+LEFT.P:  !!opencv-matrix
+   rows: 3
+   cols: 4
+   dt: d
+   data: [5.568288241868309569e+02, 0, 3.315752944946289062e+02, 0,  0, 5.568288241868309569e+02, 2.420075225830078125e+02, 0,  0, 0, 1, 0]
+
+RIGHT.height: 480
+RIGHT.width: 640
+
+RIGHT.D: !!opencv-matrix
+   rows: 1
+   cols: 5
+   dt: d
+   data:[-1.979586108035817985e-02, 2.387640211640551235e-01, 0.0, 0.0, -1.059057297124586627e+00]
+
+RIGHT.K: !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [5.568288241868309569e+02, 0.0, 3.220380668950418794e+02, 0.0, 5.568288241868309569e+02, 2.465940516612948841e+02, 0.0, 0.0, 1]
+
+RIGHT.R:  !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [9.999066665058594650e-01, -5.328280730039406873e-03, 1.258044918123411154e-02, 5.352443520095159779e-03, 9.999838936988647564e-01, -1.887774144760751829e-03, -1.257018796613298788e-02, 1.954934095903654995e-03, 9.999190810296485488e-01]
+
+RIGHT.P:  !!opencv-matrix
+   rows: 3
+   cols: 4
+   dt: d
+   data: [5.568288241868309569e+02, 0, 3.126887969970703125e+02, -4.435758579899462347e+03, 0, 5.568288241868309569e+02, 2.420075225830078125e+02, 0, 0, 0, 1, 0]
 
 #--------------------------------------------------------------------------------------------
 # ORB Parameters
 #--------------------------------------------------------------------------------------------
 
 # ORB Extractor: Number of features per image
-ORBextractor.nFeatures: 2000
+ORBextractor.nFeatures: 1500
 
 # ORB Extractor: Scale factor between levels in the scale pyramid 	
 ORBextractor.scaleFactor: 1.2
@@ -57,7 +119,7 @@ ORBextractor.minThFAST: 7
 Viewer.KeyFrameSize: 0.6
 Viewer.KeyFrameLineWidth: 2
 Viewer.GraphLineWidth: 1
-Viewer.PointSize:2
+Viewer.PointSize: 2
 Viewer.CameraSize: 0.7
 Viewer.CameraLineWidth: 3
 Viewer.ViewpointX: 0
