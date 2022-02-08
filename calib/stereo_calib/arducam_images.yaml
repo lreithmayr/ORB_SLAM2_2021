@@ -6,13 +6,13 @@
 
 # fx,fy: Focal length | cx, cy: Optical centers
 # Camera calibration and distortion parameters (OpenCV) 
-Camera.fx: 5.568288241868309569e+02
-Camera.fy: 5.568288241868309569e+02 
-Camera.cx: 3.213230165659570048e+02
-Camera.cy: 2.374022171235515088e+02
+Camera.fx: 5.718651471037886722e+02
+Camera.fy: 5.718651471037886722e+02 
+Camera.cx: 3.131691616706852415e+02
+Camera.cy: 2.408722602077143620e+02
 
-Camera.k1: 0.0
-Camera.k2: 0.0
+Camera.k1: -1.868903213635826066e-01
+Camera.k2: 1.761377223529102087e+00
 Camera.p1: 0.0
 Camera.p2: 0.0
 
@@ -23,7 +23,7 @@ Camera.height: 480
 Camera.fps: 10
 
 # stereo baseline [m] times fx
-Camera.bf: 45.3432
+Camera.bf: 45.7492
 
 # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
 Camera.RGB: 1
@@ -36,7 +36,7 @@ ThDepth: 35
 #--------------------------------------------------------------------------------------------
 
 # ORB Extractor: Number of features per image
-ORBextractor.nFeatures: 1500
+ORBextractor.nFeatures: 2000
 
 # ORB Extractor: Scale factor between levels in the scale pyramid 	
 ORBextractor.scaleFactor: 1.2
@@ -68,5 +68,4 @@ Viewer.ViewpointF: 2000
 #--------------------------------------------------------------------------------------------
 # Map Parameters
 #--------------------------------------------------------------------------------------------
-Map.mapfile: map.bin
-
+Map.mapfile: map_imse_test01.bin
