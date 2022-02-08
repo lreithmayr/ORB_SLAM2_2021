@@ -57,6 +57,11 @@ int main(int argc, char **argv)
         nImages_var = nImages;
     }
 
+    string strSettingsFile = string(argv[2]);
+    cv::FileStorage fsSettings(strSettingsFile.c_str(), cv::FileStorage::READ);
+    int width = fsSettings["Camera.width"];
+    int height = fsSettings["Camera.height"];
+
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
     ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::STEREO,true, true);
 
@@ -70,14 +75,12 @@ int main(int argc, char **argv)
 
     // Main loop
     cv::Mat img, imLeft, imRight;
-    int width = 1280;
-    int height = 480;
     for(int i=0; i<nImages_var; i++)
     {
         // Read left and right images from file
         img = cv::imread(vstrImages[i], CV_LOAD_IMAGE_UNCHANGED);
-	    imLeft = img(cv::Rect(0, 0, (width/2), height));
-	    imRight = img(cv::Rect((width/2), 0, (width/2), height)); 
+	    imLeft = img(cv::Rect(0, 0, (width), height));
+	    imRight = img(cv::Rect((width), 0, (width), height)); 
         double tframe = vTimestamps[i];
 
         if(imLeft.empty())
@@ -107,6 +110,10 @@ int main(int argc, char **argv)
 
         if(ttrack<T)
             std::this_thread::sleep_for(std::chrono::microseconds(static_cast<size_t>((T-ttrack)*1e6)));
+
+        cv::imshow("Window", img);
+        if (cv::waitKey(1) == 27)
+            break;
     }
 
     // Stop all threads

@@ -6,7 +6,7 @@ import json
 import cv2
 import numpy as np
 
-sequence_name = "short_test"
+sequence_name = "imse_werkstatt"
 os.makedirs(sequence_name, exist_ok=True)
 
 def align_down(size, align):
