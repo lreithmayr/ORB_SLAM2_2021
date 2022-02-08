@@ -70,3 +70,5 @@ testing/cmake-build-debug
 /Examples/Stereo/arducam_images
 /Examples/Stereo/arducam_stereo
 /scripts/map.bin
+
+# /video_capture/

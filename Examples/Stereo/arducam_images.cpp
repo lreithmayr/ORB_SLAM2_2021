@@ -132,7 +132,7 @@ int main(int argc, char **argv)
 void LoadImages(const string &strPathToSequence, vector<string> &vstrImages, vector<double> &vTimestamps)
 {
     ifstream fTimes;
-    string strPathTimeFile = "/home/pi/Libraries/MIPI_Camera/RPI/stereo_depth_demo/times.txt";
+    string strPathTimeFile = strPathToSequence + "times.txt";
     fTimes.open(strPathTimeFile.c_str());
     while(!fTimes.eof())
     {

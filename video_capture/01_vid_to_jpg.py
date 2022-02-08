@@ -34,7 +34,7 @@ fmt = camera.get_format()
 print("Current mode: {},resolution: {}x{}".format(fmt['mode'], fmt['width'], fmt['height']))
 # camera.set_control(0x00980911, 1000)
 
-# Camera settimgs
+# Camera settings
 cam_width = fmt['width']              # Cam sensor width settings
 cam_height = fmt['height']              # Cam sensor height settings
 print ("Used camera resolution: "+str(cam_width)+" x "+str(cam_height))
@@ -65,7 +65,7 @@ while True:
         break
 print ("Video finished")
 
-f = open('./' + sequence_name + '/' + sequence_name + '_times.txt', "w")
+f = open('./' + sequence_name + '/' + 'times.txt', "w")
 for time in ts:
     f.write(str(time) + "\n")
 f.close()
