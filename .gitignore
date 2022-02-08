@@ -66,3 +66,7 @@ testing/cmake-build-debug
 /gridmapper/point_clouds/
 /Examples/Stereo/ros_stereo_kitti
 /cmake-build-release/
+
+/Examples/Stereo/arducam_images
+/Examples/Stereo/arducam_stereo
+/scripts/map.bin

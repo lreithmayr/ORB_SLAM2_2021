@@ -14,6 +14,30 @@
 
 #define LOG(fmt, args...) fprintf(stderr, fmt "\n", ##args)
 
+// template <class T>
+// class circular_buffer {
+// public:
+// 	explicit circular_buffer(size_t size) :
+// 		buf_(std::unique_ptr<T[]>(new T[size])),
+// 		max_size_(size)
+// 
+// 	void put(T item);
+// 	T get();
+// 	void reset();
+// 	bool empty() const;
+// 	bool full() const;
+// 	size_t capacity() const;
+// 	size_t size() const;
+// 
+// private:
+// 	std::mutex mutex_;
+// 	std::unique_ptr<T[]> buf_;
+// 	size_t head_ = 0;
+// 	size_t tail_ = 0;
+// 	const size_t max_size_;
+// 	bool full_ = 0;
+// };
+
 cv::Mat *get_image(CAMERA_INSTANCE camera_instance, int width, int height) 
 {
     IMAGE_FORMAT fmt = {IMAGE_ENCODING_I420, 100};
@@ -120,8 +144,8 @@ int main(int argc, char **argv)
 	    cv::Mat imLeft = img(cv::Rect(0, 0, (width/2), height));
 	    cv::Mat imRight = img(cv::Rect((width/2), 0, (width/2), height)); 
 
-        cv::remap(imLeft,imLeftRect,M1l,M2l,cv::INTER_LINEAR);
-        cv::remap(imRight,imRightRect,M1r,M2r,cv::INTER_LINEAR);
+        // cv::remap(imLeft,imLeftRect,M1l,M2l,cv::INTER_LINEAR);
+        // cv::remap(imRight,imRightRect,M1r,M2r,cv::INTER_LINEAR);
 
         std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 
@@ -130,8 +154,10 @@ int main(int argc, char **argv)
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
 
         double tracking_time = std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
+        std::cout << tracking_time << endl;
 
         tframe = tframe + tracking_time;
+        std::cout << tframe << endl;
 
 	    delete image;
     

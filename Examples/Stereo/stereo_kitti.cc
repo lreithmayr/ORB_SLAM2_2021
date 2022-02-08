@@ -72,17 +72,17 @@ int main(int argc, char **argv)
 
     // Main loop
     cv::Mat imLeft, imRight;
-    for(int ni=0; ni<nImages_var; ni++)
+    for(int i=0; i<nImages_var; i++)
     {
         // Read left and right images from file
-        imLeft = cv::imread(vstrImageLeft[ni],CV_LOAD_IMAGE_UNCHANGED);
-        imRight = cv::imread(vstrImageRight[ni],CV_LOAD_IMAGE_UNCHANGED);
-        double tframe = vTimestamps[ni];
+        imLeft = cv::imread(vstrImageLeft[i],CV_LOAD_IMAGE_UNCHANGED);
+        imRight = cv::imread(vstrImageRight[i],CV_LOAD_IMAGE_UNCHANGED);
+        double tframe = vTimestamps[i];
 
         if(imLeft.empty())
         {
             cerr << endl << "Failed to load image at: "
-                 << string(vstrImageLeft[ni]) << endl;
+                 << string(vstrImageLeft[i]) << endl;
             return 1;
         }
 
@@ -95,14 +95,14 @@ int main(int argc, char **argv)
 
         double ttrack= std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
 
-        vTimesTrack[ni]=ttrack;
+        vTimesTrack[i]=ttrack;
 
         // Wait to load the next frame
         double T=0;
-        if(ni<nImages-1)
-            T = vTimestamps[ni+1]-tframe;
-        else if(ni>0)
-            T = tframe-vTimestamps[ni-1];
+        if(i<nImages-1)
+            T = vTimestamps[i+1]-tframe;
+        else if(i>0)
+            T = tframe-vTimestamps[i-1];
 
         if(ttrack<T)
             std::this_thread::sleep_for(std::chrono::microseconds(static_cast<size_t>((T-ttrack)*1e6)));
@@ -114,9 +114,9 @@ int main(int argc, char **argv)
     // Tracking time statistics
     sort(vTimesTrack.begin(),vTimesTrack.end());
     float totaltime = 0;
-    for(int ni=0; ni<nImages; ni++)
+    for(int i=0; i<nImages; i++)
     {
-        totaltime+=vTimesTrack[ni];
+        totaltime+=vTimesTrack[i];
     }
     cout << "-------" << endl << endl;
     cout << "median tracking time: " << vTimesTrack[nImages/2] << endl;
