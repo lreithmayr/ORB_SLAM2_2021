@@ -17,17 +17,16 @@ Camera.cy: 235.5980
 # k: Radial Distortion Coefficients; p: Tangential Distortion Coefficients (both from Left Camera)
 Camera.k1: 0.0353
 Camera.k2: -0.1320
-Camera.p1: 2.6586e-04
-Camera.p2: 6.4766e-06
+Camera.p1: 0
+Camera.p2: 0
 
 Camera.width: 640
 Camera.height: 480
 
 # Camera frames per second 
-Camera.fps: 25
-
+Camera.fps: 20
 # stereo baseline [m] times fx
-Camera.bf: 45.7492
+Camera.bf: 45.7237
 
 # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
 Camera.RGB: 1
@@ -48,7 +47,7 @@ LEFT.D: !!opencv-matrix
   rows: 1
   cols: 5
   dt: d
-  data:[-0.18689, 1.76138, 0, 0, -5.31384]
+  data:[0.0353, -0.1320, 0, 0, 0]
 
 # Camera Matrix K
 LEFT.K: !!opencv-matrix
@@ -77,7 +76,7 @@ RIGHT.D: !!opencv-matrix
   rows: 1
   cols: 5
   dt: d
-  data:[3.147110322769486324e-02, -3.306620653205059601e-01, 0, 0, 5.498836697547124786e-01]
+  data:[0.0353, -0.1320, 0, 0, 0]
 RIGHT.K: !!opencv-matrix
   rows: 3
   cols: 3
@@ -99,7 +98,7 @@ RIGHT.P:  !!opencv-matrix
 #--------------------------------------------------------------------------------------------
 
 # ORB Extractor: Number of features per image
-ORBextractor.nFeatures: 2000
+ORBextractor.nFeatures: 1000
 
 # ORB Extractor: Scale factor between levels in the scale pyramid 	
 ORBextractor.scaleFactor: 1.2
