@@ -5,22 +5,26 @@
 #--------------------------------------------------------------------------------------------
 
 # fx,fy: Focal length | cx, cy: Optical centers
-# Camera calibration and distortion parameters (OpenCV) 
-Camera.fx: 5.718651471037886722e+02
-Camera.fy: 5.718651471037886722e+02 
-Camera.cx: 3.131691616706852415e+02
-Camera.cy: 2.408722602077143620e+02
+# Camera calibration and distortion parameters
+# Values from MATLAB Stereo Camera Calibration:
 
-Camera.k1: -1.868903213635826066e-01
-Camera.k2: 1.761377223529102087e+00
-Camera.p1: 0.0
-Camera.p2: 0.0
+# IntrinsicMatrix (= Projection Matrix P of Left Camera)
+Camera.fx: 571.5467
+Camera.fy: 569.6745
+Camera.cx: 324.1818
+Camera.cy: 235.5980
+
+# k: Radial Distortion Coefficients; p: Tangential Distortion Coefficients (both from Left Camera)
+Camera.k1: 0.0353
+Camera.k2: -0.1320
+Camera.p1: 2.6586e-04
+Camera.p2: 6.4766e-06
 
 Camera.width: 640
 Camera.height: 480
 
 # Camera frames per second 
-Camera.fps: 5 
+Camera.fps: 25
 
 # stereo baseline [m] times fx
 Camera.bf: 45.7492
@@ -31,12 +35,71 @@ Camera.RGB: 1
 # Close/Far threshold. Baseline times.
 ThDepth: 35
 
+
+#--------------------------------------------------------------------------------------------
+# Stereo Rectification. Only if you need to pre-rectify the images.
+# Camera.fx, .fy, etc must be the same as in LEFT.P
+#--------------------------------------------------------------------------------------------
+LEFT.height: 480
+LEFT.width: 640
+
+# Distortion Coefficients D
+LEFT.D: !!opencv-matrix
+  rows: 1
+  cols: 5
+  dt: d
+  data:[-0.18689, 1.76138, 0, 0, -5.31384]
+
+# Camera Matrix K
+LEFT.K: !!opencv-matrix
+  rows: 3
+  cols: 3
+  dt: d
+  data: [571.865, 0.0, 313.169, 0.0, 571.865, 240.872, 0.0, 0.0, 1.0]
+
+# Rectification Transform (Rotation Matrix) R
+LEFT.R:  !!opencv-matrix
+  rows: 3
+  cols: 3
+  dt: d
+  data: [9.994668928744145919e-01, 8.061252840378725789e-05, -3.264848464452301674e-02, 2.217441138701440641e-04, 9.999571262169475450e-01, 9.257243514772786966e-03, 3.264783113028114914e-02, -9.259548021588480393e-03, 9.994240240723275548e-01]
+
+# Projection Matrix P
+LEFT.P:  !!opencv-matrix
+  rows: 3
+  cols: 4
+  dt: d
+  data: [571.5467, 0, 324.1818,  0, 0, 569.6745, 235.5980, 0,  0, 0, 1, 0]
+
+RIGHT.height: 480
+RIGHT.width: 640
+RIGHT.D: !!opencv-matrix
+  rows: 1
+  cols: 5
+  dt: d
+  data:[3.147110322769486324e-02, -3.306620653205059601e-01, 0, 0, 5.498836697547124786e-01]
+RIGHT.K: !!opencv-matrix
+  rows: 3
+  cols: 3
+  dt: d
+  data: [571.865, 0.0, 314.259, 0.0, 571.865, 241.695, 0.0, 0.0, 1]
+RIGHT.R:  !!opencv-matrix
+  rows: 3
+  cols: 3
+  dt: d
+  data: [9.999987450273946088e-01, -1.493562886394003046e-03, -5.284066049349236960e-04, 1.488606004211630784e-03, 9.999560170164913941e-01, -9.260026170520452987e-03, 5.422137954512636082e-04, 9.259227960196514395e-03, 9.999569854257637225e-01]
+RIGHT.P:  !!opencv-matrix
+  rows: 3
+  cols: 4
+  dt: d
+  data: [5.718651471037886722e+02, 0, 3.149550170898437500e+02, -4.561233713777201956e+03, 0, 5.718651471037886722e+02, 2.412429218292236328e+02, 0, 0, 0, 1, 0]
+
 #--------------------------------------------------------------------------------------------
 # ORB Parameters
 #--------------------------------------------------------------------------------------------
 
 # ORB Extractor: Number of features per image
-ORBextractor.nFeatures: 5000
+ORBextractor.nFeatures: 2000
 
 # ORB Extractor: Scale factor between levels in the scale pyramid 	
 ORBextractor.scaleFactor: 1.2
@@ -48,7 +111,7 @@ ORBextractor.nLevels: 8
 # Image is divided in a grid. At each cell FAST are extracted imposing a minimum response.
 # Firstly we impose iniThFAST. If no corners are detected we impose a lower value minThFAST
 # You can lower these values if your images have low contrast			
-ORBextractor.iniThFAST: 20
+ORBextractor.iniThFAST: 12
 ORBextractor.minThFAST: 7
 
 #--------------------------------------------------------------------------------------------
@@ -61,11 +124,11 @@ Viewer.PointSize: 1
 Viewer.CameraSize: 0.07
 Viewer.CameraLineWidth: 3
 Viewer.ViewpointX: 0
-Viewer.ViewpointY: -0.7
-Viewer.ViewpointZ: -1.8
-Viewer.ViewpointF: 500
+Viewer.ViewpointY: -100
+Viewer.ViewpointZ: -0.1
+Viewer.ViewpointF: 2000
 
 #--------------------------------------------------------------------------------------------
 # Map Parameters
 #--------------------------------------------------------------------------------------------
-Map.mapfile: map_imse_aussen01.bin
+Map.mapfile: ../../gridmapper/maps/map_imse_aussen01.bin

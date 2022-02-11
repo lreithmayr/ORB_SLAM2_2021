@@ -69,20 +69,20 @@ resize_factor = 1
 filter_ground_points = 0
 load_counters = 0
 
-seq_name = "stereo_kitti"
-out_fname = 'gridmap_py_kitti_stereo07'
-keyframe_trajectory_fname = "traj_kitti_stereo07.txt"
-point_cloud_fname = "mps_and_kfs_kitti_stereo07.txt"
+map_name = "map_07_stereo"
+out_fname = "gridmap_py_" + map_name
+keyframe_trajectory_fname = "traj_" + map_name + ".txt"
+point_cloud_fname = "mps_and_kfs_" + map_name + ".txt"
 
 kf_data_path = "./point_clouds/{:s}".format(keyframe_trajectory_fname)
 pc_data_path = "./point_clouds/{:s}".format(point_cloud_fname)
 
 visit_counter_fname = '{:s}_filtered_{:d}_scale_{:d}_visit_counter.txt'.format(
-    seq_name, filter_ground_points, scale_factor)
+    map_name, filter_ground_points, scale_factor)
 occupied_counter_fname = '{:s}_filtered_{:d}_scale_{:d}_occupied_counter.txt'.format(
-    seq_name, filter_ground_points, scale_factor)
+    map_name, filter_ground_points, scale_factor)
 
-print 'seq_name: ', seq_name
+print 'map_name: ', map_name
 print 'scale_factor: ', scale_factor
 print 'resize_factor: ', resize_factor
 print 'filter_ground_points: ', filter_ground_points
