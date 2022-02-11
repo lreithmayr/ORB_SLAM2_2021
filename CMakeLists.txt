@@ -32,7 +32,7 @@ find_package(catkin REQUIRED COMPONENTS
 include_directories(
 ${PROJECT_SOURCE_DIR}
 ${PROJECT_SOURCE_DIR}/include
-# ${PROJECT_SOURCE_DIR}/gridmapper/include
+${PROJECT_SOURCE_DIR}/gridmapper/include
 ${EIGEN3_INCLUDE_DIR}
 ${Pangolin_INCLUDE_DIRS}
 ${PCL_INCLUDE_DIR}
@@ -61,7 +61,7 @@ src/KeyFrameDatabase.cc
 src/Sim3Solver.cc
 src/Initializer.cc
 src/Viewer.cc
-# gridmapper/src/MapProcessor.cpp
+gridmapper/src/MapProcessor.cpp
 )
 
 link_directories(${PCL_LIBRARY_DIRS})
@@ -92,18 +92,22 @@ add_executable(stereo_kitti
 Examples/Stereo/stereo_kitti.cc)
 target_link_libraries(stereo_kitti ${PROJECT_NAME})
 
-add_executable(ros_stereo_kitti
-        Examples/Stereo/ros_stereo_kitti.cc)
-target_link_libraries(ros_stereo_kitti ${PROJECT_NAME})
+add_executable(arducam_images 
+Examples/Stereo/arducam_images.cpp 
+)
+target_link_libraries(arducam_images ${PROJECT_NAME})
 
-# set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/gridmapper/src)
-#
-# add_executable(gridmapper
-# gridmapper/src/gridmapper.cpp)
-# target_link_libraries(gridmapper ${PROJECT_NAME})
+# add_executable(ros_stereo_kitti
+#         Examples/Stereo/ros_stereo_kitti.cc)
+# target_link_libraries(ros_stereo_kitti ${PROJECT_NAME})
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/gridmapper/src)
+
+add_executable(gridmapper
+gridmapper/src/gridmapper.cpp)
+target_link_libraries(gridmapper ${PROJECT_NAME})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Vocabulary)
 
 add_executable(bin_vocabulary Vocabulary/bin_vocabulary.cpp)
 target_link_libraries(bin_vocabulary ${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so ${OpenCV_LIBS})
-

@@ -60,23 +60,23 @@ void PublishPointCloud(vector<ORB_SLAM2::MapPoint*>& MPs, ros::NodeHandle& nh, r
         init_cloud[i].z = MPs[i]->GetWorldPos().at<float>(2);
     }
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_outliers (new pcl::PointCloud<pcl::PointXYZ>);
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>);
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>);
-    *cloud_ptr = init_cloud;
+    // pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_outliers (new pcl::PointCloud<pcl::PointXYZ>);
+    // pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>);
+    // pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>);
+    // *cloud_ptr = init_cloud;
 
     // Create the filtering object
-    pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
-    sor.setInputCloud (cloud_ptr);
-    sor.setMeanK (50);
-    sor.setStddevMulThresh (1.0);
-    sor.filter (*cloud_filtered);
+    // pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
+    // sor.setInputCloud (cloud_ptr);
+    // sor.setMeanK (50);
+    // sor.setStddevMulThresh (1.0);
+    // sor.filter (*cloud_filtered);
 
-    sensor_msgs::PointCloud2 cloud_msg;
-    pcl::toROSMsg(*cloud_filtered, cloud_msg);
+    //sensor_msgs::PointCloud2 cloud_msg;
+    //pcl::toROSMsg(init_cloud, cloud_msg);
 
-    nh.advertise<sensor_msgs::PointCloud2>(nh.resolveName("Point Cloud"), 1);
-    pub_pc2.publish(cloud_msg);
+    //nh.advertise<sensor_msgs::PointCloud2>(nh.resolveName("Point Cloud"), 1);
+    //pub_pc2.publish(cloud_msg);
 }
 
 int main(int argc, char **argv)
@@ -140,7 +140,7 @@ int main(int argc, char **argv)
         SLAM.TrackStereo(imLeft,imRight,tframe);
 
         vector<ORB_SLAM2::MapPoint*> MPs = SLAM.GetTrackedMapPoints();
-        // PublishPointCloud(MPs, nh, pub_pc2);
+        //PublishPointCloud(MPs, nh, pub_pc2);
         //ros::spin();
 
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
