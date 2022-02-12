@@ -97,9 +97,10 @@ Examples/Stereo/arducam_images.cpp
 )
 target_link_libraries(arducam_images ${PROJECT_NAME})
 
-# add_executable(ros_stereo_kitti
-#         Examples/Stereo/ros_stereo_kitti.cc)
-# target_link_libraries(ros_stereo_kitti ${PROJECT_NAME})
+add_executable(arducam_video
+        Examples/Stereo/arducam_video.cpp
+        )
+target_link_libraries(arducam_video ${PROJECT_NAME})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/gridmapper/src)
 

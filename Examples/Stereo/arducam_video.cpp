@@ -20,40 +20,24 @@
 
 
 #include<iostream>
-#include<algorithm>
+// #include<algorithm>
 #include<chrono>
 
 #include<opencv2/core/core.hpp>
 
-#include<pangolin/pangolin.h>
+// #include<pangolin/pangolin.h>
 
-#include<System.h>
+#include"include/System.h"
 
 using namespace std;
 
 
-void LoadImages(const string &strPathToSequence, vector<string> &vstrImages, vector<double> &vTimestamps);
-
 int main(int argc, char **argv)
 {
-    if(argc != 5)
+    if(argc != 4)
     {
-        cerr << endl << "Usage: ./arducam_images path_to_vocabulary path_to_settings path_to_sequence" << endl;
+        cerr << endl << "Usage: ./arducam_video path_to_vocabulary path_to_settings path_to_video" << endl;
         return 1;
-    }
-
-    // Retrieve paths to images
-    vector<string> vstrImages;
-    vector<double> vTimestamps;
-    LoadImages(string(argv[3]), vstrImages, vTimestamps);
-
-    const uint64_t nImages = vstrImages.size();
-
-    uint64_t nImages_var;
-    if (string(argv[4]) == "reduced") {
-        nImages_var = 500;
-    } else {
-        nImages_var = nImages;
     }
 
     string strSettingsFile = string(argv[2]);
@@ -101,58 +85,41 @@ int main(int argc, char **argv)
     ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::STEREO,true, true);
 
     // Vector for tracking time statistics
-    vector<float> vTimesTrack;
-    vTimesTrack.resize(nImages);
+    vector<double> vTimesTrack;
 
     cout << endl << "-------" << endl;
     cout << "Start processing sequence ..." << endl;
-    cout << "Images in the sequence: " << nImages << endl << endl;   
 
     // Main loop
+    cv::VideoCapture cap((string(argv[3])));
     cv::Mat img, imLeft, imRight, imLeftRect, imRightRect;
-    for(int i=0; i<nImages_var; i++)
+    while(true)
     {
-        // Read left and right images from file
-        img = cv::imread(vstrImages[i], CV_LOAD_IMAGE_UNCHANGED);
-	    imLeft = img(cv::Rect(0, 0, (width), height));
-	    imRight = img(cv::Rect((width), 0, (width), height));
+        // Read left and right images from video
+        cap >> img;
+        imLeft = img(cv::Rect(0, 0, (width), height));
+        imRight = img(cv::Rect((width), 0, (width), height));
 
         cv::remap(imLeft,imLeftRect,M1l,M2l,cv::INTER_LINEAR);
         cv::remap(imRight,imRightRect,M1r,M2r,cv::INTER_LINEAR);
 
-        double tframe = vTimestamps[i];
-
-        if(imLeft.empty())
-        {
-            cerr << endl << "Failed to load image at: "
-                 << string(vstrImages[i]) << endl;
-            return 1;
-        }
-
         std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 
         // Pass the images to the SLAM system
-        SLAM.TrackStereo(imLeftRect,imRightRect,tframe);
+        SLAM.TrackStereo(imLeftRect,imRightRect,(cv::CAP_PROP_POS_MSEC) * 0.01);
 
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
 
         double ttrack= std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
 
-        vTimesTrack[i]=ttrack;
-
-        // Wait to load the next frame
-        double T=0;
-        if(i<nImages-1)
-            T = vTimestamps[i+1]-tframe;
-        else if(i>0)
-            T = tframe-vTimestamps[i-1];
-
-        if(ttrack<T)
-            std::this_thread::sleep_for(std::chrono::microseconds(static_cast<size_t>((T-ttrack)*1e6)));
+        vTimesTrack.push_back(ttrack);
 
         cv::imshow("Window", img);
-        if (cv::waitKey(10) == 27)
+        if (img.empty())
+        {
+            cap.release();
             break;
+        }
     }
 
     // Stop all threads
@@ -160,49 +127,17 @@ int main(int argc, char **argv)
 
     // Tracking time statistics
     sort(vTimesTrack.begin(),vTimesTrack.end());
-    float totaltime = 0;
-    for(int i=0; i<nImages; i++)
+    double totaltime = 0;
+    for(auto tracking_time: vTimesTrack)
     {
-        totaltime+=vTimesTrack[i];
+        totaltime += tracking_time;
     }
     cout << "-------" << endl << endl;
-    cout << "median tracking time: " << vTimesTrack[nImages/2] << endl;
-    cout << "mean tracking time: " << totaltime/nImages << endl;
+    cout << "mean tracking time: " << totaltime / vTimesTrack.size() << endl;
+    cout << "median tracking time: " << vTimesTrack[vTimesTrack.size() / 2] << endl;
 
     // Save camera trajectory
     // SLAM.SaveTrajectoryKITTI("CameraTrajectory.txt");
 
     return 0;
-}
-
-void LoadImages(const string &strPathToSequence, vector<string> &vstrImages, vector<double> &vTimestamps)
-{
-    ifstream fTimes;
-    string strPathTimeFile = strPathToSequence + "times.txt";
-    fTimes.open(strPathTimeFile.c_str());
-    while(!fTimes.eof())
-    {
-        string s;
-        getline(fTimes,s);
-        if(!s.empty())
-        {
-            stringstream ss;
-            ss << s;
-            double t;
-            ss >> t;
-            vTimestamps.push_back(t);
-        }
-    }
-
-    const int nTimes = vTimestamps.size();
-    vstrImages.resize(nTimes);
-
-    int ctr = 10000;
-    for(int i=0; i<nTimes; i++)
-    {
-        stringstream str_stream;
-        str_stream << ctr;
-        vstrImages[i] = strPathToSequence + str_stream.str() + ".jpg";
-        ctr++;
-    }
 }

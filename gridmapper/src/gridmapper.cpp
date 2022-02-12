@@ -2,7 +2,8 @@
 
 int main()
 {
-    std::string map_name = "map_07_stereo";
+    std::string map_name = "map_wohnung01_vid";
+    std::string settings_path = "../../Examples/Stereo/arducam.yaml";
 
     std::string pc_folder = "../point_clouds/";
     std::string map_folder = "../maps/";
@@ -16,7 +17,8 @@ int main()
     map.SavePointCloud(pc_folder + "mps_and_kfs_" + map_name + ".txt");
     map.SaveTrajectoryKITTI(pc_folder + "traj_" + map_name + ".txt");
 
-    map.OpenMapPangolin();
+    map.OpenMapPangolin(settings_path);
+
 
     return 0;
 }

@@ -263,10 +263,8 @@ namespace ORB_SLAM2
         fout.close();
     }
 
-    void MapProcessor::OpenMapPangolin()
+    void MapProcessor::OpenMapPangolin(const string& settings_path)
     {
-        std::string settings_path = "Examples/Stereo/KITTI04-12.yaml";
-
         MapDrawer mapDrawer(map, settings_path);
 
         cv::FileStorage fSettings(settings_path, cv::FileStorage::READ);

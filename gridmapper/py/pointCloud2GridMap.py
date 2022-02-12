@@ -64,12 +64,16 @@ def line_bresenham(start, end):
     return points
 
 
-scale_factor = 2
-resize_factor = 1
+map_name = "map_wohnung01"
+
+scale_factor = 20
+resize_factor = 2
 filter_ground_points = 0
+free_thresh = 0.7
+occupied_thresh = 0.5
+
 load_counters = 0
 
-map_name = "map_07_stereo"
 out_fname = "gridmap_py_" + map_name
 keyframe_trajectory_fname = "traj_" + map_name + ".txt"
 point_cloud_fname = "mps_and_kfs_" + map_name + ".txt"
@@ -276,8 +280,6 @@ if not counters_loaded:
 print 'Point Cloud processed!'
 print '\n Projecting Grid Map:'
 
-free_thresh = 0.55
-occupied_thresh = 0.50
 
 grid_map = np.zeros(grid_res, dtype=np.float32)
 grid_map_thresh = np.zeros(grid_res, dtype=np.uint8)

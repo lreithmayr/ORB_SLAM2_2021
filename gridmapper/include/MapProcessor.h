@@ -47,7 +47,7 @@ namespace ORB_SLAM2
         // Extracts map points and the timestamps at which they are observed in different KFs
         void SavePointCloud(const string& output_fn);
 
-        void OpenMapPangolin();
+        void OpenMapPangolin(const string& settings_path);
 
         // Converts the MPs saved in the map to a PCL point cloud and saves it as .pcd
         void FilterOutliers();
