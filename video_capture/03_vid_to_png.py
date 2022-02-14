@@ -14,7 +14,7 @@ import json
 import cv2
 import numpy as np
 
-sequence_name = "wohnung01"
+sequence_name = "png_test"
 os.makedirs("./videos/" + sequence_name, exist_ok=True)
 
 def align_down(size, align):
@@ -64,13 +64,13 @@ while True:
     print("Frame Number | Timestamp: %s" % framecount, timestamp)
 
     frame = get_frame(camera)
-    filename = './videos/' + sequence_name + '/' + str(counter) + '.jpg'
-    cv2.imwrite(filename, frame, [cv2.IMWRITE_JPEG_QUALITY, 90])
+    filename = './videos/' + sequence_name + '/' + str(counter) + '.png'
+    cv2.imwrite(filename, frame)
 
     counter = counter + 1
 
     cv2.imshow("Window", frame)
-    if cv2.waitKey(60) == 27:
+    if cv2.waitKey(1) == 27:
         break;
 
     t2 = datetime.now()

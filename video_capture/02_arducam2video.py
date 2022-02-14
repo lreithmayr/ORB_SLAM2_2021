@@ -14,8 +14,7 @@ import json
 import cv2
 import numpy as np
 
-sequence_name = "wohnung01"
-os.makedirs("./videos/" + sequence_name, exist_ok=True)
+sequence_name = "clock_test"
 
 def align_down(size, align):
     return (size & ~((align)-1))
@@ -52,37 +51,24 @@ img_width = cam_width
 img_height = cam_height 
 print ("Scaled image resolution: "+str(img_width)+" x "+str(img_height))
 
-framecount = 0
-counter = 10000
-ts = []
-timestamp = 0
+vid = cv2.VideoWriter("./videos/" + sequence_name + ".avi", cv2.VideoWriter_fourcc(*'DIVX'), 10, (img_width, img_height))
+
+
+counter = 0
 print ("Starting video.")
 while True:
-    t1 = datetime.now()
-    framecount = framecount + 1
-    ts.append(timestamp)
-    print("Frame Number | Timestamp: %s" % framecount, timestamp)
-
     frame = get_frame(camera)
-    filename = './videos/' + sequence_name + '/' + str(counter) + '.jpg'
-    cv2.imwrite(filename, frame, [cv2.IMWRITE_JPEG_QUALITY, 90])
-
-    counter = counter + 1
-
+    vid.write(frame)
     cv2.imshow("Window", frame)
-    if cv2.waitKey(60) == 27:
+    counter = counter + 1
+    print(counter)
+    if (cv2.waitKey(1) == 27 or counter == 15000):
         break;
-
-    t2 = datetime.now()
-    delta_t = (t2 - t1).total_seconds()
-    timestamp = timestamp + delta_t 
-
-    if delta_t > 1:
-        print("================= \n" + "LAGGING \n" + "================= \n")
-
 print ("Video finished")
+vid.release()
 
-f = open('./videos/' + sequence_name + '/' + 'times.txt', "w")
-for time in ts:
-    f.write(str(time) + "\n")
-f.close()
+# f = open('./videos/' + sequence_name + '/' + 'times.txt', "w")
+# for time in ts:
+#     f.write(str(time) + "\n")
+# f.close()
+
