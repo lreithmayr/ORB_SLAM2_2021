@@ -130,4 +130,4 @@ Viewer.ViewpointF: 2000
 #--------------------------------------------------------------------------------------------
 # Map Parameters
 #--------------------------------------------------------------------------------------------
-Map.mapfile: ../../gridmapper/maps/asw_aussen02.bin
+Map.mapfile: ../../gridmapper/maps/map_wohnung01_video.bin

@@ -11,7 +11,6 @@ import cv2 as cv
 import sys
 from transforms3d import quaternions
 from tqdm import tqdm
-import os
 
 
 def line_bresenham(start, end):
@@ -64,17 +63,17 @@ def line_bresenham(start, end):
     return points
 
 
-map_name = "map_wohnung01"
+map_name = "map_imse_gang01"
 
 scale_factor = 20
-resize_factor = 2
+resize_factor = 1
 filter_ground_points = 0
-free_thresh = 0.7
+free_thresh = 0.55
 occupied_thresh = 0.5
 
 load_counters = 0
 
-out_fname = "gridmap_py_" + map_name
+out_fname = "gridmap_{:s}_sf{:d}_rf{:d}_ft{:f}_ot{:f}".format(map_name, scale_factor, resize_factor, free_thresh, occupied_thresh)
 keyframe_trajectory_fname = "traj_" + map_name + ".txt"
 point_cloud_fname = "mps_and_kfs_" + map_name + ".txt"
 

@@ -2,7 +2,7 @@
 
 int main()
 {
-    std::string map_name = "map_wohnung01_vid";
+    std::string map_name = "map_wohnung01";
     std::string settings_path = "../../Examples/Stereo/arducam.yaml";
 
     std::string pc_folder = "../point_clouds/";

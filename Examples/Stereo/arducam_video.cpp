@@ -97,6 +97,11 @@ int main(int argc, char **argv)
     {
         // Read left and right images from video
         cap >> img;
+        if (img.empty())
+        {
+            cap.release();
+            break;
+        }
         imLeft = img(cv::Rect(0, 0, (width), height));
         imRight = img(cv::Rect((width), 0, (width), height));
 
@@ -115,11 +120,7 @@ int main(int argc, char **argv)
         vTimesTrack.push_back(ttrack);
 
         cv::imshow("Window", img);
-        if (img.empty())
-        {
-            cap.release();
-            break;
-        }
+
     }
 
     // Stop all threads
