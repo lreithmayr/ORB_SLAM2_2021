@@ -24,9 +24,9 @@ Camera.width: 640
 Camera.height: 480
 
 # Camera frames per second
-Camera.fps: 10
+Camera.fps: 20
 # stereo baseline [m] times fx
-Camera.bf: 45.7237
+Camera.bf: 47.206371
 
 # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
 Camera.RGB: 1
@@ -113,7 +113,7 @@ RIGHT.P:  !!opencv-matrix
 #--------------------------------------------------------------------------------------------
 
 # ORB Extractor: Number of features per image
-ORBextractor.nFeatures: 2000
+ORBextractor.nFeatures: 10000
 
 # ORB Extractor: Scale factor between levels in the scale pyramid 	
 ORBextractor.scaleFactor: 1.2
@@ -145,4 +145,4 @@ Viewer.ViewpointF: 2000
 #--------------------------------------------------------------------------------------------
 # Map Parameters
 #--------------------------------------------------------------------------------------------
-Map.mapfile: ../../gridmapper/maps/map_cambio02.bin
+Map.mapfile: ../../gridmapper/maps/map_imse_aussen01.bin

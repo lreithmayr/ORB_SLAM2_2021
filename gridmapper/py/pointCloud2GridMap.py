@@ -63,9 +63,9 @@ def line_bresenham(start, end):
     return points
 
 
-map_name = "map_stereoKitti07"
+map_name = "map_asw_aussen01"
 
-scale_factor = 2
+scale_factor = 1
 resize_factor = 1
 filter_ground_points = 0
 free_thresh = 0.55
@@ -73,7 +73,8 @@ occupied_thresh = 0.5
 
 load_counters = 0
 
-out_fname = "gridmap_{:s}_sf{:d}_rf{:d}_ft{:f}_ot{:f}".format(map_name, scale_factor, resize_factor, free_thresh, occupied_thresh)
+out_fname = "gridmap_{:s}_sf{:d}_rf{:d}_ft{:f}_ot{:f}".format(map_name, scale_factor, resize_factor, free_thresh,
+                                                              occupied_thresh)
 keyframe_trajectory_fname = "traj_" + map_name + ".txt"
 point_cloud_fname = "mps_and_kfs_" + map_name + ".txt"
 
@@ -85,23 +86,23 @@ visit_counter_fname = '{:s}_filtered_{:d}_scale_{:d}_visit_counter.txt'.format(
 occupied_counter_fname = '{:s}_filtered_{:d}_scale_{:d}_occupied_counter.txt'.format(
     map_name, filter_ground_points, scale_factor)
 
-print 'map_name: ', map_name
-print 'scale_factor: ', scale_factor
-print 'resize_factor: ', resize_factor
-print 'filter_ground_points: ', filter_ground_points
+print('map_name: ', map_name)
+print('scale_factor: ', scale_factor)
+print('resize_factor: ', resize_factor)
+print('filter_ground_points: ', filter_ground_points)
 
 counters_loaded = False
 if load_counters:
     try:
-        print 'Loading counters...'
+        print('Loading counters...')
         visit_counter = np.loadtxt(visit_counter_fname)
         occupied_counter = np.loadtxt(occupied_counter_fname)
         grid_res = visit_counter.shape
-        print 'grid_res: ', grid_res
+        print('grid_res: ', grid_res)
         counters_loaded = True
     except:
-        print 'One or more counter files: {:s}, {:s} could not be found'.format(
-            occupied_counter_fname, visit_counter_fname)
+        print('One or more counter files: {:s}, {:s} could not be found'.format(
+            occupied_counter_fname, visit_counter_fname))
         counters_loaded = False
 
 if not counters_loaded:
@@ -115,13 +116,13 @@ if not counters_loaded:
         line_tokens = line.strip().split()
         timestamp = float(line_tokens[0])
         keyframe_timestamps.append(timestamp)
-       
+
         # Translation vector
         keyframe_x = float(line_tokens[1]) * scale_factor
         keyframe_y = float(line_tokens[2]) * scale_factor
         keyframe_z = float(line_tokens[3]) * scale_factor
         keyframe_locations.append([keyframe_x, keyframe_y, keyframe_z])
-        
+
         # Quaternions
         keyframe_q0 = float(line_tokens[4])
         keyframe_q1 = float(line_tokens[5])
@@ -150,10 +151,8 @@ if not counters_loaded:
 
         timestamps = []
 
-        for i in xrange(3, len(line_tokens)):
+        for i in range(3, len(line_tokens)):
             timestamps.append(float(line_tokens[i]))
-        if len(timestamps) == 0:
-            raise StandardError('Point {:d} has no keyframes'.format(n_points))
 
         is_ground_point.append(False)
 
@@ -168,8 +167,6 @@ if not counters_loaded:
                     break
                 except KeyError:
                     key_frame_id += 1
-            if keyframe_quaternion is None:
-                raise StandardError('No valid keyframes found for point {:d}'.format(n_points))
 
             # Normalize quaternion
             keyframe_quaternion /= np.linalg.norm(keyframe_quaternion)
@@ -192,11 +189,11 @@ if not counters_loaded:
         n_points += 1
 
     point_locations = np.array(point_locations)
-    print 'n_keyframes: ', n_keyframes
-    print 'n_points: ', n_points
+    print('n_keyframes: ', n_keyframes)
+    print('n_points: ', n_points)
     if filter_ground_points:
         n_ground_points = np.count_nonzero(np.array(is_ground_point))
-        print 'n_ground_points: ', n_ground_points
+        print('n_ground_points: ', n_ground_points)
 
     kf_min_x = np.floor(np.min(keyframe_locations[:, 0]))
     kf_min_z = np.floor(np.min(keyframe_locations[:, 2]))
@@ -213,37 +210,26 @@ if not counters_loaded:
     grid_max_x = max(kf_max_x, pc_max_x)
     grid_max_z = max(kf_max_z, pc_max_z)
 
-    print 'grid_max_x: ', grid_max_x
-    print 'grid_min_x: ', grid_min_x
-    print 'grid_max_z: ', grid_max_z
-    print 'grid_min_z: ', grid_min_z
-
     grid_res = [int(grid_max_x - grid_min_x), int(grid_max_z - grid_min_z)]
-    print 'grid_res: ', grid_res
 
     visit_counter = np.zeros(grid_res, dtype=np.int32)
     occupied_counter = np.zeros(grid_res, dtype=np.int32)
-
-    print 'grid extends from ({:f}, {:f}) to ({:f}, {:f})'.format(
-        grid_min_x, grid_min_z, grid_max_x, grid_max_z)
 
     grid_cell_size_x = (grid_max_x - grid_min_x) / float(grid_res[0])
     grid_cell_size_z = (grid_max_z - grid_min_z) / float(grid_res[1])
 
     norm_factor_x = float(grid_res[0] - 1) / float(grid_max_x - grid_min_x)
     norm_factor_z = float(grid_res[1] - 1) / float(grid_max_z - grid_min_z)
-    print 'norm_factor_x: ', norm_factor_x
-    print 'norm_factor_z: ', norm_factor_z
 
-    print "\n Processing Point Cloud:"
+    print("\n Processing Point Cloud:")
     num_of_points = n_points
-    for point_id in tqdm(xrange(n_points)):
+    for point_id in tqdm(range(n_points)):
         point_location = point_locations[point_id]
         for timestamp in point_timestamps[point_id]:
             try:
                 keyframe_location = keyframe_locations_dict[timestamp]
             except KeyError:
-                print 'Timestamp: {:f} not found'.format(timestamp)
+                print('Timestamp: {:f} not found'.format(timestamp))
                 continue
             keyframe_x = int(keyframe_location[0])
             keyframe_z = int(keyframe_location[2])
@@ -252,15 +238,15 @@ if not counters_loaded:
             ray_points = line_bresenham([keyframe_x, keyframe_z], [point_x, point_z])
             n_ray_pts = len(ray_points)
 
-            for ray_point_id in xrange(n_ray_pts - 1):
+            for ray_point_id in range(n_ray_pts - 1):
                 ray_point_x_norm = int(np.floor((ray_points[ray_point_id][0] - grid_min_x) * norm_factor_x))
                 ray_point_z_norm = int(np.floor((ray_points[ray_point_id][1] - grid_min_z) * norm_factor_z))
                 try:
                     visit_counter[ray_point_x_norm, ray_point_z_norm] += 1
                 except IndexError:
-                    print 'Out of bound point: ({:d}, {:d}) -> ({:f}, {:f})'.format(
+                    print('Out of bound point: ({:d}, {:d}) -> ({:f}, {:f})'.format(
                         ray_points[ray_point_id][0], ray_points[ray_point_id][1],
-                        ray_point_x_norm, ray_point_z_norm)
+                        ray_point_x_norm, ray_point_z_norm))
                     sys.exit(0)
             ray_point_x_norm = int(np.floor((ray_points[-1][0] - grid_min_x) * norm_factor_x))
             ray_point_z_norm = int(np.floor((ray_points[-1][1] - grid_min_z) * norm_factor_z))
@@ -272,18 +258,16 @@ if not counters_loaded:
                     # occupied_counter[start_x:end_x, start_z:end_z] += 1
                     occupied_counter[ray_point_x_norm, ray_point_z_norm] += 1
             except IndexError:
-                print 'Out of bound point: ({:d}, {:d}) -> ({:f}, {:f})'.format(
-                    ray_points[-1][0], ray_points[-1][1], ray_point_x_norm, ray_point_z_norm)
+                print('Out of bound point: ({:d}, {:d}) -> ({:f}, {:f})'.format(
+                    ray_points[-1][0], ray_points[-1][1], ray_point_x_norm, ray_point_z_norm))
                 sys.exit(0)
 
-print 'Point Cloud processed!'
-print '\n Projecting Grid Map:'
-
+print('Point Cloud processed!')
 
 grid_map = np.zeros(grid_res, dtype=np.float32)
 grid_map_thresh = np.zeros(grid_res, dtype=np.uint8)
-for x in tqdm(xrange(grid_res[0])):
-    for z in xrange(grid_res[1]):
+for x in tqdm(range(grid_res[0])):
+    for z in range(grid_res[1]):
         if visit_counter[x, z] == 0 or occupied_counter[x, z] == 0:
             grid_map[x, z] = 0.5
         else:
@@ -297,13 +281,11 @@ for x in tqdm(xrange(grid_res[0])):
 
 if resize_factor != 1:
     grid_res_resized = (grid_res[0] * resize_factor, grid_res[1] * resize_factor)
-    print 'grid_res: ', grid_res
-    print 'grid_res_resized: ', grid_res_resized
     grid_map_resized = cv.resize(grid_map_thresh, grid_res_resized)
 else:
     grid_map_resized = grid_map_thresh
 
-print "Grid Map finished."
+print("Grid Map finished.")
 
 cv.imwrite('./maps/{:s}.pgm'.format(out_fname), grid_map_resized)
 while True:

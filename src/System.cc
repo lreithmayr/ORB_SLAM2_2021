@@ -559,7 +559,7 @@ bool System::LoadMap(const string &filename)
     Frame::nNextId = mnFrameId;
     cout << " ...done" << endl;
     in.close();
-    return false;
+    return true;
 }
 
 } //namespace ORB_SLAM

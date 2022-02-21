@@ -47,9 +47,9 @@ int main(int argc, char **argv)
     vector<double> vTimestamps;
     LoadImages(string(argv[3]), vstrImages, vTimestamps);
 
-    const uint64_t nImages = vstrImages.size();
+    const uint32_t nImages = vstrImages.size();
 
-    uint64_t nImages_var;
+    uint32_t nImages_var;
     if (string(argv[4]) == "reduced") {
         nImages_var = 500;
     } else {
@@ -109,9 +109,15 @@ int main(int argc, char **argv)
     cout << "Images in the sequence: " << nImages << endl << endl;   
 
     // Main loop
-    uint64_t height_cropped = 400;
+    uint32_t height_cropped;
+    bool crop = true;
+    if (crop)
+        height_cropped = 400;
+    else
+        height_cropped = height;
+
     cv::Mat img, imLeft, imRight, imLeftRect, imRightRect, imLeftRectCropped, imRightRectCropped;
-    for(uint64_t i=0; i<nImages_var; i++)
+    for(uint32_t i=0; i<nImages_var; i++)
     {
         // Read left and right images from file
         img = cv::imread(vstrImages[i], CV_LOAD_IMAGE_UNCHANGED);
@@ -161,7 +167,7 @@ int main(int argc, char **argv)
     // Tracking time statistics
     sort(vTimesTrack.begin(),vTimesTrack.end());
     float totaltime = 0;
-    for(int i=0; i<nImages; i++)
+    for(uint32_t i=0; i<nImages; i++)
     {
         totaltime+=vTimesTrack[i];
     }
