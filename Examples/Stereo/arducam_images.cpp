@@ -109,16 +109,20 @@ int main(int argc, char **argv)
     cout << "Images in the sequence: " << nImages << endl << endl;   
 
     // Main loop
-    cv::Mat img, imLeft, imRight, imLeftRect, imRightRect;
-    for(int i=0; i<nImages_var; i++)
+    uint64_t height_cropped = 400;
+    cv::Mat img, imLeft, imRight, imLeftRect, imRightRect, imLeftRectCropped, imRightRectCropped;
+    for(uint64_t i=0; i<nImages_var; i++)
     {
         // Read left and right images from file
         img = cv::imread(vstrImages[i], CV_LOAD_IMAGE_UNCHANGED);
-	    imLeft = img(cv::Rect(0, 0, (width), height));
-	    imRight = img(cv::Rect((width), 0, (width), height));
+	    imLeft = img(cv::Rect(0, 0, width, height));
+	    imRight = img(cv::Rect(width, 0, width, height));
 
         cv::remap(imLeft,imLeftRect,M1l,M2l,cv::INTER_LINEAR);
         cv::remap(imRight,imRightRect,M1r,M2r,cv::INTER_LINEAR);
+
+        imLeftRectCropped = imLeftRect(cv::Rect(0, 0, width, height_cropped));
+        imRightRectCropped = imRightRect(cv::Rect(0, 0, width, height_cropped));
 
         double tframe = vTimestamps[i];
 
@@ -132,7 +136,7 @@ int main(int argc, char **argv)
         std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 
         // Pass the images to the SLAM system
-        SLAM.TrackStereo(imLeftRect,imRightRect,tframe);
+        SLAM.TrackStereo(imLeftRectCropped,imRightRectCropped,tframe);
 
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
 
@@ -149,10 +153,6 @@ int main(int argc, char **argv)
 
         if(ttrack<T)
             std::this_thread::sleep_for(std::chrono::microseconds(static_cast<size_t>((T-ttrack)*1e6)));
-
-        cv::imshow("Window", img);
-        if (cv::waitKey(10) == 27)
-            break;
     }
 
     // Stop all threads

@@ -63,9 +63,9 @@ def line_bresenham(start, end):
     return points
 
 
-map_name = "map_imse_gang01"
+map_name = "map_stereoKitti07"
 
-scale_factor = 20
+scale_factor = 2
 resize_factor = 1
 filter_ground_points = 0
 free_thresh = 0.55
