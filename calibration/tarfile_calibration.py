@@ -34,13 +34,10 @@
 
 import os
 import numpy
-
 import cv2
 import cv_bridge
 import tarfile
-
 from calibrator import MonoCalibrator, StereoCalibrator, CalibrationException, ChessboardInfo
-
 import rospy
 import sensor_msgs.srv
 

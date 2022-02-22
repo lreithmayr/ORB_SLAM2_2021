@@ -63,7 +63,8 @@ def line_bresenham(start, end):
         points.reverse()
     return points
 
-map_name = "map_asw_aussen01"
+
+map_name = "map_cambio02"
 
 scale_factor = 1
 resize_factor = 1
@@ -78,8 +79,8 @@ out_fname = "gridmap_{:s}_sf{:d}_rf{:d}_ft{:f}_ot{:f}".format(map_name, scale_fa
 keyframe_trajectory_fname = "traj_" + map_name + ".txt"
 point_cloud_fname = "mps_and_kfs_" + map_name + ".txt"
 
-kf_data_path = "../point_clouds/{:s}".format(keyframe_trajectory_fname)
-pc_data_path = "../point_clouds/{:s}".format(point_cloud_fname)
+kf_data_path = "point_clouds/{:s}".format(keyframe_trajectory_fname)
+pc_data_path = "point_clouds/{:s}".format(point_cloud_fname)
 
 visit_counter_fname = '{:s}_filtered_{:d}_scale_{:d}_visit_counter.txt'.format(
     map_name, filter_ground_points, scale_factor)
