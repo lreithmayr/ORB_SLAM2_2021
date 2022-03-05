@@ -6,7 +6,6 @@ https://github.com/abhineet123/ORB_SLAM2/blob/master/pointCloudToGridMap2D.py
 
 """
 
-import os
 import numpy as np
 import cv2 as cv
 import sys
@@ -64,7 +63,7 @@ def line_bresenham(start, end):
     return points
 
 
-map_name = "map_cambio02"
+map_name = "bmw02"
 
 scale_factor = 1
 resize_factor = 1
@@ -288,7 +287,7 @@ else:
 
 print("Grid Map finished.")
 
-cv.imwrite('./maps/{:s}.pgm'.format(out_fname), grid_map_resized)
+cv.imwrite('./maps/gridmaps/{:s}.pgm'.format(out_fname), grid_map_resized)
 while True:
     cv.imshow("Grid Map", grid_map_resized)
     if cv.waitKey(0) == 27:

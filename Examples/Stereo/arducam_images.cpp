@@ -98,7 +98,8 @@ int main(int argc, char **argv)
 
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
-    ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::STEREO,true, true);
+    bool mapping = false;
+    ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::STEREO,true, mapping);
 
     // Vector for tracking time statistics
     vector<float> vTimesTrack;
@@ -109,12 +110,19 @@ int main(int argc, char **argv)
     cout << "Images in the sequence: " << nImages << endl << endl;   
 
     // Main loop
-    uint32_t height_cropped;
+    uint32_t height_top_cropped;
+    uint32_t height_bottom_cropped;
     bool crop = true;
     if (crop)
-        height_cropped = 400;
+    {
+        height_top_cropped = 0;
+        height_bottom_cropped = 400;
+    }
     else
-        height_cropped = height;
+    {
+        height_top_cropped = 0;
+        height_bottom_cropped = height;
+    }
 
     cv::Mat img, imLeft, imRight, imLeftRect, imRightRect, imLeftRectCropped, imRightRectCropped;
     for(uint32_t i=0; i<nImages_var; i++)
@@ -127,8 +135,8 @@ int main(int argc, char **argv)
         cv::remap(imLeft,imLeftRect,M1l,M2l,cv::INTER_LINEAR);
         cv::remap(imRight,imRightRect,M1r,M2r,cv::INTER_LINEAR);
 
-        imLeftRectCropped = imLeftRect(cv::Rect(0, 0, width, height_cropped));
-        imRightRectCropped = imRightRect(cv::Rect(0, 0, width, height_cropped));
+        imLeftRectCropped = imLeftRect(cv::Rect(0, height_top_cropped, width, height_bottom_cropped - height_top_cropped));
+        imRightRectCropped = imRightRect(cv::Rect(0, height_top_cropped, width, height_bottom_cropped - height_top_cropped));
 
         double tframe = vTimestamps[i];
 

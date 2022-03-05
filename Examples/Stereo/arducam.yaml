@@ -24,7 +24,7 @@ Camera.width: 640
 Camera.height: 480
 
 # Camera frames per second
-Camera.fps: 20
+Camera.fps: 8
 # stereo baseline [m] times fx
 Camera.bf: 47.206371
 
@@ -32,7 +32,7 @@ Camera.bf: 47.206371
 Camera.RGB: 1
 
 # Close/Far threshold. Baseline times.
-ThDepth: 50
+ThDepth: 35
 
 
 #--------------------------------------------------------------------------------------------
@@ -145,4 +145,4 @@ Viewer.ViewpointF: 2000
 #--------------------------------------------------------------------------------------------
 # Map Parameters
 #--------------------------------------------------------------------------------------------
-Map.mapfile: ../../gridmapper/maps/map_imse_aussen01.bin
+Map.mapfile: ../../gridmapper/maps/cambio02_discard.bin

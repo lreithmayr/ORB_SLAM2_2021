@@ -20,13 +20,8 @@
 
 
 #include<iostream>
-// #include<algorithm>
 #include<chrono>
-
 #include<opencv2/core/core.hpp>
-
-// #include<pangolin/pangolin.h>
-
 #include"include/System.h"
 
 using namespace std;
@@ -118,8 +113,6 @@ int main(int argc, char **argv)
         double ttrack= std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
 
         vTimesTrack.push_back(ttrack);
-
-        cv::imshow("Window", img);
 
     }
 

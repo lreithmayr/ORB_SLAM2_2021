@@ -323,6 +323,8 @@ namespace ORB_SLAM2
         pcl::PointCloud<PointXYZid>::Ptr cloud_filtered (new pcl::PointCloud<PointXYZid>);
         pcl::PointCloud<PointXYZid>::Ptr cloud_ptr(new pcl::PointCloud<PointXYZid>);
         *cloud_ptr = init_cloud;
+        std::cout << "Cloud before filtering:" << std::endl;
+        std::cout << init_cloud << std::endl;
 
         // std::cout << "Cloud before filtering: " << std::endl;
         // std::cout << *cloud_ptr << std::endl;
@@ -333,8 +335,8 @@ namespace ORB_SLAM2
         // Create the filtering object
         pcl::StatisticalOutlierRemoval<PointXYZid> sor;
         sor.setInputCloud (cloud_ptr);
-        sor.setMeanK (50);
-        sor.setStddevMulThresh (1.0);
+        sor.setMeanK (500);
+        sor.setStddevMulThresh (0.1);
         sor.filter (*cloud_filtered);
 
         std::cout << "Cloud after filtering: " << std::endl;
