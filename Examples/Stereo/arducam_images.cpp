@@ -98,7 +98,7 @@ int main(int argc, char **argv)
 
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
-    bool mapping = false;
+    bool mapping = true;
     ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::STEREO,true, mapping);
 
     // Vector for tracking time statistics
@@ -112,11 +112,11 @@ int main(int argc, char **argv)
     // Main loop
     uint32_t height_top_cropped;
     uint32_t height_bottom_cropped;
-    bool crop = true;
+    bool crop = false;
     if (crop)
     {
-        height_top_cropped = 0;
-        height_bottom_cropped = 400;
+        height_top_cropped = 280;
+        height_bottom_cropped = 480;
     }
     else
     {

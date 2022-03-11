@@ -24,7 +24,7 @@ Camera.width: 640
 Camera.height: 480
 
 # Camera frames per second
-Camera.fps: 8
+Camera.fps: 5
 # stereo baseline [m] times fx
 Camera.bf: 47.206371
 
@@ -32,8 +32,7 @@ Camera.bf: 47.206371
 Camera.RGB: 1
 
 # Close/Far threshold. Baseline times.
-ThDepth: 35
-
+ThDepth: 20
 
 #--------------------------------------------------------------------------------------------
 # Stereo Rectification. Only if you need to pre-rectify the images.
@@ -113,7 +112,7 @@ RIGHT.P:  !!opencv-matrix
 #--------------------------------------------------------------------------------------------
 
 # ORB Extractor: Number of features per image
-ORBextractor.nFeatures: 2000
+ORBextractor.nFeatures: 10000
 
 # ORB Extractor: Scale factor between levels in the scale pyramid 	
 ORBextractor.scaleFactor: 1.2
@@ -138,11 +137,11 @@ Viewer.PointSize: 1
 Viewer.CameraSize: 0.07
 Viewer.CameraLineWidth: 3
 Viewer.ViewpointX: 0
-Viewer.ViewpointY: -100
+Viewer.ViewpointY: -50
 Viewer.ViewpointZ: -0.1
 Viewer.ViewpointF: 2000
 
 #--------------------------------------------------------------------------------------------
 # Map Parameters
 #--------------------------------------------------------------------------------------------
-Map.mapfile: ../../gridmapper/maps/cambio02_discard.bin
+Map.mapfile: ../../gridmapper/maps/blabla.bin
