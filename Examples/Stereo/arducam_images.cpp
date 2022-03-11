@@ -18,21 +18,28 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-
 #include<iostream>
 #include<algorithm>
 #include<chrono>
+#include<tuple>
 
 #include<opencv2/core/core.hpp>
-
 #include<pangolin/pangolin.h>
 
 #include<System.h>
 
 using namespace std;
 
+struct RectMats
+{
+    cv::Mat M1l;
+    cv::Mat M1r;
+    cv::Mat M2l;
+    cv::Mat M2r;
+};
 
 void LoadImages(const string &strPathToSequence, vector<string> &vstrImages, vector<double> &vTimestamps);
+RectMats rectification(cv::FileStorage &fsSettings);
 
 int main(int argc, char **argv)
 {
@@ -67,38 +74,10 @@ int main(int argc, char **argv)
     int width = fsSettings["Camera.width"];
     int height = fsSettings["Camera.height"];
 
-    cv::Mat K_l, K_r, P_l, P_r, R_l, R_r, D_l, D_r;
-    fsSettings["LEFT.K"] >> K_l;
-    fsSettings["RIGHT.K"] >> K_r;
-
-    fsSettings["LEFT.P"] >> P_l;
-    fsSettings["RIGHT.P"] >> P_r;
-
-    fsSettings["LEFT.R"] >> R_l;
-    fsSettings["RIGHT.R"] >> R_r;
-
-    fsSettings["LEFT.D"] >> D_l;
-    fsSettings["RIGHT.D"] >> D_r;
-
-    int rows_l = fsSettings["LEFT.height"];
-    int cols_l = fsSettings["LEFT.width"];
-    int rows_r = fsSettings["RIGHT.height"];
-    int cols_r = fsSettings["RIGHT.width"];
-
-    if(K_l.empty() || K_r.empty() || P_l.empty() || P_r.empty() || R_l.empty() || R_r.empty() || D_l.empty() || D_r.empty() ||
-       rows_l==0 || rows_r==0 || cols_l==0 || cols_r==0)
-    {
-        cerr << "ERROR: Calibration parameters to rectify stereo are missing!" << endl;
-        return -1;
-    }
-
-    cv::Mat M1l,M2l,M1r,M2r;
-    cv::initUndistortRectifyMap(K_l,D_l,R_l,P_l.rowRange(0,3).colRange(0,3),cv::Size(cols_l,rows_l),CV_32F,M1l,M2l);
-    cv::initUndistortRectifyMap(K_r,D_r,R_r,P_r.rowRange(0,3).colRange(0,3),cv::Size(cols_r,rows_r),CV_32F,M1r,M2r);
-
+    auto rect_mats = rectification(fsSettings);
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
-    bool mapping = true;
+    bool mapping = false;
     ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::STEREO,true, mapping);
 
     // Vector for tracking time statistics
@@ -112,11 +91,11 @@ int main(int argc, char **argv)
     // Main loop
     uint32_t height_top_cropped;
     uint32_t height_bottom_cropped;
-    bool crop = false;
+    bool crop = true;
     if (crop)
     {
-        height_top_cropped = 280;
-        height_bottom_cropped = 480;
+        height_top_cropped = 0;
+        height_bottom_cropped = 400;
     }
     else
     {
@@ -132,8 +111,8 @@ int main(int argc, char **argv)
 	    imLeft = img(cv::Rect(0, 0, width, height));
 	    imRight = img(cv::Rect(width, 0, width, height));
 
-        cv::remap(imLeft,imLeftRect,M1l,M2l,cv::INTER_LINEAR);
-        cv::remap(imRight,imRightRect,M1r,M2r,cv::INTER_LINEAR);
+        cv::remap(imLeft,imLeftRect,rect_mats.M1l,rect_mats.M2l,cv::INTER_LINEAR);
+        cv::remap(imRight,imRightRect,rect_mats.M1r,rect_mats.M2r,cv::INTER_LINEAR);
 
         imLeftRectCropped = imLeftRect(cv::Rect(0, height_top_cropped, width, height_bottom_cropped - height_top_cropped));
         imRightRectCropped = imRightRect(cv::Rect(0, height_top_cropped, width, height_bottom_cropped - height_top_cropped));
@@ -219,4 +198,37 @@ void LoadImages(const string &strPathToSequence, vector<string> &vstrImages, vec
         vstrImages[i] = strPathToSequence + str_stream.str() + ".jpg";
         ctr++;
     }
+}
+
+RectMats rectification(cv::FileStorage &fsSettings)
+{
+    cv::Mat K_l, K_r, P_l, P_r, R_l, R_r, D_l, D_r;
+    fsSettings["LEFT.K"] >> K_l;
+    fsSettings["RIGHT.K"] >> K_r;
+
+    fsSettings["LEFT.P"] >> P_l;
+    fsSettings["RIGHT.P"] >> P_r;
+
+    fsSettings["LEFT.R"] >> R_l;
+    fsSettings["RIGHT.R"] >> R_r;
+
+    fsSettings["LEFT.D"] >> D_l;
+    fsSettings["RIGHT.D"] >> D_r;
+
+    int rows_l = fsSettings["LEFT.height"];
+    int cols_l = fsSettings["LEFT.width"];
+    int rows_r = fsSettings["RIGHT.height"];
+    int cols_r = fsSettings["RIGHT.width"];
+
+    if(K_l.empty() || K_r.empty() || P_l.empty() || P_r.empty() || R_l.empty() || R_r.empty() || D_l.empty() || D_r.empty() ||
+       rows_l==0 || rows_r==0 || cols_l==0 || cols_r==0)
+    {
+        cerr << "ERROR: Calibration parameters to rectify stereo are missing!" << endl;
+    }
+
+    RectMats rectification_matrices;
+    cv::initUndistortRectifyMap(K_l,D_l,R_l,P_l.rowRange(0,3).colRange(0,3),cv::Size(cols_l,rows_l),CV_32F,rectification_matrices.M1l,rectification_matrices.M2l);
+    cv::initUndistortRectifyMap(K_r,D_r,R_r,P_r.rowRange(0,3).colRange(0,3),cv::Size(cols_r,rows_r),CV_32F,rectification_matrices.M1r,rectification_matrices.M2r);
+
+    return rectification_matrices;
 }
