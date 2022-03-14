@@ -42,6 +42,7 @@
 #include "KeyFrameDatabase.h"
 #include "ORBVocabulary.h"
 #include "Viewer.h"
+#include "GridMapping.h"
 
 #include "BoostArchiver.h"
 // for map file io
@@ -56,6 +57,7 @@ class Map;
 class Tracking;
 class LocalMapping;
 class LoopClosing;
+class GridMapping;
 
 class System
 {
@@ -158,6 +160,9 @@ private:
     // Local Mapper. It manages the local map and performs local bundle adjustment.
     LocalMapping* mpLocalMapper;
 
+    // Grid Mapper. Converts the point cloud to a laserscan and generates a grid map.
+    GridMapping* GridMapper;
+
     // Loop Closer. It searches loops with every new keyframe. If there is a loop it performs
     // a pose graph optimization and full bundle adjustment (in a new thread) afterwards.
     LoopClosing* mpLoopCloser;
@@ -168,9 +173,10 @@ private:
     FrameDrawer* mpFrameDrawer;
     MapDrawer* mpMapDrawer;
 
-    // System threads: Local Mapping, Loop Closing, Viewer.
+    // System threads: Local Mapping, Grid Mapping; Loop Closing, Viewer.
     // The Tracking thread "lives" in the main execution thread that creates the System object.
     std::thread* mptLocalMapping;
+    std::thread* GridMappingThread;
     std::thread* mptLoopClosing;
     std::thread* mptViewer;
 

@@ -62,7 +62,7 @@ src/Sim3Solver.cc
 src/Initializer.cc
 src/Viewer.cc
 gridmapper/src/MapProcessor.cpp
-)
+src/GridMapping.cpp)
 
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
