@@ -116,8 +116,8 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     mptLocalMapping = new thread(&ORB_SLAM2::LocalMapping::Run,mpLocalMapper);
 
     // Initialize Grid Mapper and launch the thread
-    // GridMapper = new GridMapping(!todo);
-    // GridMappingThread = new thread(&ORB_SLAM2::GridMapping::Run, GridMapper);
+    GridMapper = new GridMapping(mpMap);
+    GridMappingThread = new thread(&ORB_SLAM2::GridMapping::Run, GridMapper);
 
     //Initialize the Loop Closing thread and launch
     mpLoopCloser = new LoopClosing(mpMap, mpKeyFrameDatabase, mpVocabulary, mSensor!=MONOCULAR);
@@ -329,6 +329,7 @@ void System::Reset()
 
 void System::Shutdown()
 {
+    GridMapper->RequestFinish();
     mpLocalMapper->RequestFinish();
     mpLoopCloser->RequestFinish();
     if(mpViewer)
