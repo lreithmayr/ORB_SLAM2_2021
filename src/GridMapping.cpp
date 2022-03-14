@@ -18,7 +18,12 @@ namespace ORB_SLAM2
 		while (true)
 		{
 			std::vector<MapPoint*> all_mps = GetAllMPs();
-			std::cout << all_mps.size() << endl;
+			if (all_mps.empty())
+				continue;
+			else
+			{
+				std::cout << all_mps.size() << endl;
+			}
 
 			if (CheckFinish())
 				break;
@@ -36,27 +41,27 @@ namespace ORB_SLAM2
 
 	void GridMapping::RequestFinish()
 	{
-		unique_lock<mutex> lock(mutex_finish_);
+		unique_lock<mutex> lock(mtx_finish_);
 		finish_requested_ = true;
 	}
 
 	bool GridMapping::CheckFinish()
 	{
-		unique_lock<mutex> lock(mutex_finish_);
+		unique_lock<mutex> lock(mtx_finish_);
 		return finish_requested_;
 	}
 
 	void GridMapping::SetFinish()
 	{
-		unique_lock<mutex> lock(mutex_finish_);
+		unique_lock<mutex> lock(mtx_finish_);
 		finished_ = true;
-		unique_lock<mutex> lock2(mutex_stop_);
+		unique_lock<mutex> lock2(mtx_stop_);
 		stopped_ = true;
 	}
 
-	bool GridMapping::isFinished()
+	bool GridMapping::IsFinished()
 	{
-		unique_lock<mutex> lock(mutex_finish_);
+		unique_lock<mutex> lock(mtx_finish_);
 		return finished_;
 	}
 }

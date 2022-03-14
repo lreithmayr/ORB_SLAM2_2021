@@ -24,7 +24,7 @@ namespace ORB_SLAM2
 		// Public thread sync stuff
 		void RequestFinish();
 
-		bool isFinished();
+		bool IsFinished();
 
 	 private:
 		Map* map_;
@@ -34,8 +34,8 @@ namespace ORB_SLAM2
 
 		void SetFinish();
 
-		std::mutex mutex_finish_;
-		std::mutex mutex_stop_;
+		std::mutex mtx_finish_;
+		std::mutex mtx_stop_;
 		bool finished_;
 		bool stopped_;
 		bool finish_requested_;

@@ -7,14 +7,13 @@
 * Support for **compilers newer than C++11** implemented (tested with GCC 9.3.0)
   * **Pangolin v0.6** now supported
   * **Eigen 3.4** supported
-* **Video** input and live **webcam** feed now supported
 * **Camera calibration** tools added
 * **Map saving and loading** thanks to Alkaid Benetnash "https://github.com/Alkaid-Benetnash/ORB_SLAM2"
+* **Grid map generation** from point clouds in binary map for **navigation and path planning**
 
-**TO-DO:**
-* Grid map generation from point clouds in binary map for **navigation and path planning**
-* Implementing fusion of **wheel odometry** for added robustness when losing visual tracking
+**WIP:**
 
+* **Concurrent construction** of and localization in grid map in **additional thread**.   
 
 ## Related Publications:
 
