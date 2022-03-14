@@ -30,64 +30,62 @@
 
 #include "BoostArchiver.h"
 
-
 namespace ORB_SLAM2
 {
 
-class MapPoint;
-class KeyFrame;
+	class MapPoint;
+	class KeyFrame;
 
-class Map
-{
-public:
-    Map();
+	class Map
+	{
+	 public:
+		Map();
 
-    void AddKeyFrame(KeyFrame* pKF);
-    void AddMapPoint(MapPoint* pMP);
-    void EraseMapPoint(MapPoint* pMP);
-    void EraseKeyFrame(KeyFrame* pKF);
-    void SetReferenceMapPoints(const std::vector<MapPoint*> &vpMPs);
-    void InformNewBigChange();
-    int GetLastBigChangeIdx();
+		void AddKeyFrame(KeyFrame* pKF);
+		void AddMapPoint(MapPoint* pMP);
+		void EraseMapPoint(MapPoint* pMP);
+		void EraseKeyFrame(KeyFrame* pKF);
+		void SetReferenceMapPoints(const std::vector<MapPoint*>& vpMPs);
+		void InformNewBigChange();
+		int GetLastBigChangeIdx();
 
-    std::vector<KeyFrame*> GetAllKeyFrames();
-    std::vector<MapPoint*> GetAllMapPoints();
-    std::vector<MapPoint*> GetReferenceMapPoints();
+		std::vector<KeyFrame*> GetAllKeyFrames();
+		std::vector<MapPoint*> GetAllMapPoints();
+		std::vector<MapPoint*> GetReferenceMapPoints();
 
-    long unsigned int MapPointsInMap();
-    long unsigned  KeyFramesInMap();
+		long unsigned int MapPointsInMap();
+		long unsigned KeyFramesInMap();
 
-    long unsigned int GetMaxKFid();
+		long unsigned int GetMaxKFid();
 
-    void clear();
+		void clear();
 
-    vector<KeyFrame*> mvpKeyFrameOrigins;
+		vector<KeyFrame*> mvpKeyFrameOrigins;
 
-    std::mutex mMutexMapUpdate;
+		std::mutex mMutexMapUpdate;
 
-    // This avoid that two points are created simultaneously in separate threads (id conflict)
-    std::mutex mMutexPointCreation;
+		// This avoid that two points are created simultaneously in separate threads (id conflict)
+		std::mutex mMutexPointCreation;
 
+	 private:
+		// serialize is recommended to be private
+		friend class boost::serialization::access;
+		template<class Archive>
+		void serialize(Archive& ar, const unsigned int version);
 
-private:
-    // serialize is recommended to be private
-    friend class boost::serialization::access;
-    template<class Archive>
-    void serialize(Archive &ar, const unsigned int version);
+	 protected:
+		std::set<MapPoint*> mspMapPoints;
+		std::set<KeyFrame*> mspKeyFrames;
 
-protected:
-    std::set<MapPoint*> mspMapPoints;
-    std::set<KeyFrame*> mspKeyFrames;
+		std::vector<MapPoint*> mvpReferenceMapPoints;
 
-    std::vector<MapPoint*> mvpReferenceMapPoints;
+		long unsigned int mnMaxKFid;
 
-    long unsigned int mnMaxKFid;
+		// Index related to a big change in the map (loop closure, global BA)
+		int mnBigChangeIdx;
 
-    // Index related to a big change in the map (loop closure, global BA)
-    int mnBigChangeIdx;
-
-    std::mutex mMutexMap;
-};
+		std::mutex mMutexMap;
+	};
 
 } //namespace ORB_SLAM
 

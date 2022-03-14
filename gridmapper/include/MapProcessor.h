@@ -16,51 +16,51 @@
 
 struct PointXYZid
 {
-    PCL_ADD_POINT4D;
-    uint32_t id;
-    PCL_MAKE_ALIGNED_OPERATOR_NEW
+	PCL_ADD_POINT4D;
+	uint32_t id;
+	PCL_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 POINT_CLOUD_REGISTER_POINT_STRUCT
 (
-    PointXYZid,
-    (float, x, x)
-    (float, y, y)
-    (float, z, z)
-    (uint32_t, id, id)
+	PointXYZid,
+	(float, x, x)
+		(float, y, y)
+		(float, z, z)
+		(uint32_t, id, id)
 )
 
 namespace ORB_SLAM2
 {
-    class MapProcessor
-    {
-        public:
-        // Constructor initializes binary map, and ORB vocabulary for relocalization
-        explicit MapProcessor(const string& filename);
+	class MapProcessor
+	{
+	 public:
+		// Constructor initializes binary map, and ORB vocabulary for relocalization
+		explicit MapProcessor(const string& filename);
 
-        // Generates occupancy grid map from KFs and Map Points. Bugged.
-        void SaveGridMapKITTI(const string& output_fn);
+		// Generates occupancy grid map from KFs and Map Points. Bugged.
+		void SaveGridMapKITTI(const string& output_fn);
 
-        // Saves KF trajectory in txt file. Translation t and Quaternions.
-        void SaveTrajectoryKITTI(const string& output_fn);
+		// Saves KF trajectory in txt file. Translation t and Quaternions.
+		void SaveTrajectoryKITTI(const string& output_fn);
 
-        // Extracts map points and the timestamps at which they are observed in different KFs
-        void SavePointCloud(const string& output_fn);
+		// Extracts map points and the timestamps at which they are observed in different KFs
+		void SavePointCloud(const string& output_fn);
 
-        void OpenMapPangolin(const string& settings_path);
+		void OpenMapPangolin(const string& settings_path);
 
-        // Converts the MPs saved in the map to a PCL point cloud and saves it as .pcd
-        void FilterOutliers();
+		// Converts the MPs saved in the map to a PCL point cloud and saves it as .pcd
+		void FilterOutliers();
 
-        static void ViewPC(const string& pcl_filename);
+		static void ViewPC(const string& pcl_filename);
 
-        private:
-        Map* map;
-        string mapfile;
-        vector<KeyFrame*> KFs;
-        KeyFrameDatabase* keyFrameDatabase;
-        ORBVocabulary* vocabulary;
-    };
+	 private:
+		Map* map;
+		string mapfile;
+		vector<KeyFrame*> KFs;
+		KeyFrameDatabase* keyFrameDatabase;
+		ORBVocabulary* vocabulary;
+	};
 }
 
 #endif //ORB_SLAM2_MOD_MAPPROCESSOR_H

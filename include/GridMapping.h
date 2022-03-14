@@ -1,6 +1,4 @@
-//
-// Created by lorenz on 14.03.22.
-//
+// Grid Mapping class
 
 #ifndef GRIDMAPPING_H
 #define GRIDMAPPING_H
@@ -12,32 +10,36 @@
 
 namespace ORB_SLAM2
 {
-    class Map;
+	class Map;
 
-    class GridMapping
-    {
-    public:
-        explicit GridMapping(Map* map);
-        void Run();
+	class GridMapping
+	{
+	 public:
+		explicit GridMapping(Map* map);
 
-        std::vector<MapPoint*> GetAllMPs();
+		void Run();
 
-        // Public thread sync stuff
-        void RequestFinish();
-        bool isFinished();
+		std::vector<MapPoint*> GetAllMPs();
 
-    private:
-        Map* map_;
+		// Public thread sync stuff
+		void RequestFinish();
 
-        // Private thread sync stuff
-        bool CheckFinish();
-        void SetFinish();
-        std::mutex mutex_finish_;
-        std::mutex mutex_stop_;
-        bool finished_;
-        bool stopped_;
-        bool finish_requested_;
-    };
+		bool isFinished();
+
+	 private:
+		Map* map_;
+
+		// Private thread sync stuff
+		bool CheckFinish();
+
+		void SetFinish();
+
+		std::mutex mutex_finish_;
+		std::mutex mutex_stop_;
+		bool finished_;
+		bool stopped_;
+		bool finish_requested_;
+	};
 
 }
 

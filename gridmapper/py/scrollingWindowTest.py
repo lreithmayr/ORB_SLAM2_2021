@@ -104,7 +104,8 @@ if __name__ == "__main__":
         map_name = '{:s}_grid_map_full.pgm'.format(seq_name)
 
     gmap = cv2.imread("./maps/{:s}".format(map_name), cv2.IMREAD_UNCHANGED)
-    print gmap.shape
+    print
+    gmap.shape
     window = PanZoomWindow(gmap, "test window")
     key = -1
     while key != ord('q') and key != 27:  # 27 = escape key

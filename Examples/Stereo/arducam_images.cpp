@@ -146,6 +146,9 @@ int main(int argc, char **argv)
 
         if(ttrack<T)
             std::this_thread::sleep_for(std::chrono::microseconds(static_cast<size_t>((T-ttrack)*1e6)));
+
+		if (cv::waitKey(1) == 27)
+			break;
     }
 
     // Stop all threads
