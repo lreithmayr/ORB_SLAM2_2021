@@ -102,12 +102,12 @@ namespace ORB_SLAM2
 
 		Map* mpMap;
 
-		LoopClosing* mpLoopCloser;
-		Tracking* mpTracker;
+		LoopClosing* mpLoopCloser{};
+		Tracking* mpTracker{};
 
 		std::list<KeyFrame*> mlNewKeyFrames;
 
-		KeyFrame* mpCurrentKeyFrame;
+		KeyFrame* mpCurrentKeyFrame{};
 
 		std::list<MapPoint*> mlpRecentAddedMapPoints;
 

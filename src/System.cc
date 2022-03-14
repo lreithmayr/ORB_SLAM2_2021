@@ -37,7 +37,7 @@ namespace ORB_SLAM2
 
 	System::System(const string& strVocFile, const string& strSettingsFile, const eSensor sensor,
 		const bool bUseViewer, bool is_save_map_)
-		: mSensor(sensor), is_save_map(is_save_map_), mpViewer(static_cast<Viewer*>(NULL)), mbReset(false),
+		: mSensor(sensor), is_save_map(is_save_map_), mpViewer(static_cast<Viewer*>(nullptr)), mbReset(false),
 		  mbActivateLocalizationMode(false), mbDeactivateLocalizationMode(false)
 	{
 		// Output welcome message
@@ -57,7 +57,7 @@ namespace ORB_SLAM2
 			cout << "RGB-D" << endl;
 
 		//Check settings file
-		cv::FileStorage fsSettings(strSettingsFile.c_str(), cv::FileStorage::READ);
+		cv::FileStorage fsSettings(strSettingsFile, cv::FileStorage::READ);
 		if (!fsSettings.isOpened())
 		{
 			cerr << "Failed to open settings file at: " << strSettingsFile << endl;
@@ -379,10 +379,10 @@ namespace ORB_SLAM2
 
 		// For each frame we have a reference keyframe (lRit), the timestamp (lT) and a flag
 		// which is true when tracking failed (lbL).
-		list<ORB_SLAM2::KeyFrame*>::iterator lRit = mpTracker->mlpReferences.begin();
-		list<double>::iterator lT = mpTracker->mlFrameTimes.begin();
-		list<bool>::iterator lbL = mpTracker->mlbLost.begin();
-		for (list<cv::Mat>::iterator lit = mpTracker->mlRelativeFramePoses.begin(),
+		auto lRit = mpTracker->mlpReferences.begin();
+		auto lT = mpTracker->mlFrameTimes.begin();
+		auto lbL = mpTracker->mlbLost.begin();
+		for (auto lit = mpTracker->mlRelativeFramePoses.begin(),
 				 lend = mpTracker->mlRelativeFramePoses.end(); lit != lend; lit++, lRit++, lT++, lbL++)
 		{
 			if (*lbL)
@@ -429,11 +429,9 @@ namespace ORB_SLAM2
 		f.open(filename.c_str());
 		f << fixed;
 
-		for (size_t i = 0; i < vpKFs.size(); i++)
+		for (auto pKF : vpKFs)
 		{
-			KeyFrame* pKF = vpKFs[i];
-
-			// pKF->SetPose(pKF->GetPose()*Two);
+				// pKF->SetPose(pKF->GetPose()*Two);
 
 			if (pKF->isBad())
 				continue;
@@ -477,9 +475,9 @@ namespace ORB_SLAM2
 
 		// For each frame we have a reference keyframe (lRit), the timestamp (lT) and a flag
 		// which is true when tracking failed (lbL).
-		list<ORB_SLAM2::KeyFrame*>::iterator lRit = mpTracker->mlpReferences.begin();
-		list<double>::iterator lT = mpTracker->mlFrameTimes.begin();
-		for (list<cv::Mat>::iterator lit = mpTracker->mlRelativeFramePoses.begin(),
+		auto lRit = mpTracker->mlpReferences.begin();
+		auto lT = mpTracker->mlFrameTimes.begin();
+		for (auto lit = mpTracker->mlRelativeFramePoses.begin(),
 				 lend = mpTracker->mlRelativeFramePoses.end(); lit != lend; lit++, lRit++, lT++)
 		{
 			ORB_SLAM2::KeyFrame* pKF = *lRit;

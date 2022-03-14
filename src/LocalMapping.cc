@@ -49,7 +49,7 @@ namespace ORB_SLAM2
 
 		mbFinished = false;
 
-		while (1)
+		while (true)
 		{
 			// Tracking will see that Local Mapping is busy
 			SetAcceptKeyFrames(false);
@@ -432,7 +432,7 @@ namespace ORB_SLAM2
 					continue;
 
 				// Triangulation is succesfull
-				MapPoint* pMP = new MapPoint(x3D, mpCurrentKeyFrame, mpMap);
+				auto* pMP = new MapPoint(x3D, mpCurrentKeyFrame, mpMap);
 
 				pMP->AddObservation(mpCurrentKeyFrame, idx1);
 				pMP->AddObservation(pKF2, idx2);
@@ -460,10 +460,9 @@ namespace ORB_SLAM2
 			nn = 20;
 		const vector<KeyFrame*> vpNeighKFs = mpCurrentKeyFrame->GetBestCovisibilityKeyFrames(nn);
 		vector<KeyFrame*> vpTargetKFs;
-		for (vector<KeyFrame*>::const_iterator vit = vpNeighKFs.begin(), vend = vpNeighKFs.end(); vit != vend; vit++)
+		for (auto pKFi : vpNeighKFs)
 		{
-			KeyFrame* pKFi = *vit;
-			if (pKFi->isBad() || pKFi->mnFuseTargetForKF == mpCurrentKeyFrame->mnId)
+				if (pKFi->isBad() || pKFi->mnFuseTargetForKF == mpCurrentKeyFrame->mnId)
 				continue;
 			vpTargetKFs.push_back(pKFi);
 			pKFi->mnFuseTargetForKF = mpCurrentKeyFrame->mnId;
