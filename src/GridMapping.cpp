@@ -38,7 +38,7 @@ namespace ORB_SLAM2
 			else
 			{
 				pcl::PointCloud<PointXYZid> mps_pcl = ConvertToPCL(mps);
-				PublishPC(nh_, mps_pcl);
+				PublishPC(mps_pcl);
 				//SubToPC(nh_);
 			}
 
@@ -75,9 +75,9 @@ namespace ORB_SLAM2
 		return pcl_cloud;
 	}
 
-	void GridMapping::PublishPC(ros::NodeHandle nh, pcl::PointCloud<PointXYZid>& pub_cld)
+	void GridMapping::PublishPC(pcl::PointCloud<PointXYZid>& pub_cld)
 	{
-		ros::Publisher pub = nh.advertise<pcl::PointCloud<PointXYZid>> (topic_, queue_size_);
+		ros::Publisher pub = nh_.advertise<pcl::PointCloud<PointXYZid>> (topic_, queue_size_);
 		pub.publish(pub_cld);
 		std::cout << "PC publishing" << endl;
 	}
