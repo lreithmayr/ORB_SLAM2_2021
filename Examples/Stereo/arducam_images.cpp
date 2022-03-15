@@ -76,6 +76,8 @@ int main(int argc, char **argv)
 
     auto rect_mats = rectification(fsSettings);
 
+	ros::init(argc, argv, "pc_publisher");
+
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
     bool mapping = false;
     ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::STEREO,true, mapping);
@@ -146,9 +148,6 @@ int main(int argc, char **argv)
 
         if(ttrack<T)
             std::this_thread::sleep_for(std::chrono::microseconds(static_cast<size_t>((T-ttrack)*1e6)));
-
-		if (cv::waitKey(1) == 27)
-			break;
     }
 
     // Stop all threads

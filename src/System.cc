@@ -358,6 +358,8 @@ namespace ORB_SLAM2
 			pangolin::BindToContext("ORB-SLAM2: Map Viewer");
 		if (is_save_map)
 			SaveMap(mapfile);
+
+		ros::shutdown();
 	}
 
 	void System::SaveTrajectoryTUM(const string& filename)

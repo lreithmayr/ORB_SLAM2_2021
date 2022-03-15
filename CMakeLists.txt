@@ -61,8 +61,9 @@ src/KeyFrameDatabase.cc
 src/Sim3Solver.cc
 src/Initializer.cc
 src/Viewer.cc
-gridmapper/src/MapProcessor.cpp
-src/GridMapping.cpp)
+src/GridMapping.cpp
+# gridmapper/src/MapProcessor.cpp
+)
 
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
@@ -100,9 +101,9 @@ target_link_libraries(arducam_video ${PROJECT_NAME})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/gridmapper/src)
 
-add_executable(gridmapper
-gridmapper/src/gridmapper.cpp)
-target_link_libraries(gridmapper ${PROJECT_NAME})
+# add_executable(gridmapper
+# gridmapper/src/gridmapper.cpp)
+# target_link_libraries(gridmapper ${PROJECT_NAME})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Vocabulary)
 

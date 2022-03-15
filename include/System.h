@@ -46,6 +46,7 @@
 #include "BoostArchiver.h"
 // for map file io
 #include <fstream>
+#include <ros/ros.h>
 
 namespace ORB_SLAM2
 {
