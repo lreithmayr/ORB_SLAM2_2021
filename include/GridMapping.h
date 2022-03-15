@@ -4,6 +4,9 @@
 #define GRIDMAPPING_H
 
 #include "Map.h"
+#include "Tracking.h"
+#include "LocalMapping.h"
+#include "LoopClosing.h"
 
 #include <thread>
 #include <mutex>
@@ -13,17 +16,18 @@ namespace ORB_SLAM2
 	class Tracking;
 	class LocalMapping;
 	class LoopClosing;
-	class Map;
 
 	class GridMapping
 	{
 	 public:
 		explicit GridMapping(Map* map);
 
+		// Set other thread pointers
 		void SetTracker(Tracking* Tracker);
 		void SetLoopCloser(LoopClosing* LoopCloser);
 		void SetLocalMapper(LocalMapping* LocalMapper);
 
+		// Main method
 		void Run();
 
 		std::vector<MapPoint*> GetAllMPs();
@@ -41,18 +45,17 @@ namespace ORB_SLAM2
 		LoopClosing* LoopCloser_{};
 		LocalMapping* LocalMapper_{};
 
-
 		// Private thread sync stuff
 		bool CheckFinish();
-
 		void SetFinish();
-
-		std::mutex mtx_finish_;
-		std::mutex mtx_stop_;
 
 		bool finished_;
 		bool stopped_;
 		bool finish_requested_;
+
+		// Mutexes
+		std::mutex mtx_finish_;
+		std::mutex mtx_stop_;
 	};
 
 }
