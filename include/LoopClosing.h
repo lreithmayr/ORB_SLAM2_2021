@@ -37,6 +37,7 @@
 namespace ORB_SLAM2
 {
 
+	class GridMapping;
 	class Tracking;
 	class LocalMapping;
 	class KeyFrameDatabase;
@@ -54,8 +55,8 @@ namespace ORB_SLAM2
 		LoopClosing(Map* pMap, KeyFrameDatabase* pDB, ORBVocabulary* pVoc, const bool bFixScale);
 
 		void SetTracker(Tracking* pTracker);
-
 		void SetLocalMapper(LocalMapping* pLocalMapper);
+		void SetGridMapper(GridMapping* GridMapper);
 
 		// Main function
 		void Run();
@@ -106,13 +107,15 @@ namespace ORB_SLAM2
 		bool mbFinished;
 		std::mutex mMutexFinish;
 
+		// Thread Pointers
 		Map* mpMap;
-		Tracking* mpTracker;
 
 		KeyFrameDatabase* mpKeyFrameDB;
 		ORBVocabulary* mpORBVocabulary;
 
+		Tracking* mpTracker;
 		LocalMapping* mpLocalMapper;
+		GridMapping* GridMapper_;
 
 		std::list<KeyFrame*> mlpLoopKeyFrameQueue;
 

@@ -44,6 +44,11 @@ namespace ORB_SLAM2
 		mpTracker = pTracker;
 	}
 
+	void LocalMapping::SetGridMapper(GridMapping* GridMapper)
+	{
+		GridMapper_ = GridMapper;
+	}
+
 	void LocalMapping::Run()
 	{
 

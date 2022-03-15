@@ -10,12 +10,19 @@
 
 namespace ORB_SLAM2
 {
+	class Tracking;
+	class LocalMapping;
+	class LoopClosing;
 	class Map;
 
 	class GridMapping
 	{
 	 public:
 		explicit GridMapping(Map* map);
+
+		void SetTracker(Tracking* Tracker);
+		void SetLoopCloser(LoopClosing* LoopCloser);
+		void SetLocalMapper(LocalMapping* LocalMapper);
 
 		void Run();
 
@@ -29,6 +36,12 @@ namespace ORB_SLAM2
 	 private:
 		Map* map_;
 
+		// Thread pointers
+		Tracking* Tracker_{};
+		LoopClosing* LoopCloser_{};
+		LocalMapping* LocalMapper_{};
+
+
 		// Private thread sync stuff
 		bool CheckFinish();
 
@@ -36,6 +49,7 @@ namespace ORB_SLAM2
 
 		std::mutex mtx_finish_;
 		std::mutex mtx_stop_;
+
 		bool finished_;
 		bool stopped_;
 		bool finish_requested_;

@@ -11,6 +11,21 @@ namespace ORB_SLAM2
 		std::cout << "GridMapping constructed." << endl;
 	}
 
+	void GridMapping::SetTracker(Tracking* Tracker)
+	{
+		Tracker_ = Tracker;
+	}
+
+	void GridMapping::SetLoopCloser(LoopClosing* LoopCloser)
+	{
+		LoopCloser_ = LoopCloser;
+	}
+
+	void GridMapping::SetLocalMapper(LocalMapping* LocalMapper)
+	{
+		LocalMapper_ = LocalMapper;
+	}
+
 	void GridMapping::Run()
 	{
 		finished_ = false;

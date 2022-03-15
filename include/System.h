@@ -29,8 +29,8 @@
 #include <opencv2/imgproc/types_c.h>
 
 #include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include "Tracking.h"
 #include "FrameDrawer.h"

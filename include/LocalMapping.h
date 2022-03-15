@@ -33,6 +33,7 @@
 namespace ORB_SLAM2
 {
 
+	class GridMapping;
 	class Tracking;
 	class LoopClosing;
 	class Map;
@@ -43,8 +44,8 @@ namespace ORB_SLAM2
 		LocalMapping(Map* pMap, const float bMonocular);
 
 		void SetLoopCloser(LoopClosing* pLoopCloser);
-
 		void SetTracker(Tracking* pTracker);
+		void SetGridMapper(GridMapping* GridMapper);
 
 		// Main function
 		void Run();
@@ -102,7 +103,9 @@ namespace ORB_SLAM2
 
 		Map* mpMap;
 
+		// Thread Pointers
 		LoopClosing* mpLoopCloser{};
+		GridMapping* GridMapper_;
 		Tracking* mpTracker{};
 
 		std::list<KeyFrame*> mlNewKeyFrames;

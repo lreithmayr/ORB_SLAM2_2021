@@ -135,12 +135,19 @@ namespace ORB_SLAM2
 		//Set pointers between threads
 		mpTracker->SetLocalMapper(mpLocalMapper);
 		mpTracker->SetLoopClosing(mpLoopCloser);
+		mpTracker->SetGridMapper(GridMapper);
 
 		mpLocalMapper->SetTracker(mpTracker);
 		mpLocalMapper->SetLoopCloser(mpLoopCloser);
+		mpLocalMapper->SetGridMapper(GridMapper);
+
+		GridMapper->SetTracker(mpTracker);
+		GridMapper->SetLoopCloser(mpLoopCloser);
+		GridMapper->SetLocalMapper(mpLocalMapper);
 
 		mpLoopCloser->SetTracker(mpTracker);
 		mpLoopCloser->SetLocalMapper(mpLocalMapper);
+		mpLoopCloser->SetGridMapper(GridMapper);
 	}
 
 	cv::Mat System::TrackStereo(const cv::Mat& imLeft, const cv::Mat& imRight, const double& timestamp)
