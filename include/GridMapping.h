@@ -17,6 +17,7 @@
 #include <pcl/point_types.h>
 #include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/visualization/cloud_viewer.h>
+#include <pcl_conversions/pcl_conversions.h>
 
 #include <thread>
 #include <mutex>
@@ -46,7 +47,7 @@ namespace ORB_SLAM2
 	class GridMapping
 	{
 	 public:
-		explicit GridMapping(Map* map);
+		explicit GridMapping(Map* map, bool visualize_pc);
 
 		// Set thread pointers
 		void SetTracker(Tracking* Tracker);
@@ -56,22 +57,29 @@ namespace ORB_SLAM2
 		// Main function
 		void Run();
 
+		// Return all MapPoints in the current map
 		std::vector<MapPoint*> GetAllMPs();
-		static pcl::PointCloud<PointXYZid> ConvertToPCL(std::vector<MapPoint*>& mps);
-		void PublishPC(pcl::PointCloud<PointXYZid>& pub_cld);
-		void SubToPC(ros::NodeHandle nh);
+
+		// Convert MapPoints to PCL Point Cloud
+		static pcl::PointCloud<pcl::PointXYZ> ConvertToPCL(std::vector<MapPoint*>& mps);
+
+		// ROS Publisher to topic "point_cloud"
+		void PublishPC(pcl::PointCloud<pcl::PointXYZ>& pub_cld);
 
 		// Public thread sync stuff
 		void RequestFinish();
-
 		bool IsFinished();
 
 	 private:
 		Map* map_;
+
+		// ROS variables
 		ros::NodeHandle nh_;
 		std::string topic_;
 		uint32_t queue_size_;
 
+		// Enables or disables the PCL viewer
+		bool visualize_pc_;
 
 		// Thread pointers
 		Tracking* Tracker_{};
@@ -90,7 +98,6 @@ namespace ORB_SLAM2
 		std::mutex mtx_finish_;
 		std::mutex mtx_stop_;
 	};
-
 }
 
 #endif //GRIDMAPPING_H

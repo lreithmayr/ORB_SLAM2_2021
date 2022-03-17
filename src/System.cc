@@ -117,7 +117,7 @@ namespace ORB_SLAM2
 		mptLocalMapping = new thread(&ORB_SLAM2::LocalMapping::Run, mpLocalMapper);
 
 		// Initialize Grid Mapper and launch the thread
-		GridMapper = new GridMapping(mpMap);
+		GridMapper = new GridMapping(mpMap, true);
 		GridMappingThread = new thread(&ORB_SLAM2::GridMapping::Run, GridMapper);
 
 		//Initialize the Loop Closing thread and launch
