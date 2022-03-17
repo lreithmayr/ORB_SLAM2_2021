@@ -6,7 +6,7 @@
 
 namespace ORB_SLAM2
 {
-	GridMapping::GridMapping(Map* map, bool visualize_pc) :
+	GridMapping::GridMapping(Map* map, bool visualize_pc):
 	map_(map),
 	nh_(),
 	topic_("point_cloud"),
@@ -55,13 +55,10 @@ namespace ORB_SLAM2
 				}
 
 				PublishPC(mps_pcl);
-				//SubToPC(nh_);
 			}
 
 			if (CheckFinish())
 				break;
-
-			// std::this_thread::sleep_for(std::chrono::microseconds(3000));
 		}
 
 		SetFinish();
@@ -100,12 +97,6 @@ namespace ORB_SLAM2
 		ros::spinOnce();
 		rate.sleep();
 	}
-
-	// void GridMapping::SubToPC(ros::NodeHandle nh)
-	// {
-	// 	void callback(const sensor_msgs::PointCloud2ConstPtr&);
-	// 	ros::Subscriber sub = nh.subscribe<sensor_msgs::PointCloud2> (topic_, queue_size_, callback);
-	// }
 
 	void GridMapping::RequestFinish()
 	{
