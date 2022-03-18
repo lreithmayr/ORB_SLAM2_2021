@@ -7,15 +7,15 @@
 namespace ORB_SLAM2
 {
 	GridMapping::GridMapping(Map* map, bool visualize_pc):
-	map_(map),
-	nh_(),
-	topic_("os2_point_cloud"),
-	queue_size_(10),
-	pub_(nh_.advertise<pcl::PointCloud<pcl::PointXYZ>>(topic_, queue_size_)),
-	visualize_pc_(visualize_pc),
-	finished_(false),
-	stopped_(false),
-	finish_requested_(false)
+		map_(map),
+		nh_pc_(),
+		topic_("os2_point_cloud"),
+		queue_size_(10),
+		pub_pc_(nh_pc_.advertise<pcl::PointCloud<pcl::PointXYZ>>(topic_, queue_size_)),
+		visualize_pc_(visualize_pc),
+		finished_(false),
+		stopped_(false),
+		finish_requested_(false)
 	{
 	}
 
@@ -53,7 +53,7 @@ namespace ORB_SLAM2
 					viewer.showCloud(mps_pcl);
 				}
 
-				PublishPC(pub_, mps_pcl);
+				PublishPC(pub_pc_, mps_pcl);
 
 				// TestPublisher();
 			}
@@ -93,11 +93,15 @@ namespace ORB_SLAM2
 	void GridMapping::PublishPC(ros::Publisher& pub, pcl::PointCloud<pcl::PointXYZ>::Ptr& pub_cld)
 	{
 		ros::Rate rate(10);
-		// pcl_conversions::toPCL(ros::Time::now(), pub_cld->header.stamp);
+
+		//Convert ROS time stamp to PCL time stamp
+		pcl_conversions::toPCL(ros::Time::now(), pub_cld->header.stamp);
+
+		// Convert PCL cloud "pub_cld" to sensor_msgs::PointCloud2 out_cld
 		sensor_msgs::PointCloud2 out_cld;
 		pcl::toROSMsg(*pub_cld, out_cld);
 
-		// ROS_INFO("%u", out_cld.width);
+		// ROS_INFO("%s", out_cld.header.frame_id.c_str());
 
 		pub.publish(out_cld);
 		rate.sleep();
@@ -105,7 +109,7 @@ namespace ORB_SLAM2
 
 	void GridMapping::TestPublisher()
 	{
-		ros::Publisher chatter_pub = nh_.advertise<std_msgs::String>("chatter", 1000);
+		ros::Publisher chatter_pub = nh_pc_.advertise<std_msgs::String>("chatter", 1000);
 		ros::Rate loop_rate(10);
 
 		std_msgs::String msg;

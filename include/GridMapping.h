@@ -1,6 +1,5 @@
 // Grid Mapping class
 
-#define PCL_NO_PRECOMPILE
 #ifndef GRIDMAPPING_H
 #define GRIDMAPPING_H
 
@@ -9,13 +8,8 @@
 #include "LocalMapping.h"
 #include "LoopClosing.h"
 
-#include <pcl/pcl_macros.h>
 #include <pcl/point_types.h>
 #include <pcl_ros/point_cloud.h>
-#include <pcl/memory.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/point_types.h>
-#include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include "std_msgs/String.h"
@@ -78,10 +72,10 @@ namespace ORB_SLAM2
 		Map* map_;
 
 		// ROS variables
-		ros::NodeHandle nh_;
+		ros::NodeHandle nh_pc_;
 		std::string topic_;
 		uint32_t queue_size_;
-		ros::Publisher pub_;
+		ros::Publisher pub_pc_;
 
 		// Enables or disables the PCL viewer
 		bool visualize_pc_;
