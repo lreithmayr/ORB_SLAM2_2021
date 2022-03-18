@@ -9,8 +9,9 @@ namespace ORB_SLAM2
 	GridMapping::GridMapping(Map* map, bool visualize_pc):
 	map_(map),
 	nh_(),
-	topic_("point_cloud"),
+	topic_("os2_point_cloud"),
 	queue_size_(10),
+	pub_(nh_.advertise<pcl::PointCloud<pcl::PointXYZ>>(topic_, queue_size_)),
 	visualize_pc_(visualize_pc),
 	finished_(false),
 	stopped_(false),
@@ -45,16 +46,16 @@ namespace ORB_SLAM2
 				continue;
 			else
 			{
-				pcl::PointCloud<pcl::PointXYZ> mps_pcl = ConvertToPCL(mps);
+				pcl::PointCloud<pcl::PointXYZ>::Ptr mps_pcl = ConvertToPCL(mps);
 
 				if (visualize_pc_)
 				{
-					pcl::PointCloud<pcl::PointXYZ>::Ptr pc_ptr(new pcl::PointCloud<pcl::PointXYZ>);
-					*pc_ptr = mps_pcl;
-					viewer.showCloud(pc_ptr);
+					viewer.showCloud(mps_pcl);
 				}
 
-				PublishPC(mps_pcl);
+				PublishPC(pub_, mps_pcl);
+
+				// TestPublisher();
 			}
 
 			if (CheckFinish())
@@ -69,33 +70,55 @@ namespace ORB_SLAM2
 		return map_->GetAllMapPoints();
 	}
 
-	pcl::PointCloud<pcl::PointXYZ> GridMapping::ConvertToPCL(std::vector<MapPoint*>& mps)
+	pcl::PointCloud<pcl::PointXYZ>::Ptr GridMapping::ConvertToPCL(std::vector<MapPoint*>& mps)
 	{
-		pcl::PointCloud<pcl::PointXYZ> pcl_cloud;
-		pcl_cloud.width = mps.size();
-		pcl_cloud.height = 1;
-		pcl_cloud.is_dense = true;
-		pcl_cloud.points.resize(pcl_cloud.width * pcl_cloud.height);
+		pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+		pcl_cloud->width = mps.size();
+		pcl_cloud->height = 1;
+		pcl_cloud->is_dense = true;
+		pcl_cloud->points.resize(pcl_cloud->width * pcl_cloud->height);
 
-		for(uint32_t i = 0; i < pcl_cloud.width; i++)
+		for(uint32_t i = 0; i < pcl_cloud->width; i++)
 		{
-			pcl_cloud[i].x = mps[i]->GetWorldPos().at<float>(0);
-			pcl_cloud[i].y = mps[i]->GetWorldPos().at<float>(1);
-			pcl_cloud[i].z = mps[i]->GetWorldPos().at<float>(2);
-			// pcl_cloud[i].id =mps[i]->mnId;
+			float x = mps[i]->GetWorldPos().at<float>(0);
+			float y = mps[i]->GetWorldPos().at<float>(1);
+			float z = mps[i]->GetWorldPos().at<float>(2);
+
+			pcl_cloud->points.emplace_back(pcl::PointXYZ(x, y, z));
 		}
 
 		return pcl_cloud;
 	}
 
-	void GridMapping::PublishPC(pcl::PointCloud<pcl::PointXYZ>& pub_cld)
+	void GridMapping::PublishPC(ros::Publisher& pub, pcl::PointCloud<pcl::PointXYZ>::Ptr& pub_cld)
 	{
 		ros::Rate rate(10);
-		pcl_conversions::toPCL(ros::Time::now(), pub_cld.header.stamp);
-		ros::Publisher pub = nh_.advertise<pcl::PointCloud<pcl::PointXYZ>> (topic_, queue_size_);
-		pub.publish(pub_cld);
-		ros::spinOnce();
+		// pcl_conversions::toPCL(ros::Time::now(), pub_cld->header.stamp);
+		sensor_msgs::PointCloud2 out_cld;
+		pcl::toROSMsg(*pub_cld, out_cld);
+
+		// ROS_INFO("%u", out_cld.width);
+
+		pub.publish(out_cld);
 		rate.sleep();
+	}
+
+	void GridMapping::TestPublisher()
+	{
+		ros::Publisher chatter_pub = nh_.advertise<std_msgs::String>("chatter", 1000);
+		ros::Rate loop_rate(10);
+
+		std_msgs::String msg;
+
+		std::stringstream ss;
+		ss << "hello world " << "\n";
+		msg.data = ss.str();
+
+		ROS_INFO("%s", msg.data.c_str());
+
+		chatter_pub.publish(msg);
+
+		loop_rate.sleep();
 	}
 
 	void GridMapping::RequestFinish()

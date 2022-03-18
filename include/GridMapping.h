@@ -18,6 +18,8 @@
 #include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl_conversions/pcl_conversions.h>
+#include "std_msgs/String.h"
+#include <ros/ros.h>
 
 #include <thread>
 #include <mutex>
@@ -61,14 +63,16 @@ namespace ORB_SLAM2
 		std::vector<MapPoint*> GetAllMPs();
 
 		// Convert MapPoints to PCL Point Cloud
-		static pcl::PointCloud<pcl::PointXYZ> ConvertToPCL(std::vector<MapPoint*>& mps);
+		static pcl::PointCloud<pcl::PointXYZ>::Ptr ConvertToPCL(std::vector<MapPoint*>& mps);
 
 		// ROS Publisher to topic "point_cloud"
-		void PublishPC(pcl::PointCloud<pcl::PointXYZ>& pub_cld);
+		static void PublishPC(ros::Publisher& pub, pcl::PointCloud<pcl::PointXYZ>::Ptr& pub_cld);
 
 		// Public thread sync stuff
 		void RequestFinish();
 		bool IsFinished();
+
+		void TestPublisher();
 
 	 private:
 		Map* map_;
@@ -77,6 +81,7 @@ namespace ORB_SLAM2
 		ros::NodeHandle nh_;
 		std::string topic_;
 		uint32_t queue_size_;
+		ros::Publisher pub_;
 
 		// Enables or disables the PCL viewer
 		bool visualize_pc_;
