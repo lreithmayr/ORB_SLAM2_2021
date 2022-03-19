@@ -42,6 +42,7 @@
 #include "ORBVocabulary.h"
 #include "Viewer.h"
 #include "PointCloudPublisher.h"
+#include "Converter.h"
 
 #include "BoostArchiver.h"
 

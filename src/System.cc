@@ -339,7 +339,7 @@ namespace ORB_SLAM2
 		mbReset = true;
 	}
 
-	void System::hutdown()
+	void System::Shutdown()
 	{
 		PCPub->RequestFinish();
 		mpLocalMapper->RequestFinish();

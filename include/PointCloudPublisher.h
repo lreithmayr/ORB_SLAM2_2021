@@ -66,8 +66,6 @@ namespace ORB_SLAM2
 		void RequestFinish();
 		bool IsFinished();
 
-		void TestPublisher();
-
 	 private:
 		Map* map_;
 

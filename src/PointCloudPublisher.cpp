@@ -103,26 +103,10 @@ namespace ORB_SLAM2
 
 		// ROS_INFO("%s", out_cld.header.frame_id.c_str());
 
+		out_cld.header.frame_id = "Tcw";
+		out_cld.data.resize(out_cld.width * out_cld.height * out_cld.point_step);
 		pub_pc_.publish(out_cld);
 		rate.sleep();
-	}
-
-	void PointCloudPublisher::TestPublisher()
-	{
-		ros::Publisher chatter_pub = nh_pc_.advertise<std_msgs::String>("chatter", 1000);
-		ros::Rate loop_rate(10);
-
-		std_msgs::String msg;
-
-		std::stringstream ss;
-		ss << "hello world " << "\n";
-		msg.data = ss.str();
-
-		ROS_INFO("%s", msg.data.c_str());
-
-		chatter_pub.publish(msg);
-
-		loop_rate.sleep();
 	}
 
 	void PointCloudPublisher::RequestFinish()
