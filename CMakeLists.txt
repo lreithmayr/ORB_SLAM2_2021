@@ -61,7 +61,7 @@ src/KeyFrameDatabase.cc
 src/Sim3Solver.cc
 src/Initializer.cc
 src/Viewer.cc
-src/GridMapping.cpp
+        src/PointCloudPublisher.cpp
 # gridmapper/src/MapProcessor.cpp
 )
 

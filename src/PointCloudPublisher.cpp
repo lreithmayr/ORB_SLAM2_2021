@@ -2,13 +2,13 @@
 // Created by lorenz on 14.03.22.
 //
 
-#include "GridMapping.h"
+#include "PointCloudPublisher.h"
 
 namespace ORB_SLAM2
 {
-	GridMapping::GridMapping(Map* map, bool visualize_pc):
+	PointCloudPublisher::PointCloudPublisher(Map* map, bool visualize_pc, ros::NodeHandle& nh):
 		map_(map),
-		nh_pc_(),
+		nh_pc_(nh),
 		topic_("os2_point_cloud"),
 		queue_size_(10),
 		pub_pc_(nh_pc_.advertise<pcl::PointCloud<pcl::PointXYZ>>(topic_, queue_size_)),
@@ -19,22 +19,22 @@ namespace ORB_SLAM2
 	{
 	}
 
-	void GridMapping::SetTracker(Tracking* Tracker)
+	void PointCloudPublisher::SetTracker(Tracking* Tracker)
 	{
 		Tracker_ = Tracker;
 	}
 
-	void GridMapping::SetLoopCloser(LoopClosing* LoopCloser)
+	void PointCloudPublisher::SetLoopCloser(LoopClosing* LoopCloser)
 	{
 		LoopCloser_ = LoopCloser;
 	}
 
-	void GridMapping::SetLocalMapper(LocalMapping* LocalMapper)
+	void PointCloudPublisher::SetLocalMapper(LocalMapping* LocalMapper)
 	{
 		LocalMapper_ = LocalMapper;
 	}
 
-	void GridMapping::Run()
+	void PointCloudPublisher::Run()
 	{
 		finished_ = false;
 		pcl::visualization::CloudViewer viewer("PCL Viewer");
@@ -53,7 +53,7 @@ namespace ORB_SLAM2
 					viewer.showCloud(mps_pcl);
 				}
 
-				PublishPC(pub_pc_, mps_pcl);
+				PublishPC(mps_pcl);
 
 				// TestPublisher();
 			}
@@ -65,12 +65,12 @@ namespace ORB_SLAM2
 		SetFinish();
 	}
 
-	std::vector<MapPoint*> GridMapping::GetAllMPs()
+	std::vector<MapPoint*> PointCloudPublisher::GetAllMPs()
 	{
 		return map_->GetAllMapPoints();
 	}
 
-	pcl::PointCloud<pcl::PointXYZ>::Ptr GridMapping::ConvertToPCL(std::vector<MapPoint*>& mps)
+	pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudPublisher::ConvertToPCL(std::vector<MapPoint*>& mps)
 	{
 		pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_cloud(new pcl::PointCloud<pcl::PointXYZ>);
 		pcl_cloud->width = mps.size();
@@ -90,7 +90,7 @@ namespace ORB_SLAM2
 		return pcl_cloud;
 	}
 
-	void GridMapping::PublishPC(ros::Publisher& pub, pcl::PointCloud<pcl::PointXYZ>::Ptr& pub_cld)
+	void PointCloudPublisher::PublishPC(pcl::PointCloud<pcl::PointXYZ>::Ptr& pub_cld)
 	{
 		ros::Rate rate(10);
 
@@ -103,11 +103,11 @@ namespace ORB_SLAM2
 
 		// ROS_INFO("%s", out_cld.header.frame_id.c_str());
 
-		pub.publish(out_cld);
+		pub_pc_.publish(out_cld);
 		rate.sleep();
 	}
 
-	void GridMapping::TestPublisher()
+	void PointCloudPublisher::TestPublisher()
 	{
 		ros::Publisher chatter_pub = nh_pc_.advertise<std_msgs::String>("chatter", 1000);
 		ros::Rate loop_rate(10);
@@ -125,19 +125,19 @@ namespace ORB_SLAM2
 		loop_rate.sleep();
 	}
 
-	void GridMapping::RequestFinish()
+	void PointCloudPublisher::RequestFinish()
 	{
 		unique_lock<mutex> lock(mtx_finish_);
 		finish_requested_ = true;
 	}
 
-	bool GridMapping::CheckFinish()
+	bool PointCloudPublisher::CheckFinish()
 	{
 		unique_lock<mutex> lock(mtx_finish_);
 		return finish_requested_;
 	}
 
-	void GridMapping::SetFinish()
+	void PointCloudPublisher::SetFinish()
 	{
 		unique_lock<mutex> lock(mtx_finish_);
 		finished_ = true;
@@ -145,7 +145,7 @@ namespace ORB_SLAM2
 		stopped_ = true;
 	}
 
-	bool GridMapping::IsFinished()
+	bool PointCloudPublisher::IsFinished()
 	{
 		unique_lock<mutex> lock(mtx_finish_);
 		return finished_;

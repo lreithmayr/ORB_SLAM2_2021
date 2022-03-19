@@ -41,11 +41,13 @@
 #include "KeyFrameDatabase.h"
 #include "ORBVocabulary.h"
 #include "Viewer.h"
-#include "GridMapping.h"
+#include "PointCloudPublisher.h"
 
 #include "BoostArchiver.h"
+
 // for map file io
 #include <fstream>
+
 #include <ros/ros.h>
 
 namespace ORB_SLAM2
@@ -57,7 +59,7 @@ namespace ORB_SLAM2
 	class Tracking;
 	class LocalMapping;
 	class LoopClosing;
-	class GridMapping;
+	class PointCloudPublisher;
 
 	class System
 	{
@@ -73,11 +75,15 @@ namespace ORB_SLAM2
 	 public:
 
 		// Initialize the SLAM system. It launches the Local Mapping, Loop Closing and Viewer threads.
-		System(const string& strVocFile,
+		System(
+			const string& strVocFile,
 			const string& strSettingsFile,
 			const eSensor sensor,
-			const bool bUseViewer = true,
-			bool is_save_map_ = false);
+			const bool bUseViewer,
+			bool is_save_map_,
+			const ros::NodeHandle& nh
+			);
+
 
 		// Proccess the given stereo frame. Images must be synchronized and rectified.
 		// Input images: RGB (CV_8UC3) or grayscale (CV_8U). RGB is converted to grayscale.
@@ -156,6 +162,7 @@ namespace ORB_SLAM2
 
 		string mapfile;
 		bool is_save_map;
+		ros::NodeHandle nh_;
 
 		// Tracker. It receives a frame and computes the associated camera pose.
 		// It also decides when to insert a new keyframe, create some new MapPoints and
@@ -165,8 +172,8 @@ namespace ORB_SLAM2
 		// Local Mapper. It manages the local map and performs local bundle adjustment.
 		LocalMapping* mpLocalMapper;
 
-		// Grid Mapper. Converts the point cloud to a laserscan and generates a grid map.
-		GridMapping* GridMapper;
+		// PCL point cloud publisher. Converts the OS2 map points to a PCL point cloud and publishes it via ROS.
+		PointCloudPublisher* PCPub;
 
 		// Loop Closer. It searches loops with every new keyframe. If there is a loop it performs
 		// a pose graph optimization and full bundle adjustment (in a new thread) afterwards.
@@ -181,7 +188,7 @@ namespace ORB_SLAM2
 		// System threads: Local Mapping, Grid Mapping; Loop Closing, Viewer.
 		// The Tracking thread "lives" in the main execution thread that creates the System object.
 		std::thread* mptLocalMapping;
-		std::thread* GridMappingThread;
+		std::thread* PCPubThread;
 		std::thread* mptLoopClosing;
 		std::thread* mptViewer;
 

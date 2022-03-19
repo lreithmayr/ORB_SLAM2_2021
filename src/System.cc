@@ -34,11 +34,15 @@ static bool has_suffix(const std::string& str, const std::string& suffix)
 
 namespace ORB_SLAM2
 {
-
 	System::System(const string& strVocFile, const string& strSettingsFile, const eSensor sensor,
-		const bool bUseViewer, bool is_save_map_)
-		: mSensor(sensor), is_save_map(is_save_map_), mpViewer(static_cast<Viewer*>(nullptr)), mbReset(false),
-		  mbActivateLocalizationMode(false), mbDeactivateLocalizationMode(false)
+		const bool bUseViewer, bool is_save_map_, const ros::NodeHandle& nh):
+		mSensor(sensor),
+		is_save_map(is_save_map_),
+		nh_(nh),
+		mpViewer(static_cast<Viewer*>(nullptr)),
+		mbReset(false),
+		mbActivateLocalizationMode(false),
+		mbDeactivateLocalizationMode(false)
 	{
 		// Output welcome message
 		cout << endl <<
@@ -117,8 +121,8 @@ namespace ORB_SLAM2
 		mptLocalMapping = new thread(&ORB_SLAM2::LocalMapping::Run, mpLocalMapper);
 
 		// Initialize Grid Mapper and launch the thread
-		GridMapper = new GridMapping(mpMap, true);
-		GridMappingThread = new thread(&ORB_SLAM2::GridMapping::Run, GridMapper);
+		PCPub = new PointCloudPublisher(mpMap, true, nh_);
+		PCPubThread = new thread(&ORB_SLAM2::PointCloudPublisher::Run, PCPub);
 
 		//Initialize the Loop Closing thread and launch
 		mpLoopCloser = new LoopClosing(mpMap, mpKeyFrameDatabase, mpVocabulary, mSensor != MONOCULAR);
@@ -135,19 +139,19 @@ namespace ORB_SLAM2
 		//Set pointers between threads
 		mpTracker->SetLocalMapper(mpLocalMapper);
 		mpTracker->SetLoopClosing(mpLoopCloser);
-		mpTracker->SetGridMapper(GridMapper);
+		mpTracker->SetGridMapper(PCPub);
 
 		mpLocalMapper->SetTracker(mpTracker);
 		mpLocalMapper->SetLoopCloser(mpLoopCloser);
-		mpLocalMapper->SetGridMapper(GridMapper);
+		mpLocalMapper->SetGridMapper(PCPub);
 
-		GridMapper->SetTracker(mpTracker);
-		GridMapper->SetLoopCloser(mpLoopCloser);
-		GridMapper->SetLocalMapper(mpLocalMapper);
+		PCPub->SetTracker(mpTracker);
+		PCPub->SetLoopCloser(mpLoopCloser);
+		PCPub->SetLocalMapper(mpLocalMapper);
 
 		mpLoopCloser->SetTracker(mpTracker);
 		mpLoopCloser->SetLocalMapper(mpLocalMapper);
-		mpLoopCloser->SetGridMapper(GridMapper);
+		mpLoopCloser->SetGridMapper(PCPub);
 	}
 
 	cv::Mat System::TrackStereo(const cv::Mat& imLeft, const cv::Mat& imRight, const double& timestamp)
@@ -335,9 +339,9 @@ namespace ORB_SLAM2
 		mbReset = true;
 	}
 
-	void System::Shutdown()
+	void System::hutdown()
 	{
-		GridMapper->RequestFinish();
+		PCPub->RequestFinish();
 		mpLocalMapper->RequestFinish();
 		mpLoopCloser->RequestFinish();
 		if (mpViewer)
@@ -358,8 +362,6 @@ namespace ORB_SLAM2
 			pangolin::BindToContext("ORB-SLAM2: Map Viewer");
 		if (is_save_map)
 			SaveMap(mapfile);
-
-		ros::shutdown();
 	}
 
 	void System::SaveTrajectoryTUM(const string& filename)

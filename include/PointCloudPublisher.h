@@ -40,10 +40,10 @@ namespace ORB_SLAM2
 	class LocalMapping;
 	class LoopClosing;
 
-	class GridMapping
+	class PointCloudPublisher
 	{
 	 public:
-		explicit GridMapping(Map* map, bool visualize_pc);
+		PointCloudPublisher(Map* map, bool visualize_pc, ros::NodeHandle& nh);
 
 		// Set thread pointers
 		void SetTracker(Tracking* Tracker);
@@ -60,7 +60,7 @@ namespace ORB_SLAM2
 		static pcl::PointCloud<pcl::PointXYZ>::Ptr ConvertToPCL(std::vector<MapPoint*>& mps);
 
 		// ROS Publisher to topic "point_cloud"
-		static void PublishPC(ros::Publisher& pub, pcl::PointCloud<pcl::PointXYZ>::Ptr& pub_cld);
+		void PublishPC(pcl::PointCloud<pcl::PointXYZ>::Ptr& pub_cld);
 
 		// Public thread sync stuff
 		void RequestFinish();

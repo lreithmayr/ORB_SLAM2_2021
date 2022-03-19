@@ -63,7 +63,7 @@ namespace ORB_SLAM2
 		mpLocalMapper = pLocalMapper;
 	}
 
-	void LoopClosing::SetGridMapper(GridMapping* GridMapper)
+	void LoopClosing::SetGridMapper(PointCloudPublisher* GridMapper)
 	{
 		GridMapper_ = GridMapper;
 	}
