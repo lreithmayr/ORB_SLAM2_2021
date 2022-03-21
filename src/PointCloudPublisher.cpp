@@ -10,8 +10,8 @@ namespace ORB_SLAM2
 		map_(map),
 		nh_pc_(nh),
 		topic_("os2_point_cloud"),
-		queue_size_(10),
-		pub_pc_(nh_pc_.advertise<pcl::PointCloud<pcl::PointXYZ>>(topic_, queue_size_)),
+		queue_size_(1),
+		pub_pc_(nh_pc_.advertise<sensor_msgs::PointCloud2>(topic_, queue_size_)),
 		visualize_pc_(visualize_pc),
 		finished_(false),
 		stopped_(false),
@@ -38,7 +38,7 @@ namespace ORB_SLAM2
 	{
 		finished_ = false;
 		pcl::visualization::CloudViewer viewer("PCL Viewer");
-
+		ros::Rate rate(1);
 		while (true)
 		{
 			std::vector<MapPoint*> mps = GetAllMPs();
@@ -54,8 +54,7 @@ namespace ORB_SLAM2
 				}
 
 				PublishPC(mps_pcl);
-
-				// TestPublisher();
+				rate.sleep();
 			}
 
 			if (CheckFinish())
@@ -92,21 +91,18 @@ namespace ORB_SLAM2
 
 	void PointCloudPublisher::PublishPC(pcl::PointCloud<pcl::PointXYZ>::Ptr& pub_cld)
 	{
-		ros::Rate rate(10);
-
 		//Convert ROS time stamp to PCL time stamp
 		pcl_conversions::toPCL(ros::Time::now(), pub_cld->header.stamp);
 
-		// Convert PCL cloud "pub_cld" to sensor_msgs::PointCloud2 out_cld
-		sensor_msgs::PointCloud2 out_cld;
-		pcl::toROSMsg(*pub_cld, out_cld);
+		sensor_msgs::PointCloud2 pc2_cld;
+		pcl::toROSMsg(*pub_cld, pc2_cld);
 
-		// ROS_INFO("%s", out_cld.header.frame_id.c_str());
+		pc2_cld.header.frame_id = "map";
+		pc2_cld.point_step = 16;
+		pc2_cld.row_step = (pc2_cld.point_step * pc2_cld.width);
+		pc2_cld.data.resize(pc2_cld.height * pc2_cld.width * pc2_cld.point_step);
 
-		out_cld.header.frame_id = "Tcw";
-		out_cld.data.resize(out_cld.width * out_cld.height * out_cld.point_step);
-		pub_pc_.publish(out_cld);
-		rate.sleep();
+		pub_pc_.publish(pc2_cld);
 	}
 
 	void PointCloudPublisher::RequestFinish()

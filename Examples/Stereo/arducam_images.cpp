@@ -25,6 +25,7 @@
 
 #include<opencv2/core/core.hpp>
 #include<pangolin/pangolin.h>
+#include<tf/tf.h>
 #include <geometry_msgs/PoseStamped.h>
 
 #include<System.h>
@@ -40,7 +41,10 @@ struct RectMats
 };
 
 void LoadImages(const string& strPathToSequence, vector<string>& vstrImages, vector<double>& vTimestamps);
+
 RectMats rectification(cv::FileStorage& fsSettings);
+
+void PublishCameraPose(cv::Mat& Tcw, ros::Publisher& pose_pub);
 
 int main(int argc, char** argv)
 {
@@ -83,11 +87,11 @@ int main(int argc, char** argv)
 	// Initialize ROS node
 	ros::init(argc, argv, "os2");
 	ros::NodeHandle nh;
-	ros::Publisher pub_pose = nh.advertise<geometry_msgs::PoseStamped>("pose", 10);
+	ros::Publisher pub_pose = nh.advertise<geometry_msgs::PoseStamped>("os2_pose", 10);
 
 	// Create SLAM system. It initializes all system threads and gets ready to process frames.
 	bool mapping = false;
-	ORB_SLAM2::System SLAM(argv[1], argv[2], ORB_SLAM2::System::STEREO, true, mapping, nh);
+	ORB_SLAM2::System SLAM(argv[1], argv[2], ORB_SLAM2::System::STEREO, false, mapping, nh);
 
 	// Vector for tracking time statistics
 	vector<float> vTimesTrack;
@@ -154,30 +158,8 @@ int main(int argc, char** argv)
 
 		vTimesTrack[i] = ttrack;
 
-		//Rotation Matrix
-		cv::Mat Rcw = Tcw.rowRange(0, 3).colRange(0, 3);
-
-		// Conversion to Quaternion: q[0] = q.x(), q[1] = q.y(), q[2] = q.z(), q[3] = q.w()
-		// geometry_msgs::Pose::Orientation is a quaternion representation
-		vector<float> q = ORB_SLAM2::Converter::toQuaternion(Rcw);
-
-		// geometry_msgs::Pose::position in (x, y, z)
-		cv::Mat tcw = Tcw.rowRange(0, 3).col(3);
-
-		geometry_msgs::PoseStamped pose;
-		pose.header.stamp = ros::Time::now();
-		pose.header.frame_id = "Tcw";
-
-		pose.pose.position.x = tcw.at<float>(0);
-		pose.pose.position.y = tcw.at<float>(1);
-		pose.pose.position.z = tcw.at<float>(2);
-
-		pose.pose.orientation.x = q[0];
-		pose.pose.orientation.y = q[1];
-		pose.pose.orientation.z = q[2];
-		pose.pose.orientation.w = q[3];
-
-		pub_pose.publish(pose);
+		// Publish the camera pose via ROS on the topic os2_pose
+		PublishCameraPose(Tcw, pub_pose);
 
 		// Wait to load the next frame
 		double T = 0;
@@ -290,4 +272,36 @@ RectMats rectification(cv::FileStorage& fsSettings)
 		rectification_matrices.M2r);
 
 	return rectification_matrices;
+}
+
+void PublishCameraPose(cv::Mat& Tcw, ros::Publisher& pose_pub)
+{
+	//Rotation Matrix
+	cv::Mat Rcw = Tcw.rowRange(0, 3).colRange(0, 3);
+	// Convert to camera coordinates
+	cv::Mat Rwc = Rcw.t();
+
+
+	// Conversion to Quaternion: q[0] = q.x(), q[1] = q.y(), q[2] = q.z(), q[3] = q.w()
+	// geometry_msgs::Pose::Orientation is a quaternion representation
+	vector<float> q = ORB_SLAM2::Converter::toQuaternion(Rwc);
+
+	// geometry_msgs::Pose::position in (x, y, z)
+	cv::Mat tcw = Tcw.rowRange(0, 3).col(3);
+	// Convert to camera coordinates
+	cv::Mat twc = -Rwc*tcw;
+
+	geometry_msgs::PoseStamped pose;
+	pose.header.stamp = ros::Time::now();
+	pose.header.frame_id = "map";
+
+	// Define R and t via tf, convert to Pose message and publish
+	tf::Transform new_transform;
+	tf::Quaternion quaternion(q[0], q[1], q[2], q[3]);
+
+	new_transform.setOrigin(tf::Vector3(twc.at<float>(0, 0), twc.at<float>(0, 1), twc.at<float>(0, 2)));
+	new_transform.setRotation(quaternion);
+
+	tf::poseTFToMsg(new_transform, pose.pose);
+	pose_pub.publish(pose);
 }
