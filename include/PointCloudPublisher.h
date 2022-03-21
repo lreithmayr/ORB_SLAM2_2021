@@ -57,10 +57,10 @@ namespace ORB_SLAM2
 		std::vector<MapPoint*> GetAllMPs();
 
 		// Convert MapPoints to PCL Point Cloud
-		static pcl::PointCloud<pcl::PointXYZ>::Ptr ConvertToPCL(std::vector<MapPoint*>& mps);
+		static pcl::PointCloud<pcl::PointXYZ> ConvertToPCL(std::vector<MapPoint*>& mps);
 
 		// ROS Publisher to topic "point_cloud"
-		void PublishPC(pcl::PointCloud<pcl::PointXYZ>::Ptr& pub_cld);
+		void PublishPC(pcl::PointCloud<pcl::PointXYZ>& pub_cld);
 
 		// Public thread sync stuff
 		void RequestFinish();
