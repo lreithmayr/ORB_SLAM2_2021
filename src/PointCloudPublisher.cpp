@@ -38,8 +38,6 @@ namespace ORB_SLAM2
 	{
 		finished_ = false;
 		pcl::visualization::CloudViewer viewer("PCL Viewer");
-
-		// sensor_msgs::PointCloud2 pc2_cld;
 		ros::Rate rate(10);
 
 		while (true)
