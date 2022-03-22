@@ -121,8 +121,8 @@ namespace ORB_SLAM2
 		mptLocalMapping = new thread(&ORB_SLAM2::LocalMapping::Run, mpLocalMapper);
 
 		// Initialize Grid Mapper and launch the thread
-		PCPub = new PointCloudPublisher(mpMap, true, nh_);
-		PCPubThread = new thread(&ORB_SLAM2::PointCloudPublisher::Run, PCPub);
+		ROSPub = new ROSPublisher(mpMap, nh_);
+		ROSPubThread = new thread(&ORB_SLAM2::ROSPublisher::Run, ROSPub);
 
 		//Initialize the Loop Closing thread and launch
 		mpLoopCloser = new LoopClosing(mpMap, mpKeyFrameDatabase, mpVocabulary, mSensor != MONOCULAR);
@@ -139,19 +139,19 @@ namespace ORB_SLAM2
 		//Set pointers between threads
 		mpTracker->SetLocalMapper(mpLocalMapper);
 		mpTracker->SetLoopClosing(mpLoopCloser);
-		mpTracker->SetGridMapper(PCPub);
+		mpTracker->SetGridMapper(ROSPub);
 
 		mpLocalMapper->SetTracker(mpTracker);
 		mpLocalMapper->SetLoopCloser(mpLoopCloser);
-		mpLocalMapper->SetGridMapper(PCPub);
+		mpLocalMapper->SetGridMapper(ROSPub);
 
-		PCPub->SetTracker(mpTracker);
-		PCPub->SetLoopCloser(mpLoopCloser);
-		PCPub->SetLocalMapper(mpLocalMapper);
+		ROSPub->SetTracker(mpTracker);
+		ROSPub->SetLoopCloser(mpLoopCloser);
+		ROSPub->SetLocalMapper(mpLocalMapper);
 
 		mpLoopCloser->SetTracker(mpTracker);
 		mpLoopCloser->SetLocalMapper(mpLocalMapper);
-		mpLoopCloser->SetGridMapper(PCPub);
+		mpLoopCloser->SetGridMapper(ROSPub);
 	}
 
 	cv::Mat System::TrackStereo(const cv::Mat& imLeft, const cv::Mat& imRight, const double& timestamp)
@@ -341,7 +341,7 @@ namespace ORB_SLAM2
 
 	void System::Shutdown()
 	{
-		PCPub->RequestFinish();
+		ROSPub->RequestFinish();
 		mpLocalMapper->RequestFinish();
 		mpLoopCloser->RequestFinish();
 		if (mpViewer)

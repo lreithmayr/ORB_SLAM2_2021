@@ -44,7 +44,7 @@ namespace ORB_SLAM2
 		mpTracker = pTracker;
 	}
 
-	void LocalMapping::SetGridMapper(PointCloudPublisher* GridMapper)
+	void LocalMapping::SetGridMapper(ROSPublisher* GridMapper)
 	{
 		GridMapper_ = GridMapper;
 	}

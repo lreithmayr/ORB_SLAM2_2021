@@ -165,7 +165,7 @@ namespace ORB_SLAM2
 		mpLoopClosing = pLoopClosing;
 	}
 
-	void Tracking::SetGridMapper(PointCloudPublisher* GridMapper)
+	void Tracking::SetGridMapper(ROSPublisher* GridMapper)
 	{
 		GridMapper_ = GridMapper;
 	}

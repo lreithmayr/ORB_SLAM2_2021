@@ -37,7 +37,7 @@
 namespace ORB_SLAM2
 {
 
-	class PointCloudPublisher;
+	class ROSPublisher;
 	class Tracking;
 	class LocalMapping;
 	class KeyFrameDatabase;
@@ -56,7 +56,7 @@ namespace ORB_SLAM2
 
 		void SetTracker(Tracking* pTracker);
 		void SetLocalMapper(LocalMapping* pLocalMapper);
-		void SetGridMapper(PointCloudPublisher* GridMapper);
+		void SetGridMapper(ROSPublisher* GridMapper);
 
 		// Main function
 		void Run();
@@ -115,7 +115,7 @@ namespace ORB_SLAM2
 
 		Tracking* mpTracker;
 		LocalMapping* mpLocalMapper;
-		PointCloudPublisher* GridMapper_;
+		ROSPublisher* GridMapper_;
 
 		std::list<KeyFrame*> mlpLoopKeyFrameQueue;
 

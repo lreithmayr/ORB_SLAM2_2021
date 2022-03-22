@@ -3,20 +3,22 @@
 #ifndef GRIDMAPPING_H
 #define GRIDMAPPING_H
 
-#include "Map.h"
-#include "Tracking.h"
-#include "LocalMapping.h"
-#include "LoopClosing.h"
+#include <Map.h>
+#include <Tracking.h>
+#include <LocalMapping.h>
+#include <LoopClosing.h>
 
 #include <pcl/point_types.h>
 #include <pcl_ros/point_cloud.h>
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl_conversions/pcl_conversions.h>
-#include "std_msgs/String.h"
 #include <ros/ros.h>
+#include <geometry_msgs/PoseStamped.h>
+#include <tf/tf.h>
 
 #include <thread>
 #include <mutex>
+#include <optional>
 
 struct PointXYZid
 {
@@ -40,10 +42,10 @@ namespace ORB_SLAM2
 	class LocalMapping;
 	class LoopClosing;
 
-	class PointCloudPublisher
+	class ROSPublisher
 	{
 	 public:
-		PointCloudPublisher(Map* map, bool visualize_pc, ros::NodeHandle& nh);
+		ROSPublisher(Map* map, ros::NodeHandle& nh);
 
 		// Set thread pointers
 		void SetTracker(Tracking* Tracker);
@@ -55,12 +57,18 @@ namespace ORB_SLAM2
 
 		// Return all MapPoints in the current map
 		std::vector<MapPoint*> GetAllMPs();
+		set<MapPoint*> GetKFMapPoints();
+		cv::Mat GetKFPose();
 
 		// Convert MapPoints to PCL Point Cloud
 		static pcl::PointCloud<pcl::PointXYZ> ConvertToPCL(std::vector<MapPoint*>& mps);
 
+		// Overload
+		static pcl::PointCloud<pcl::PointXYZ> ConvertToPCL(set<MapPoint*>& mps);
+
 		// ROS Publisher to topic "point_cloud"
-		void PublishPC(pcl::PointCloud<pcl::PointXYZ>& pub_cld);
+		static void PublishPC(pcl::PointCloud<pcl::PointXYZ>& pub_cld, ros::Publisher& pub);
+		static void PublishKFPose(cv::Mat& pose, ros::Publisher& pub);
 
 		// Public thread sync stuff
 		void RequestFinish();
@@ -70,13 +78,10 @@ namespace ORB_SLAM2
 		Map* map_;
 
 		// ROS variables
-		ros::NodeHandle nh_pc_;
-		std::string topic_;
+		ros::NodeHandle nh_;
 		uint32_t queue_size_;
-		ros::Publisher pub_pc_;
 
-		// Enables or disables the PCL viewer
-		bool visualize_pc_;
+		pcl::visualization::CloudViewer viewer_;
 
 		// Thread pointers
 		Tracking* Tracker_{};

@@ -44,7 +44,7 @@
 namespace ORB_SLAM2
 {
 
-	class PointCloudPublisher;
+	class ROSPublisher;
 	class Viewer;
 	class FrameDrawer;
 	class Map;
@@ -67,7 +67,7 @@ namespace ORB_SLAM2
 
 		void SetLocalMapper(LocalMapping* pLocalMapper);
 		void SetLoopClosing(LoopClosing* pLoopClosing);
-		void SetGridMapper(PointCloudPublisher* GridMapper);
+		void SetGridMapper(ROSPublisher* GridMapper);
 		void SetViewer(Viewer* pViewer);
 
 		// Load new settings
@@ -157,7 +157,7 @@ namespace ORB_SLAM2
 		//Other Thread Pointers
 		LocalMapping* mpLocalMapper;
 		LoopClosing* mpLoopClosing;
-		PointCloudPublisher* GridMapper_;
+		ROSPublisher* GridMapper_;
 
 		//ORB
 		ORBextractor* mpORBextractorLeft, * mpORBextractorRight;

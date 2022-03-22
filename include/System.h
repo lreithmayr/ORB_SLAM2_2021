@@ -41,7 +41,7 @@
 #include "KeyFrameDatabase.h"
 #include "ORBVocabulary.h"
 #include "Viewer.h"
-#include "PointCloudPublisher.h"
+#include "ROSPublisher.h"
 #include "Converter.h"
 
 #include "BoostArchiver.h"
@@ -60,7 +60,7 @@ namespace ORB_SLAM2
 	class Tracking;
 	class LocalMapping;
 	class LoopClosing;
-	class PointCloudPublisher;
+	class ROSPublisher;
 
 	class System
 	{
@@ -174,7 +174,7 @@ namespace ORB_SLAM2
 		LocalMapping* mpLocalMapper;
 
 		// PCL point cloud publisher. Converts the OS2 map points to a PCL point cloud and publishes it via ROS.
-		PointCloudPublisher* PCPub;
+		ROSPublisher* ROSPub;
 
 		// Loop Closer. It searches loops with every new keyframe. If there is a loop it performs
 		// a pose graph optimization and full bundle adjustment (in a new thread) afterwards.
@@ -189,7 +189,7 @@ namespace ORB_SLAM2
 		// System threads: Local Mapping, Grid Mapping; Loop Closing, Viewer.
 		// The Tracking thread "lives" in the main execution thread that creates the System object.
 		std::thread* mptLocalMapping;
-		std::thread* PCPubThread;
+		std::thread* ROSPubThread;
 		std::thread* mptLoopClosing;
 		std::thread* mptViewer;
 
