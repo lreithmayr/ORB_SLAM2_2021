@@ -92,7 +92,8 @@ namespace ORB_SLAM2
 		return Tcw;
 	}
 
-	pcl::PointCloud<pcl::PointXYZ> ROSPublisher::ConvertToPCL(std::vector<MapPoint*>& mps)
+	template<typename T>
+	pcl::PointCloud<pcl::PointXYZ> ROSPublisher::ConvertToPCL(T mps)
 	{
 		pcl::PointCloud<pcl::PointXYZ> pcl_cloud;
 		pcl_cloud.width = mps.size();
@@ -100,29 +101,11 @@ namespace ORB_SLAM2
 		pcl_cloud.is_dense = true;
 		pcl_cloud.points.resize(pcl_cloud.width * pcl_cloud.height);
 
-		for (uint32_t i = 0; i < pcl_cloud.width; i++)
+		for (auto mp : mps)
 		{
-			pcl_cloud[i].x = mps[i]->GetWorldPos().at<float>(0);
-			pcl_cloud[i].y = mps[i]->GetWorldPos().at<float>(1);
-			pcl_cloud[i].z = mps[i]->GetWorldPos().at<float>(2);
-		}
-
-		return pcl_cloud;
-	}
-
-	pcl::PointCloud<pcl::PointXYZ> ROSPublisher::ConvertToPCL(set<MapPoint*>& mps)
-	{
-		pcl::PointCloud<pcl::PointXYZ> pcl_cloud;
-		pcl_cloud.width = mps.size();
-		pcl_cloud.height = 1;
-		pcl_cloud.is_dense = true;
-		pcl_cloud.points.resize(pcl_cloud.width * pcl_cloud.height);
-
-		for (auto mp: mps)
-		{
-			float x = mp->GetWorldPos().at<float>(0);
-			float y = mp->GetWorldPos().at<float>(1);
-			float z = mp->GetWorldPos().at<float>(2);
+			float x = mp->GetWorldPos().template at<float>(0);
+			float y = mp->GetWorldPos().template at<float>(1);
+			float z = mp->GetWorldPos().template at<float>(2);
 
 			pcl_cloud.emplace_back(pcl::PointXYZ(x, y, z));
 		}
@@ -132,9 +115,6 @@ namespace ORB_SLAM2
 
 	void ROSPublisher::PublishPC(pcl::PointCloud<pcl::PointXYZ>& pub_cld, ros::Publisher& pub)
 	{
-		//Convert ROS time stamp to PCL time stamp
-		// pcl_conversions::toPCL(ros::Time::now(), pub_cld.header.stamp);
-
 		sensor_msgs::PointCloud2 pc2_cld;
 		pcl::toROSMsg(pub_cld, pc2_cld);
 
@@ -160,7 +140,7 @@ namespace ORB_SLAM2
 		// geometry_msgs::Pose::position in (x, y, z)
 		cv::Mat tcw = Tcw.rowRange(0, 3).col(3);
 		// Convert to camera coordinates
-		cv::Mat twc = -Rwc*tcw;
+		cv::Mat twc = -Rwc * tcw;
 
 		// TODO: Synchronize pose time stamp and pc time stamp
 		geometry_msgs::PoseStamped pose;

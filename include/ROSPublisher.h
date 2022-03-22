@@ -60,11 +60,8 @@ namespace ORB_SLAM2
 		set<MapPoint*> GetKFMapPoints();
 		cv::Mat GetKFPose();
 
-		// Convert MapPoints to PCL Point Cloud
-		static pcl::PointCloud<pcl::PointXYZ> ConvertToPCL(std::vector<MapPoint*>& mps);
-
-		// Overload
-		static pcl::PointCloud<pcl::PointXYZ> ConvertToPCL(set<MapPoint*>& mps);
+		template<typename T>
+		pcl::PointCloud<pcl::PointXYZ> ConvertToPCL(T mps);
 
 		// ROS Publisher to topic "point_cloud"
 		static void PublishPC(pcl::PointCloud<pcl::PointXYZ>& pub_cld, ros::Publisher& pub);
