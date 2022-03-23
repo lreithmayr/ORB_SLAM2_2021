@@ -10,7 +10,6 @@ namespace ORB_SLAM2
 		map_(map),
 		nh_(nh),
 		queue_size_(1),
-		viewer_("PCL Viewer"),
 		finished_(false),
 		stopped_(false),
 		finish_requested_(false)
@@ -51,10 +50,6 @@ namespace ORB_SLAM2
 				pcl::PointCloud<pcl::PointXYZ> mps_pcl = ConvertToPCL(mps);
 				pcl::PointCloud<pcl::PointXYZ> mps_kf_pcl = ConvertToPCL(mps_in_KF);
 
-				pcl::PointCloud<pcl::PointXYZ>::Ptr ptr_cld(new pcl::PointCloud<pcl::PointXYZ>);
-				*ptr_cld = mps_kf_pcl;
-				viewer_.showCloud(ptr_cld);
-
 				PublishKFPose(KF_pose, pub_KFpose);
 				PublishPC(mps_pcl, pub_mps);
 				PublishPC(mps_kf_pcl, pub_KFmps);
@@ -88,7 +83,6 @@ namespace ORB_SLAM2
 		vector<KeyFrame*> all_KFs = map_->GetAllKeyFrames();
 		KeyFrame* most_recent_KF = all_KFs.back();
 		cv::Mat Tcw = most_recent_KF->GetPose();
-
 		return Tcw;
 	}
 
@@ -151,7 +145,7 @@ namespace ORB_SLAM2
 		tf::Transform new_transform;
 		tf::Quaternion quaternion(q[0], q[1], q[2], q[3]);
 
-		new_transform.setOrigin(tf::Vector3(twc.at<float>(0, 0), twc.at<float>(0, 1), twc.at<float>(0, 2)));
+		new_transform.setOrigin(tf::Vector3(twc.at<float>(0), twc.at<float>(1), twc.at<float>(2)));
 		new_transform.setRotation(quaternion);
 
 		tf::poseTFToMsg(new_transform, pose.pose);

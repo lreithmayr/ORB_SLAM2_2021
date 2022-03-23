@@ -491,8 +491,10 @@ namespace ORB_SLAM2
 		for (auto lit = mpTracker->mlRelativeFramePoses.begin(),
 				 lend = mpTracker->mlRelativeFramePoses.end(); lit != lend; lit++, lRit++, lT++)
 		{
+			// Get reference KF
 			ORB_SLAM2::KeyFrame* pKF = *lRit;
 
+			// Instantiate pose transformation from reference KF to world coords
 			cv::Mat Trw = cv::Mat::eye(4, 4, CV_32F);
 
 			while (pKF->isBad())

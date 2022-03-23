@@ -3,22 +3,23 @@
     <!-- run pointcloud_to_laserscan node -->
 <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan">
 
-    <remap from="cloud_in" to="/os2_point_cloud"/>
+    <remap from="cloud_in" to="/pc_KFmps"/>
     <remap from="scan" to="/os2_laserscan"/>
 
     <rosparam>
         # target_frame: map 
         transform_tolerance: 0.01
         min_height: 0.0
-        max_height: -5.0
+        max_height: 50.0
 
-        angle_min: -3.14 # -M_PI
-        angle_max: 3.14 # M_PI
-        angle_increment: 0.0087 # M_PI/360.0
+        angle_min: -3.14 
+        angle_max: 3.14
+        angle_increment: 0.0087
+        queue_size: 10
         scan_time: 0.3333
-        range_min: 0.45
-        range_max: 500.0
-        use_inf: false
+        range_min: 0.2
+        range_max: 40.0
+        use_inf: true
 
         # Concurrency level, affects number of pointclouds queued for processing and number of threads used
         # 0 : Detect number of cores

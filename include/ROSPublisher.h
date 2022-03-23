@@ -78,8 +78,6 @@ namespace ORB_SLAM2
 		ros::NodeHandle nh_;
 		uint32_t queue_size_;
 
-		pcl::visualization::CloudViewer viewer_;
-
 		// Thread pointers
 		Tracking* Tracker_{};
 		LoopClosing* LoopCloser_{};
