@@ -43,6 +43,8 @@ void LoadImages(const string& strPathToSequence, vector<string>& vstrImages, vec
 
 RectMats rectification(cv::FileStorage& fsSettings);
 
+void PublishCameraPose(cv::Mat& Tcw, ros::Publisher& pose_pub);
+
 int main(int argc, char** argv)
 {
 	if (argc != 5)
@@ -84,6 +86,7 @@ int main(int argc, char** argv)
 	// Initialize ROS node
 	ros::init(argc, argv, "os2");
 	ros::NodeHandle nh;
+	ros::Publisher pub_pose = nh.advertise<geometry_msgs::PoseStamped>("os2_pose_fromMain", 10);
 
 	// Create SLAM system. It initializes all system threads and gets ready to process frames.
 	bool mapping = false;
@@ -155,7 +158,7 @@ int main(int argc, char** argv)
 		vTimesTrack[i] = ttrack;
 
 		// Publish the camera pose via ROS on the topic os2_pose
-		// PublishCameraPose(Tcw, pub_pose);
+		PublishCameraPose(Tcw, pub_pose);
 
 		// Wait to load the next frame
 		double T = 0;
@@ -268,4 +271,36 @@ RectMats rectification(cv::FileStorage& fsSettings)
 		rectification_matrices.M2r);
 
 	return rectification_matrices;
+}
+
+void PublishCameraPose(cv::Mat& Tcw, ros::Publisher& pose_pub)
+{
+	//Rotation Matrix
+	cv::Mat Rcw = Tcw.rowRange(0, 3).colRange(0, 3);
+	// Convert to camera coordinates
+	cv::Mat Rwc = Rcw.t();
+
+
+	// Conversion to Quaternion: q[0] = q.x(), q[1] = q.y(), q[2] = q.z(), q[3] = q.w()
+	// geometry_msgs::Pose::Orientation is a quaternion representation
+	vector<float> q = ORB_SLAM2::Converter::toQuaternion(Rwc);
+
+	// geometry_msgs::Pose::position in (x, y, z)
+	cv::Mat tcw = Tcw.rowRange(0, 3).col(3);
+	// Convert to camera coordinates
+	cv::Mat twc = -Rwc*tcw;
+
+	geometry_msgs::PoseStamped pose;
+	pose.header.stamp = ros::Time::now();
+	pose.header.frame_id = "map";
+
+	// Define R and t via tf, convert to Pose message and publish
+	tf::Transform new_transform;
+	tf::Quaternion quaternion(q[0], q[1], q[2], q[3]);
+
+	new_transform.setOrigin(tf::Vector3(twc.at<float>(0, 0), twc.at<float>(0, 1), twc.at<float>(0, 2)));
+	new_transform.setRotation(quaternion);
+
+	tf::poseTFToMsg(new_transform, pose.pose);
+	pose_pub.publish(pose);
 }
