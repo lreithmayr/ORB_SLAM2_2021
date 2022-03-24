@@ -16,6 +16,7 @@
 #include <ros/ros.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <tf/tf.h>
+#include <nav_msgs/OccupancyGrid.h>
 
 #include <thread>
 #include <mutex>
@@ -84,11 +85,13 @@ namespace ORB_SLAM2
 		CameraPose GetKFPose();
 
 		template<typename T>
-		pcl::PointCloud<pcl::PointXYZ> ConvertToPCL(T mps);
+		pcl::PointCloud<pcl::PointXYZ> ConvertToPCL(T& mps);
 
 		// ROS Publisher to topic "point_cloud"
 		static void PublishPC(pcl::PointCloud<pcl::PointXYZ>& pub_cld, ros::Publisher& pub);
 		static void PublishKFPose(cv::Mat& pose, ros::Publisher& pub);
+
+		void UpdateGridMap(ROSPublisher::CameraPose& pose, set<MapPoint*>& points);
 
 		// Public thread sync stuff
 		void RequestFinish();

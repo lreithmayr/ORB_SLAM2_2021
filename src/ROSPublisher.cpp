@@ -44,6 +44,8 @@ namespace ORB_SLAM2
 
 				CameraPose pose = GetKFPose();
 				set<MapPoint*> map_points = GetKFMapPoints();
+
+				UpdateGridMap(pose, map_points);
 			}
 			else if (LoopCloser_->loop_closed_)
 			{
@@ -105,7 +107,7 @@ namespace ORB_SLAM2
 	}
 
 	template<typename T>
-	pcl::PointCloud<pcl::PointXYZ> ROSPublisher::ConvertToPCL(T mps)
+	pcl::PointCloud<pcl::PointXYZ> ROSPublisher::ConvertToPCL(T& mps)
 	{
 		pcl::PointCloud<pcl::PointXYZ> pcl_cloud;
 		pcl_cloud.width = mps.size();
@@ -168,6 +170,14 @@ namespace ORB_SLAM2
 
 		tf::poseTFToMsg(new_transform, pose.pose);
 		pub.publish(pose);
+	}
+
+	void ROSPublisher::UpdateGridMap(ROSPublisher::CameraPose& pose, set<MapPoint*>& points)
+	{
+		CameraPose::Position kf_position = pose.position;
+		float kf_x = kf_position.x;
+		float kf_z = kf_position.z;
+
 	}
 
 	void ROSPublisher::RequestFinish()
