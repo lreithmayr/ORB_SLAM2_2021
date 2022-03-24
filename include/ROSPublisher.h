@@ -3,6 +3,7 @@
 #ifndef GRIDMAPPING_H
 #define GRIDMAPPING_H
 
+#include<System.h>
 #include <Map.h>
 #include <Tracking.h>
 #include <LocalMapping.h>
@@ -19,6 +20,8 @@
 #include <thread>
 #include <mutex>
 #include <optional>
+
+using std::cout;
 
 struct PointXYZid
 {
@@ -52,13 +55,33 @@ namespace ORB_SLAM2
 		void SetLoopCloser(LoopClosing* LoopCloser);
 		void SetLocalMapper(LocalMapping* LocalMapper);
 
+		struct CameraPose
+		{
+			struct Position
+			{
+				float x;
+				float y;
+				float z;
+			};
+			Position position;
+
+			struct Orientation
+			{
+				float x;
+				float y;
+				float z;
+				float w;
+			};
+			Orientation orientation;
+		};
+
 		// Main function
 		void Run();
 
 		// Return all MapPoints in the current map
 		std::vector<MapPoint*> GetAllMPs();
 		set<MapPoint*> GetKFMapPoints();
-		cv::Mat GetKFPose();
+		CameraPose GetKFPose();
 
 		template<typename T>
 		pcl::PointCloud<pcl::PointXYZ> ConvertToPCL(T mps);
@@ -72,7 +95,7 @@ namespace ORB_SLAM2
 		bool IsFinished();
 
 	 private:
-		Map* map_;
+		Map* Map_;
 
 		// ROS variables
 		ros::NodeHandle nh_;
@@ -94,6 +117,7 @@ namespace ORB_SLAM2
 		// Mutexes
 		std::mutex mtx_finish_;
 		std::mutex mtx_stop_;
+		std::mutex mtx_state_;
 	};
 }
 

@@ -555,6 +555,7 @@ namespace ORB_SLAM2
 		cout << " ...done" << std::endl;
 		out.close();
 	}
+
 	bool System::LoadMap(const string& filename)
 	{
 		unique_lock<mutex> MapPointGlobal(MapPoint::mGlobalMutex);

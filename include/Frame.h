@@ -201,6 +201,8 @@ namespace ORB_SLAM2
 		// Reference Keyframe.
 		KeyFrame* mpReferenceKF;
 
+		bool is_keyframe_{false};
+
 		// Scale pyramid info.
 		int mnScaleLevels;
 		float mfScaleFactor;

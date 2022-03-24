@@ -35,6 +35,7 @@ namespace ORB_SLAM2
 {
 
 	LoopClosing::LoopClosing(Map* pMap, KeyFrameDatabase* pDB, ORBVocabulary* pVoc, const bool bFixScale) :
+		loop_closed_(false),
 		mbResetRequested(false),
 		mbFinishRequested(false),
 		mbFinished(true),
@@ -774,6 +775,7 @@ namespace ORB_SLAM2
 			mbFinishedGBA = true;
 			mbRunningGBA = false;
 		}
+		loop_closed_ = true;
 	}
 
 	void LoopClosing::RequestFinish()

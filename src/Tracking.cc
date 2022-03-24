@@ -1088,6 +1088,7 @@ namespace ORB_SLAM2
 
 		mpReferenceKF = pKF;
 		mCurrentFrame.mpReferenceKF = pKF;
+		mCurrentFrame.is_keyframe_ = true;
 
 		if (mSensor != System::MONOCULAR)
 		{

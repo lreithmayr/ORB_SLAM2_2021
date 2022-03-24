@@ -83,6 +83,8 @@ namespace ORB_SLAM2
 
 		bool isFinished();
 
+		bool loop_closed_;
+
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 	 protected:

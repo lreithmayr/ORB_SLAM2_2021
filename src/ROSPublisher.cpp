@@ -7,7 +7,7 @@
 namespace ORB_SLAM2
 {
 	ROSPublisher::ROSPublisher(Map* map, ros::NodeHandle& nh) :
-		map_(map),
+		Map_(map),
 		nh_(nh),
 		queue_size_(1),
 		finished_(false),
@@ -35,24 +35,21 @@ namespace ORB_SLAM2
 	{
 		finished_ = false;
 		ros::Rate rate(10);
-		ros::Publisher pub_mps = nh_.advertise<sensor_msgs::PointCloud2>("pc_allMPs", queue_size_);
-		ros::Publisher pub_KFmps = nh_.advertise<sensor_msgs::PointCloud2>("pc_KFmps", queue_size_);
-		ros::Publisher pub_KFpose = nh_.advertise<geometry_msgs::PoseStamped>("kf_pose", queue_size_);
 
 		while (true)
 		{
-			if (!map_->GetAllKeyFrames().empty() && !map_->GetAllMapPoints().empty())
+			if (Tracker_->mCurrentFrame.is_keyframe_ && !LoopCloser_->loop_closed_)
 			{
-				std::vector<MapPoint*> mps = GetAllMPs();
-				set<MapPoint*> mps_in_KF = GetKFMapPoints();
-				cv::Mat KF_pose = GetKFPose();
+				// TODO: Get KF pose and map points in KF and run grid map algorithm
 
-				pcl::PointCloud<pcl::PointXYZ> mps_pcl = ConvertToPCL(mps);
-				pcl::PointCloud<pcl::PointXYZ> mps_kf_pcl = ConvertToPCL(mps_in_KF);
+				CameraPose pose = GetKFPose();
+				set<MapPoint*> map_points = GetKFMapPoints();
+			}
+			else if (LoopCloser_->loop_closed_)
+			{
+				// TODO: Republish all updated KF poses and MP locations and update grid map
 
-				PublishKFPose(KF_pose, pub_KFpose);
-				PublishPC(mps_pcl, pub_mps);
-				PublishPC(mps_kf_pcl, pub_KFmps);
+				std::cout << "Loop detected!" << endl;
 			}
 
 			rate.sleep();
@@ -66,24 +63,45 @@ namespace ORB_SLAM2
 
 	std::vector<MapPoint*> ROSPublisher::GetAllMPs()
 	{
-		return map_->GetAllMapPoints();
+		return Map_->GetAllMapPoints();
 	}
 
 	set<MapPoint*> ROSPublisher::GetKFMapPoints()
 	{
-		vector<KeyFrame*> all_KFs = map_->GetAllKeyFrames();
-		KeyFrame* most_recent_KF = all_KFs.back();
-		set<MapPoint*> mps_in_KF = most_recent_KF->GetMapPoints();
-
+		KeyFrame* current_KF = Tracker_->mCurrentFrame.mpReferenceKF;
+		set<MapPoint*> mps_in_KF = current_KF->GetMapPoints();
 		return mps_in_KF;
 	}
 
-	cv::Mat ROSPublisher::GetKFPose()
+	ROSPublisher::CameraPose ROSPublisher::GetKFPose()
 	{
-		vector<KeyFrame*> all_KFs = map_->GetAllKeyFrames();
-		KeyFrame* most_recent_KF = all_KFs.back();
-		cv::Mat Tcw = most_recent_KF->GetPose();
-		return Tcw;
+		KeyFrame* current_KF = Tracker_->mCurrentFrame.mpReferenceKF;
+		cv::Mat Trw = cv::Mat::eye(4, 4, CV_32F);
+
+		vector<ORB_SLAM2::KeyFrame*> all_KFs = Map_->GetAllKeyFrames();
+		sort(all_KFs.begin(), all_KFs.end(), ORB_SLAM2::KeyFrame::lId);
+
+		cv::Mat Two = all_KFs[0]->GetPoseInverse();
+
+		Trw = Trw * current_KF->GetPose()*Two;
+		cv::Mat curr_rel_framepose = Tracker_->mlRelativeFramePoses.back();
+		cv::Mat Tcw = curr_rel_framepose * Trw;
+		cv::Mat Rwc = Tcw.rowRange(0, 3).colRange(0, 3).t();
+		cv::Mat twc = -Rwc*Tcw.rowRange(0, 3).col(3);
+
+		vector<float> q = ORB_SLAM2::Converter::toQuaternion(Rwc);
+
+		ROSPublisher::CameraPose camera_pose{};
+		camera_pose.position.x = twc.at<float>(0);
+		camera_pose.position.y = twc.at<float>(1);
+		camera_pose.position.z = twc.at<float>(2);
+
+		camera_pose.orientation.x = q[0];
+		camera_pose.orientation.y = q[1];
+		camera_pose.orientation.z = q[2];
+		camera_pose.orientation.w = q[3];
+
+		return camera_pose;
 	}
 
 	template<typename T>
