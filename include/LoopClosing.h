@@ -37,7 +37,7 @@
 namespace ORB_SLAM2
 {
 
-	class ROSPublisher;
+	class GridMapping;
 	class Tracking;
 	class LocalMapping;
 	class KeyFrameDatabase;
@@ -56,7 +56,7 @@ namespace ORB_SLAM2
 
 		void SetTracker(Tracking* pTracker);
 		void SetLocalMapper(LocalMapping* pLocalMapper);
-		void SetGridMapper(ROSPublisher* GridMapper);
+		void SetGridMapper(GridMapping* GridMapper);
 
 		// Main function
 		void Run();
@@ -117,7 +117,7 @@ namespace ORB_SLAM2
 
 		Tracking* mpTracker;
 		LocalMapping* mpLocalMapper;
-		ROSPublisher* GridMapper_;
+		GridMapping* GridMapper_;
 
 		std::list<KeyFrame*> mlpLoopKeyFrameQueue;
 

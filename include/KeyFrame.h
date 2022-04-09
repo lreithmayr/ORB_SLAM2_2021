@@ -88,6 +88,7 @@ namespace ORB_SLAM2
 		void EraseMapPointMatch(MapPoint* pMP);
 		void ReplaceMapPointMatch(const size_t& idx, MapPoint* pMP);
 		std::set<MapPoint*> GetMapPoints();
+		std::vector<MapPoint*> GetMPs();
 		std::vector<MapPoint*> GetMapPointMatches();
 		int TrackedMapPoints(const int& minObs);
 		MapPoint* GetMapPoint(const size_t& idx);

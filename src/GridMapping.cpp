@@ -2,11 +2,11 @@
 // Created by lorenz on 14.03.22.
 //
 
-#include "ROSPublisher.h"
+#include "GridMapping.h"
 
 namespace ORB_SLAM2
 {
-	ROSPublisher::ROSPublisher(Map* map, ros::NodeHandle& nh) :
+	GridMapping::GridMapping(Map* map, ros::NodeHandle& nh) :
 		Map_(map),
 		nh_(nh),
 		queue_size_(1),
@@ -16,42 +16,47 @@ namespace ORB_SLAM2
 	{
 	}
 
-	void ROSPublisher::SetTracker(Tracking* Tracker)
+	void GridMapping::SetTracker(Tracking* Tracker)
 	{
 		Tracker_ = Tracker;
 	}
 
-	void ROSPublisher::SetLoopCloser(LoopClosing* LoopCloser)
+	void GridMapping::SetLoopCloser(LoopClosing* LoopCloser)
 	{
 		LoopCloser_ = LoopCloser;
 	}
 
-	void ROSPublisher::SetLocalMapper(LocalMapping* LocalMapper)
+	void GridMapping::SetLocalMapper(LocalMapping* LocalMapper)
 	{
 		LocalMapper_ = LocalMapper;
 	}
 
-	void ROSPublisher::Run()
+	void GridMapping::Run()
 	{
 		finished_ = false;
+		ros::Publisher pub = nh_.advertise<pcl::PointCloud<pcl::PointXYZ>>("os2_mpsInKF", queue_size_);
 		ros::Rate rate(10);
 
 		while (true)
 		{
-			if (Tracker_->mCurrentFrame.is_keyframe_ && !LoopCloser_->loop_closed_)
+			if (Tracker_ && LoopCloser_)
 			{
-				// TODO: Get KF pose and map points in KF and run grid map algorithm
+				if (Tracker_->mCurrentFrame.is_keyframe_ && !LoopCloser_->loop_closed_)
+				{
+					// TODO: Implement grid mapping algorithm
 
-				CameraPose pose = GetKFPose();
-				set<MapPoint*> map_points = GetKFMapPoints();
+					CameraPose kf_pose = GetKFPose();
+					std::vector<MapPoint*> kf_mps = GetKFMapPoints();
 
-				UpdateGridMap(pose, map_points);
-			}
-			else if (LoopCloser_->loop_closed_)
-			{
-				// TODO: Republish all updated KF poses and MP locations and update grid map
+					// UpdateGridMap(pose, map_points);
+					std::cout << "No Loop yet!";
+				}
+				else if (LoopCloser_->loop_closed_)
+				{
+					// TODO: Republish all updated KF poses and MP locations and update grid map
 
-				std::cout << "Loop detected!" << endl;
+					std::cout << "Loop detected!" << endl;
+				}
 			}
 
 			rate.sleep();
@@ -63,19 +68,27 @@ namespace ORB_SLAM2
 		SetFinish();
 	}
 
-	std::vector<MapPoint*> ROSPublisher::GetAllMPs()
+	void GridMapping::UpdateGridMap(GridMapping::CameraPose& pose, set<MapPoint*>& points)
+	{
+		CameraPose::Position kf_position = pose.position;
+		float kf_x = kf_position.x;
+		float kf_z = kf_position.z;
+
+	}
+
+	std::vector<MapPoint*> GridMapping::GetAllMPs()
 	{
 		return Map_->GetAllMapPoints();
 	}
 
-	set<MapPoint*> ROSPublisher::GetKFMapPoints()
+	std::vector<MapPoint*> GridMapping::GetKFMapPoints()
 	{
 		KeyFrame* current_KF = Tracker_->mCurrentFrame.mpReferenceKF;
-		set<MapPoint*> mps_in_KF = current_KF->GetMapPoints();
+		std::vector<MapPoint*> mps_in_KF = current_KF->GetMPs();
 		return mps_in_KF;
 	}
 
-	ROSPublisher::CameraPose ROSPublisher::GetKFPose()
+	GridMapping::CameraPose GridMapping::GetKFPose()
 	{
 		KeyFrame* current_KF = Tracker_->mCurrentFrame.mpReferenceKF;
 		cv::Mat Trw = cv::Mat::eye(4, 4, CV_32F);
@@ -93,7 +106,7 @@ namespace ORB_SLAM2
 
 		vector<float> q = ORB_SLAM2::Converter::toQuaternion(Rwc);
 
-		ROSPublisher::CameraPose camera_pose{};
+		GridMapping::CameraPose camera_pose{};
 		camera_pose.position.x = twc.at<float>(0);
 		camera_pose.position.y = twc.at<float>(1);
 		camera_pose.position.z = twc.at<float>(2);
@@ -107,7 +120,7 @@ namespace ORB_SLAM2
 	}
 
 	template<typename T>
-	pcl::PointCloud<pcl::PointXYZ> ROSPublisher::ConvertToPCL(T& mps)
+	pcl::PointCloud<pcl::PointXYZ> GridMapping::ConvertToPCL(T& mps)
 	{
 		pcl::PointCloud<pcl::PointXYZ> pcl_cloud;
 		pcl_cloud.width = mps.size();
@@ -127,7 +140,7 @@ namespace ORB_SLAM2
 		return pcl_cloud;
 	}
 
-	void ROSPublisher::PublishPC(pcl::PointCloud<pcl::PointXYZ>& pub_cld, ros::Publisher& pub)
+	void GridMapping::PublishPC(pcl::PointCloud<pcl::PointXYZ>& pub_cld, ros::Publisher& pub)
 	{
 		sensor_msgs::PointCloud2 pc2_cld;
 		pcl::toROSMsg(pub_cld, pc2_cld);
@@ -140,7 +153,7 @@ namespace ORB_SLAM2
 		pub.publish(pc2_cld);
 	}
 
-	void ROSPublisher::PublishKFPose(cv::Mat& Tcw, ros::Publisher& pub)
+	void GridMapping::PublishKFPose(cv::Mat& Tcw, ros::Publisher& pub)
 	{
 		//Rotation Matrix
 		cv::Mat Rcw = Tcw.rowRange(0, 3).colRange(0, 3);
@@ -156,7 +169,6 @@ namespace ORB_SLAM2
 		// Convert to camera coordinates
 		cv::Mat twc = -Rwc * tcw;
 
-		// TODO: Synchronize pose time stamp and pc time stamp
 		geometry_msgs::PoseStamped pose;
 		pose.header.stamp = ros::Time::now();
 		pose.header.frame_id = "map";
@@ -172,27 +184,19 @@ namespace ORB_SLAM2
 		pub.publish(pose);
 	}
 
-	void ROSPublisher::UpdateGridMap(ROSPublisher::CameraPose& pose, set<MapPoint*>& points)
-	{
-		CameraPose::Position kf_position = pose.position;
-		float kf_x = kf_position.x;
-		float kf_z = kf_position.z;
-
-	}
-
-	void ROSPublisher::RequestFinish()
+	void GridMapping::RequestFinish()
 	{
 		unique_lock<mutex> lock(mtx_finish_);
 		finish_requested_ = true;
 	}
 
-	bool ROSPublisher::CheckFinish()
+	bool GridMapping::CheckFinish()
 	{
 		unique_lock<mutex> lock(mtx_finish_);
 		return finish_requested_;
 	}
 
-	void ROSPublisher::SetFinish()
+	void GridMapping::SetFinish()
 	{
 		unique_lock<mutex> lock(mtx_finish_);
 		finished_ = true;
@@ -200,7 +204,7 @@ namespace ORB_SLAM2
 		stopped_ = true;
 	}
 
-	bool ROSPublisher::IsFinished()
+	bool GridMapping::IsFinished()
 	{
 		unique_lock<mutex> lock(mtx_finish_);
 		return finished_;

@@ -33,7 +33,7 @@
 namespace ORB_SLAM2
 {
 
-	class ROSPublisher;
+	class GridMapping;
 	class Tracking;
 	class LoopClosing;
 	class Map;
@@ -45,7 +45,7 @@ namespace ORB_SLAM2
 
 		void SetLoopCloser(LoopClosing* pLoopCloser);
 		void SetTracker(Tracking* pTracker);
-		void SetGridMapper(ROSPublisher* GridMapper);
+		void SetGridMapper(GridMapping* GridMapper);
 
 		// Main function
 		void Run();
@@ -105,7 +105,7 @@ namespace ORB_SLAM2
 
 		// Thread Pointers
 		LoopClosing* mpLoopCloser{};
-		ROSPublisher* GridMapper_;
+		GridMapping* GridMapper_;
 		Tracking* mpTracker{};
 
 		std::list<KeyFrame*> mlNewKeyFrames;

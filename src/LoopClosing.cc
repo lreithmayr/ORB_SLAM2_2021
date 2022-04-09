@@ -64,7 +64,7 @@ namespace ORB_SLAM2
 		mpLocalMapper = pLocalMapper;
 	}
 
-	void LoopClosing::SetGridMapper(ROSPublisher* GridMapper)
+	void LoopClosing::SetGridMapper(GridMapping* GridMapper)
 	{
 		GridMapper_ = GridMapper;
 	}

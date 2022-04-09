@@ -3,7 +3,7 @@
 #ifndef GRIDMAPPING_H
 #define GRIDMAPPING_H
 
-#include<System.h>
+#include <System.h>
 #include <Map.h>
 #include <Tracking.h>
 #include <LocalMapping.h>
@@ -21,24 +21,7 @@
 #include <thread>
 #include <mutex>
 #include <optional>
-
-using std::cout;
-
-struct PointXYZid
-{
-	PCL_ADD_POINT4D;
-	uint32_t id;
-	PCL_MAKE_ALIGNED_OPERATOR_NEW
-};
-
-POINT_CLOUD_REGISTER_POINT_STRUCT
-(
-	PointXYZid,
-(float, x, x)
-(float, y, y)
-(float, z, z)
-(uint32_t, id, id)
-)
+#include <assert.h>
 
 namespace ORB_SLAM2
 {
@@ -46,10 +29,10 @@ namespace ORB_SLAM2
 	class LocalMapping;
 	class LoopClosing;
 
-	class ROSPublisher
+	class GridMapping
 	{
 	 public:
-		ROSPublisher(Map* map, ros::NodeHandle& nh);
+		GridMapping(Map* map, ros::NodeHandle& nh);
 
 		// Set thread pointers
 		void SetTracker(Tracking* Tracker);
@@ -81,7 +64,7 @@ namespace ORB_SLAM2
 
 		// Return all MapPoints in the current map
 		std::vector<MapPoint*> GetAllMPs();
-		set<MapPoint*> GetKFMapPoints();
+		std::vector<MapPoint*> GetKFMapPoints();
 		CameraPose GetKFPose();
 
 		template<typename T>
@@ -91,7 +74,7 @@ namespace ORB_SLAM2
 		static void PublishPC(pcl::PointCloud<pcl::PointXYZ>& pub_cld, ros::Publisher& pub);
 		static void PublishKFPose(cv::Mat& pose, ros::Publisher& pub);
 
-		void UpdateGridMap(ROSPublisher::CameraPose& pose, set<MapPoint*>& points);
+		static void UpdateGridMap(GridMapping::CameraPose& pose, set<MapPoint*>& points);
 
 		// Public thread sync stuff
 		void RequestFinish();

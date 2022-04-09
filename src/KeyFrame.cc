@@ -248,6 +248,20 @@ namespace ORB_SLAM2
 		return s;
 	}
 
+	std::vector<MapPoint*> KeyFrame::GetMPs()
+	{
+		unique_lock<mutex> lock(mMutexFeatures);
+		std::vector<MapPoint*> mps;
+		for (auto mp: mvpMapPoints)
+		{
+			if (!mp)
+				continue;
+			if (!mp->isBad())
+				mps.emplace_back(mp);
+		}
+		return mps;
+	}
+
 	int KeyFrame::TrackedMapPoints(const int& minObs)
 	{
 		unique_lock<mutex> lock(mMutexFeatures);

@@ -7,8 +7,8 @@ ENDIF()
 
 MESSAGE("Build type: " ${CMAKE_BUILD_TYPE})
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall  -O3 -march=native ")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall   -O3 -march=native")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall -O3 -march=native ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -march=native")
 
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 
@@ -61,7 +61,7 @@ src/KeyFrameDatabase.cc
 src/Sim3Solver.cc
 src/Initializer.cc
 src/Viewer.cc
-        src/ROSPublisher.cpp
+        src/GridMapping.cpp
 # gridmapper/src/MapProcessor.cpp
 )
 
@@ -85,21 +85,13 @@ if (NOT BOOST_SERIALIZATION)
 endif()
 target_link_libraries(${PROJECT_NAME} ${BOOST_SERIALIZATION})
 
-# Build examples
-
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/Stereo)
-
-add_executable(arducam_images 
+add_executable(arducam_images
 Examples/Stereo/arducam_images.cpp 
 )
 target_link_libraries(arducam_images ${PROJECT_NAME})
 
-add_executable(arducam_video
-        Examples/Stereo/arducam_video.cpp
-        )
-target_link_libraries(arducam_video ${PROJECT_NAME})
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/gridmapper/src)
+# set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/gridmapper/src)
 
 # add_executable(gridmapper
 # gridmapper/src/gridmapper.cpp)
