@@ -9,32 +9,17 @@ namespace ORB_SLAM2
 	GridMapping::GridMapping(Map* map, ros::NodeHandle& nh) :
 		Map_(map),
 		nh_(nh),
-		queue_size_(1),
+		queue_size_(1000),
 		finished_(false),
 		stopped_(false),
 		finish_requested_(false)
 	{
 	}
 
-	void GridMapping::SetTracker(Tracking* Tracker)
-	{
-		Tracker_ = Tracker;
-	}
-
-	void GridMapping::SetLoopCloser(LoopClosing* LoopCloser)
-	{
-		LoopCloser_ = LoopCloser;
-	}
-
-	void GridMapping::SetLocalMapper(LocalMapping* LocalMapper)
-	{
-		LocalMapper_ = LocalMapper;
-	}
-
 	void GridMapping::Run()
 	{
 		finished_ = false;
-		ros::Publisher pub = nh_.advertise<pcl::PointCloud<pcl::PointXYZ>>("os2_mpsInKF", queue_size_);
+		ros::Publisher gridmap_pub = nh_.advertise<nav_msgs::OccupancyGrid>("os2_gridMap", queue_size_);
 		ros::Rate rate(10);
 
 		while (true)
@@ -45,11 +30,10 @@ namespace ORB_SLAM2
 				{
 					// TODO: Implement grid mapping algorithm
 
-					CameraPose kf_pose = GetKFPose();
-					std::vector<MapPoint*> kf_mps = GetKFMapPoints();
-
-					// UpdateGridMap(pose, map_points);
-					std::cout << "No Loop yet!";
+					GetKFPose();
+					GetKFMapPoints();
+					UpdateGridMap();
+					PublishGridMap();
 				}
 				else if (LoopCloser_->loop_closed_)
 				{
@@ -68,27 +52,28 @@ namespace ORB_SLAM2
 		SetFinish();
 	}
 
-	void GridMapping::UpdateGridMap(GridMapping::CameraPose& pose, set<MapPoint*>& points)
+	void GridMapping::UpdateGridMap()
 	{
-		CameraPose::Position kf_position = pose.position;
-		float kf_x = kf_position.x;
-		float kf_z = kf_position.z;
+		float kf_pose_x = pose_.position.x;
+		float kf_pose_z = pose_.position.z;
+		int kf_pose_grid_x = int(floor(kf_pose_x - grid_min_x));
+		int kf_pose_grid_z = int(floor(kf_pose_z - grid_min_z));
 
+		CastBeam();
 	}
 
-	std::vector<MapPoint*> GridMapping::GetAllMPs()
+	void GridMapping::PublishGridMap()
 	{
-		return Map_->GetAllMapPoints();
+		// TODO
 	}
 
-	std::vector<MapPoint*> GridMapping::GetKFMapPoints()
+	void GridMapping::GetKFMapPoints()
 	{
 		KeyFrame* current_KF = Tracker_->mCurrentFrame.mpReferenceKF;
-		std::vector<MapPoint*> mps_in_KF = current_KF->GetMPs();
-		return mps_in_KF;
+		kf_mps_ = current_KF->GetMPs();
 	}
 
-	GridMapping::CameraPose GridMapping::GetKFPose()
+	void GridMapping::GetKFPose()
 	{
 		KeyFrame* current_KF = Tracker_->mCurrentFrame.mpReferenceKF;
 		cv::Mat Trw = cv::Mat::eye(4, 4, CV_32F);
@@ -106,17 +91,20 @@ namespace ORB_SLAM2
 
 		vector<float> q = ORB_SLAM2::Converter::toQuaternion(Rwc);
 
-		GridMapping::CameraPose camera_pose{};
-		camera_pose.position.x = twc.at<float>(0);
-		camera_pose.position.y = twc.at<float>(1);
-		camera_pose.position.z = twc.at<float>(2);
+		pose_.position.x = twc.at<float>(0);
+		pose_.position.y = twc.at<float>(1);
+		pose_.position.z = twc.at<float>(2);
 
-		camera_pose.orientation.x = q[0];
-		camera_pose.orientation.y = q[1];
-		camera_pose.orientation.z = q[2];
-		camera_pose.orientation.w = q[3];
+		pose_.orientation.x = q[0];
+		pose_.orientation.y = q[1];
+		pose_.orientation.z = q[2];
+		pose_.orientation.w = q[3];
+	}
 
-		return camera_pose;
+	void GridMapping::CastBeam()
+	{
+		// TODO
+		std::cout << "CastBeam." << endl;
 	}
 
 	template<typename T>
@@ -182,6 +170,21 @@ namespace ORB_SLAM2
 
 		tf::poseTFToMsg(new_transform, pose.pose);
 		pub.publish(pose);
+	}
+
+	void GridMapping::SetTracker(Tracking* Tracker)
+	{
+		Tracker_ = Tracker;
+	}
+
+	void GridMapping::SetLoopCloser(LoopClosing* LoopCloser)
+	{
+		LoopCloser_ = LoopCloser;
+	}
+
+	void GridMapping::SetLocalMapper(LocalMapping* LocalMapper)
+	{
+		LocalMapper_ = LocalMapper;
 	}
 
 	void GridMapping::RequestFinish()

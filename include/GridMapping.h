@@ -21,7 +21,6 @@
 #include <thread>
 #include <mutex>
 #include <optional>
-#include <assert.h>
 
 namespace ORB_SLAM2
 {
@@ -34,11 +33,10 @@ namespace ORB_SLAM2
 	 public:
 		GridMapping(Map* map, ros::NodeHandle& nh);
 
-		// Set thread pointers
-		void SetTracker(Tracking* Tracker);
-		void SetLoopCloser(LoopClosing* LoopCloser);
-		void SetLocalMapper(LocalMapping* LocalMapper);
+		// Main function
+		void Run();
 
+		// Camera pose containing position and orientation as quaternion
 		struct CameraPose
 		{
 			struct Position
@@ -59,29 +57,35 @@ namespace ORB_SLAM2
 			Orientation orientation;
 		};
 
-		// Main function
-		void Run();
+		void GetKFMapPoints();
+		void GetKFPose();
+		void CastBeam();
+		void UpdateGridMap();
 
-		// Return all MapPoints in the current map
-		std::vector<MapPoint*> GetAllMPs();
-		std::vector<MapPoint*> GetKFMapPoints();
-		CameraPose GetKFPose();
-
+		// PCL conversion and ROS publishers
 		template<typename T>
 		pcl::PointCloud<pcl::PointXYZ> ConvertToPCL(T& mps);
 
-		// ROS Publisher to topic "point_cloud"
 		static void PublishPC(pcl::PointCloud<pcl::PointXYZ>& pub_cld, ros::Publisher& pub);
 		static void PublishKFPose(cv::Mat& pose, ros::Publisher& pub);
+		void PublishGridMap();
 
-		static void UpdateGridMap(GridMapping::CameraPose& pose, set<MapPoint*>& points);
+		// Set thread pointers
+		void SetTracker(Tracking* Tracker);
+		void SetLoopCloser(LoopClosing* LoopCloser);
+		void SetLocalMapper(LocalMapping* LocalMapper);
 
 		// Public thread sync stuff
 		void RequestFinish();
 		bool IsFinished();
 
 	 private:
+		// Class member variables
 		Map* Map_;
+		CameraPose pose_{};
+		std::vector<MapPoint*> all_mps_{};
+		std::vector<MapPoint*> kf_mps_{};
+		nav_msgs::OccupancyGrid os2_gm_msg_;
 
 		// ROS variables
 		ros::NodeHandle nh_;
