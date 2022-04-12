@@ -19,8 +19,9 @@ namespace ORB_SLAM2
 	void GridMapping::Run()
 	{
 		finished_ = false;
-		ros::Publisher gridmap_pub = nh_.advertise<nav_msgs::OccupancyGrid>("os2_gridMap", queue_size_);
 		ros::Rate rate(10);
+
+		InitGridMap();
 
 		while (true)
 		{
@@ -28,18 +29,16 @@ namespace ORB_SLAM2
 			{
 				if (Tracker_->mCurrentFrame.is_keyframe_ && !LoopCloser_->loop_closed_)
 				{
-					// TODO: Implement grid mapping algorithm
-
-					GetKFPose();
-					GetKFMapPoints();
+					GetPose();
+					GetMapPoints();
 					UpdateGridMap();
 					PublishGridMap();
 				}
 				else if (LoopCloser_->loop_closed_)
 				{
 					// TODO: Republish all updated KF poses and MP locations and update grid map
-
 					std::cout << "Loop detected!" << endl;
+					break;
 				}
 			}
 
@@ -52,28 +51,66 @@ namespace ORB_SLAM2
 		SetFinish();
 	}
 
+	void GridMapping::InitGridMap()
+	{
+		ros::Publisher gridmap_pub = nh_.advertise<nav_msgs::OccupancyGrid>("os2_gridMap", queue_size_);
+		gmap_.scale_factor = 2;
+
+		gmap_.max_x = 10 * gmap_.scale_factor;
+		gmap_.max_z = 16 * gmap_.scale_factor;
+		gmap_.min_x = -10 *gmap_.scale_factor;
+		gmap_.min_z = -5 * gmap_.scale_factor;
+
+		gmap_.res_x = gmap_.max_x - gmap_.min_x;
+		gmap_.res_z = gmap_.max_z - gmap_.min_z;
+
+		gmap_.data.create(gmap_.res_z, gmap_.res_x, CV_32FC1);
+		gmap_.occupied_counter.create(gmap_.res_z, gmap_.res_x, CV_32SC1);
+		gmap_.visit_counter.create(gmap_.res_z, gmap_.res_x, CV_32SC1);
+		gmap_.occupied_counter.setTo(cv::Scalar(0));
+		gmap_.visit_counter.setTo(cv::Scalar(0));
+	}
+
 	void GridMapping::UpdateGridMap()
 	{
 		float kf_pose_x = pose_.position.x;
 		float kf_pose_z = pose_.position.z;
-		int kf_pose_grid_x = int(floor(kf_pose_x - grid_min_x));
-		int kf_pose_grid_z = int(floor(kf_pose_z - grid_min_z));
+		int kf_pose_grid_x = int(floor(kf_pose_x - gmap_.min_x));
+		int kf_pose_grid_z = int(floor(kf_pose_z - gmap_.min_z));
 
-		CastBeam();
+		if (kf_pose_grid_x < 0 || kf_pose_grid_z < 0 || kf_pose_grid_x  >= gmap_.res_x || kf_pose_grid_z >= gmap_.res_z)
+			return;
+
+		for (auto mp: kf_mps_)
+		{
+			float mp_pos_x = mp->GetWorldPos().at<float>(0);
+			float mp_pos_z = mp->GetWorldPos().at<float>(2);
+
+			int mp_pos_grid_x = int(floor(mp_pos_x - gmap_.min_x));
+			int mp_pos_grid_z = int(floor(mp_pos_z - gmap_.min_z));
+
+			if (mp_pos_grid_x < 0 || mp_pos_grid_z < 0 || mp_pos_grid_x  >= gmap_.res_x || mp_pos_grid_z >= gmap_.res_z)
+				return;
+
+			++gmap_.occupied_counter.at<int>(mp_pos_grid_z, mp_pos_grid_x);
+			// TODO: CastBeam();
+		}
+
 	}
+
 
 	void GridMapping::PublishGridMap()
 	{
 		// TODO
 	}
 
-	void GridMapping::GetKFMapPoints()
+	void GridMapping::GetMapPoints()
 	{
 		KeyFrame* current_KF = Tracker_->mCurrentFrame.mpReferenceKF;
 		kf_mps_ = current_KF->GetMPs();
 	}
 
-	void GridMapping::GetKFPose()
+	void GridMapping::GetPose()
 	{
 		KeyFrame* current_KF = Tracker_->mCurrentFrame.mpReferenceKF;
 		cv::Mat Trw = cv::Mat::eye(4, 4, CV_32F);
@@ -83,11 +120,11 @@ namespace ORB_SLAM2
 
 		cv::Mat Two = all_KFs[0]->GetPoseInverse();
 
-		Trw = Trw * current_KF->GetPose()*Two;
+		Trw = Trw * current_KF->GetPose() * Two;
 		cv::Mat curr_rel_framepose = Tracker_->mlRelativeFramePoses.back();
 		cv::Mat Tcw = curr_rel_framepose * Trw;
 		cv::Mat Rwc = Tcw.rowRange(0, 3).colRange(0, 3).t();
-		cv::Mat twc = -Rwc*Tcw.rowRange(0, 3).col(3);
+		cv::Mat twc = -Rwc * Tcw.rowRange(0, 3).col(3);
 
 		vector<float> q = ORB_SLAM2::Converter::toQuaternion(Rwc);
 
@@ -101,10 +138,47 @@ namespace ORB_SLAM2
 		pose_.orientation.w = q[3];
 	}
 
-	void GridMapping::CastBeam()
+	void GridMapping::CastBeam(int& x1, int& y1, int& x2, int& y2)
 	{
-		// TODO
-		std::cout << "CastBeam." << endl;
+		// Bresenham's line algorithm
+		const bool steep = (fabs(y2 - y1) > fabs(x2 - x1));
+		if(steep)
+		{
+			std::swap(x1, y1);
+			std::swap(x2, y2);
+		}
+
+		if(x1 > x2)
+		{
+			std::swap(x1, x2);
+			std::swap(y1, y2);
+		}
+
+		const int dx = x2 - x1;
+		const int dy = abs(y2 - y1);
+
+		auto error = dx / 2;
+		const int y_step = (y1 < y2) ? 1 : -1;
+		int y = y1;
+
+		for(int x=x1; x<=x2; x++)
+		{
+			if(steep)
+			{
+				++gmap_.visit_counter.at<int>(x, y);
+			}
+			else
+			{
+				++gmap_.visit_counter.at<int>(y,x);
+			}
+
+			error -= dy;
+			if(error < 0)
+			{
+				y += y_step;
+				error += dx;
+			}
+		}
 	}
 
 	template<typename T>

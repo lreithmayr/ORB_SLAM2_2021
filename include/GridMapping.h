@@ -57,9 +57,27 @@ namespace ORB_SLAM2
 			Orientation orientation;
 		};
 
-		void GetKFMapPoints();
-		void GetKFPose();
-		void CastBeam();
+		struct GridMap
+		{
+			cv::Mat data;
+			cv::Mat visit_counter;
+			cv::Mat occupied_counter;
+			float max_x;
+			float max_z;
+			float min_x;
+			float min_z;
+			double res_x;
+			double res_z;
+			int scale_factor;
+		};
+
+		void GetMapPoints();
+		void GetPose();
+
+		// Cast laser beam from point (x1,y1) to point (x2,y2) using Bresenham's line drawing algorithm
+		void CastBeam(int& x1, int& y1, int& x2, int& y2);
+
+		void InitGridMap();
 		void UpdateGridMap();
 
 		// PCL conversion and ROS publishers
@@ -83,9 +101,10 @@ namespace ORB_SLAM2
 		// Class member variables
 		Map* Map_;
 		CameraPose pose_{};
+		GridMap gmap_{};
 		std::vector<MapPoint*> all_mps_{};
 		std::vector<MapPoint*> kf_mps_{};
-		nav_msgs::OccupancyGrid os2_gm_msg_;
+		nav_msgs::OccupancyGrid grid_map_msg_;
 
 		// ROS variables
 		ros::NodeHandle nh_;
