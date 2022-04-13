@@ -33,9 +33,38 @@ namespace ORB_SLAM2
 	 public:
 		GridMapping(Map* map, ros::NodeHandle& nh);
 
-		// Main function
+		// Main
 		void Run();
 
+		void GetMapPoints();
+		void GetPose();
+
+		// Cast laser beam from point (x1,y1) to point (x2,y2) using Bresenham's line drawing algorithm
+		void CastBeam(int& x1, int& y1, int& x2, int& y2);
+
+		void InitGridMap();
+		void UpdateGridMap();
+		void BuildOccupancyGridMsg();
+		void ShowGridMap();
+
+		// PCL conversion and ROS publishers
+		template<typename T>
+		pcl::PointCloud<pcl::PointXYZ> ConvertToPCL(T& mps);
+
+		static void PublishPC(pcl::PointCloud<pcl::PointXYZ>& pub_cld, ros::Publisher& pub);
+		void PublishPose();
+		void PublishGridMap();
+
+		// Set thread pointers
+		void SetTracker(Tracking* Tracker);
+		void SetLoopCloser(LoopClosing* LoopCloser);
+		void SetLocalMapper(LocalMapping* LocalMapper);
+
+		// Public thread sync stuff
+		void RequestFinish();
+		bool IsFinished();
+
+	 private:
 		// Camera pose containing position and orientation as quaternion
 		struct CameraPose
 		{
@@ -62,53 +91,34 @@ namespace ORB_SLAM2
 			cv::Mat data;
 			cv::Mat visit_counter;
 			cv::Mat occupied_counter;
+
+			int visit_threshold;
+			float free_threshold;
+			float occ_threshold;
+
 			float max_x;
 			float max_z;
 			float min_x;
 			float min_z;
-			double res_x;
-			double res_z;
+			double size_x;
+			double size_z;
 			int scale_factor;
 		};
 
-		void GetMapPoints();
-		void GetPose();
-
-		// Cast laser beam from point (x1,y1) to point (x2,y2) using Bresenham's line drawing algorithm
-		void CastBeam(int& x1, int& y1, int& x2, int& y2);
-
-		void InitGridMap();
-		void UpdateGridMap();
-
-		// PCL conversion and ROS publishers
-		template<typename T>
-		pcl::PointCloud<pcl::PointXYZ> ConvertToPCL(T& mps);
-
-		static void PublishPC(pcl::PointCloud<pcl::PointXYZ>& pub_cld, ros::Publisher& pub);
-		static void PublishKFPose(cv::Mat& pose, ros::Publisher& pub);
-		void PublishGridMap();
-
-		// Set thread pointers
-		void SetTracker(Tracking* Tracker);
-		void SetLoopCloser(LoopClosing* LoopCloser);
-		void SetLocalMapper(LocalMapping* LocalMapper);
-
-		// Public thread sync stuff
-		void RequestFinish();
-		bool IsFinished();
-
-	 private:
-		// Class member variables
+		// Class data members
 		Map* Map_;
 		CameraPose pose_{};
 		GridMap gmap_{};
 		std::vector<MapPoint*> all_mps_{};
 		std::vector<MapPoint*> kf_mps_{};
-		nav_msgs::OccupancyGrid grid_map_msg_;
+		cv::Mat grid_map_int_;
 
 		// ROS variables
 		ros::NodeHandle nh_;
 		uint32_t queue_size_;
+		nav_msgs::OccupancyGrid grid_map_msg_;
+		ros::Publisher gridmap_pub_;
+		ros::Publisher pose_pub_;
 
 		// Thread pointers
 		Tracking* Tracker_{};

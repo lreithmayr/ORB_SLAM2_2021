@@ -10,6 +10,8 @@ namespace ORB_SLAM2
 		Map_(map),
 		nh_(nh),
 		queue_size_(1000),
+		gridmap_pub_(nh_.advertise<nav_msgs::OccupancyGrid>("os2_gm", queue_size_)),
+		pose_pub_(nh_.advertise<geometry_msgs::PoseStamped>("os2_pose", queue_size_)),
 		finished_(false),
 		stopped_(false),
 		finish_requested_(false)
@@ -32,7 +34,10 @@ namespace ORB_SLAM2
 					GetPose();
 					GetMapPoints();
 					UpdateGridMap();
+					BuildOccupancyGridMsg();
 					PublishGridMap();
+					PublishPose();
+					ShowGridMap();
 				}
 				else if (LoopCloser_->loop_closed_)
 				{
@@ -53,22 +58,37 @@ namespace ORB_SLAM2
 
 	void GridMapping::InitGridMap()
 	{
-		ros::Publisher gridmap_pub = nh_.advertise<nav_msgs::OccupancyGrid>("os2_gridMap", queue_size_);
+		// TODO: Parse grid map parameters from OS2 setting file
+
+		// Initalize GridMap struct
 		gmap_.scale_factor = 2;
 
-		gmap_.max_x = 10 * gmap_.scale_factor;
-		gmap_.max_z = 16 * gmap_.scale_factor;
-		gmap_.min_x = -10 *gmap_.scale_factor;
+		gmap_.max_x = 1000 * gmap_.scale_factor;
+		gmap_.max_z = 1600 * gmap_.scale_factor;
+		gmap_.min_x = -10 * gmap_.scale_factor;
 		gmap_.min_z = -5 * gmap_.scale_factor;
 
-		gmap_.res_x = gmap_.max_x - gmap_.min_x;
-		gmap_.res_z = gmap_.max_z - gmap_.min_z;
+		gmap_.size_x = gmap_.max_x - gmap_.min_x;
+		gmap_.size_z = gmap_.max_z - gmap_.min_z;
 
-		gmap_.data.create(gmap_.res_z, gmap_.res_x, CV_32FC1);
-		gmap_.occupied_counter.create(gmap_.res_z, gmap_.res_x, CV_32SC1);
-		gmap_.visit_counter.create(gmap_.res_z, gmap_.res_x, CV_32SC1);
+		gmap_.data.create(gmap_.size_z, gmap_.size_x, CV_32FC1);
+		gmap_.occupied_counter.create(gmap_.size_z, gmap_.size_x, CV_32SC1);
+		gmap_.visit_counter.create(gmap_.size_z, gmap_.size_x, CV_32SC1);
 		gmap_.occupied_counter.setTo(cv::Scalar(0));
 		gmap_.visit_counter.setTo(cv::Scalar(0));
+
+		gmap_.visit_threshold = 0;
+		gmap_.free_threshold = 0.55;
+		gmap_.occ_threshold = 0.5;
+
+		// Initialize ROS Occupancy Grid message
+		grid_map_msg_.header.frame_id = "map";
+		grid_map_msg_.data.resize(gmap_.size_z * gmap_.size_x);
+		grid_map_msg_.info.width = gmap_.size_x;
+		grid_map_msg_.info.height = gmap_.size_z;
+		grid_map_msg_.info.resolution = 1.0 / gmap_.scale_factor;
+
+		grid_map_int_ = cv::Mat(gmap_.size_z, gmap_.size_x, CV_8SC1, (char*)(grid_map_msg_.data.data()));
 	}
 
 	void GridMapping::UpdateGridMap()
@@ -78,10 +98,11 @@ namespace ORB_SLAM2
 		int kf_pose_grid_x = int(floor(kf_pose_x - gmap_.min_x));
 		int kf_pose_grid_z = int(floor(kf_pose_z - gmap_.min_z));
 
-		if (kf_pose_grid_x < 0 || kf_pose_grid_z < 0 || kf_pose_grid_x  >= gmap_.res_x || kf_pose_grid_z >= gmap_.res_z)
+		if (kf_pose_grid_x < 0 || kf_pose_grid_z < 0 || kf_pose_grid_x >= gmap_.size_x
+			|| kf_pose_grid_z >= gmap_.size_z)
 			return;
 
-		for (auto mp: kf_mps_)
+		for (auto mp : kf_mps_)
 		{
 			float mp_pos_x = mp->GetWorldPos().at<float>(0);
 			float mp_pos_z = mp->GetWorldPos().at<float>(2);
@@ -89,19 +110,43 @@ namespace ORB_SLAM2
 			int mp_pos_grid_x = int(floor(mp_pos_x - gmap_.min_x));
 			int mp_pos_grid_z = int(floor(mp_pos_z - gmap_.min_z));
 
-			if (mp_pos_grid_x < 0 || mp_pos_grid_z < 0 || mp_pos_grid_x  >= gmap_.res_x || mp_pos_grid_z >= gmap_.res_z)
+			if (mp_pos_grid_x < 0 || mp_pos_grid_z < 0 || mp_pos_grid_x >= gmap_.size_x
+				|| mp_pos_grid_z >= gmap_.size_z)
 				return;
 
 			++gmap_.occupied_counter.at<int>(mp_pos_grid_z, mp_pos_grid_x);
-			// TODO: CastBeam();
+			CastBeam(kf_pose_grid_x, kf_pose_grid_z, mp_pos_grid_x, mp_pos_grid_z);
 		}
-
 	}
 
+	void GridMapping::BuildOccupancyGridMsg()
+	{
+		for (size_t i = 0; i < gmap_.size_z; i++)
+		{
+			for (size_t j = 0; j < gmap_.size_x; j++)
+			{
+				int vc = gmap_.visit_counter.at<int>(i, j);
+				int oc = gmap_.occupied_counter.at<int>(i, j);
+
+				if (vc <= gmap_.visit_threshold)
+					gmap_.data.at<float>(i, j) = 50;
+				else
+					gmap_.data.at<float>(i, j) = 1 - float(oc / vc);
+
+				grid_map_int_.at<char>(i, j) = (1 - gmap_.data.at<float>(i, j)) * 100;
+			}
+		}
+	}
+
+	void GridMapping::ShowGridMap()
+	{
+		cv::imshow("grid_map_msg", cv::Mat(gmap_.size_z, gmap_.size_x, CV_8SC1, (char*)(grid_map_msg_.data.data())));
+	}
 
 	void GridMapping::PublishGridMap()
 	{
-		// TODO
+		grid_map_msg_.info.map_load_time = ros::Time::now();
+		gridmap_pub_.publish(grid_map_msg_);
 	}
 
 	void GridMapping::GetMapPoints()
@@ -142,13 +187,13 @@ namespace ORB_SLAM2
 	{
 		// Bresenham's line algorithm
 		const bool steep = (fabs(y2 - y1) > fabs(x2 - x1));
-		if(steep)
+		if (steep)
 		{
 			std::swap(x1, y1);
 			std::swap(x2, y2);
 		}
 
-		if(x1 > x2)
+		if (x1 > x2)
 		{
 			std::swap(x1, x2);
 			std::swap(y1, y2);
@@ -161,19 +206,19 @@ namespace ORB_SLAM2
 		const int y_step = (y1 < y2) ? 1 : -1;
 		int y = y1;
 
-		for(int x=x1; x<=x2; x++)
+		for (int x = x1; x <= x2; x++)
 		{
-			if(steep)
+			if (steep)
 			{
 				++gmap_.visit_counter.at<int>(x, y);
 			}
 			else
 			{
-				++gmap_.visit_counter.at<int>(y,x);
+				++gmap_.visit_counter.at<int>(y, x);
 			}
 
 			error -= dy;
-			if(error < 0)
+			if (error < 0)
 			{
 				y += y_step;
 				error += dx;
@@ -215,35 +260,21 @@ namespace ORB_SLAM2
 		pub.publish(pc2_cld);
 	}
 
-	void GridMapping::PublishKFPose(cv::Mat& Tcw, ros::Publisher& pub)
+	void GridMapping::PublishPose()
 	{
-		//Rotation Matrix
-		cv::Mat Rcw = Tcw.rowRange(0, 3).colRange(0, 3);
-		// Convert to camera coordinates
-		cv::Mat Rwc = Rcw.t();
-
-		// Conversion to Quaternion: q[0] = q.x(), q[1] = q.y(), q[2] = q.z(), q[3] = q.w()
-		// geometry_msgs::Pose::Orientation is a quaternion representation
-		vector<float> q = ORB_SLAM2::Converter::toQuaternion(Rwc);
-
-		// geometry_msgs::Pose::position in (x, y, z)
-		cv::Mat tcw = Tcw.rowRange(0, 3).col(3);
-		// Convert to camera coordinates
-		cv::Mat twc = -Rwc * tcw;
-
-		geometry_msgs::PoseStamped pose;
-		pose.header.stamp = ros::Time::now();
-		pose.header.frame_id = "map";
+		geometry_msgs::PoseStamped pose_msg;
+		pose_msg.header.stamp = ros::Time::now();
+		pose_msg.header.frame_id = "map";
 
 		// Define R and t via tf, convert to Pose message and publish
 		tf::Transform new_transform;
-		tf::Quaternion quaternion(q[0], q[1], q[2], q[3]);
+		tf::Quaternion quaternion(pose_.orientation.x, pose_.orientation.y, pose_.orientation.z, pose_.orientation.w);
 
-		new_transform.setOrigin(tf::Vector3(twc.at<float>(0), twc.at<float>(1), twc.at<float>(2)));
+		new_transform.setOrigin(tf::Vector3(pose_.position.x,pose_.position.y, pose_.position.z));
 		new_transform.setRotation(quaternion);
 
-		tf::poseTFToMsg(new_transform, pose.pose);
-		pub.publish(pose);
+		tf::poseTFToMsg(new_transform, pose_msg.pose);
+		pose_pub_.publish(pose_msg);
 	}
 
 	void GridMapping::SetTracker(Tracking* Tracker)
