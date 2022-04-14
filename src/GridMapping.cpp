@@ -37,7 +37,7 @@ namespace ORB_SLAM2
 					BuildOccupancyGridMsg();
 					PublishGridMap();
 					PublishPose();
-					ShowGridMap();
+					// ShowGridMap();
 				}
 				else if (LoopCloser_->loop_closed_)
 				{
@@ -61,7 +61,7 @@ namespace ORB_SLAM2
 		// TODO: Parse grid map parameters from OS2 setting file
 
 		// Initalize GridMap struct
-		gmap_.scale_factor = 2;
+		gmap_.scale_factor = 3;
 
 		gmap_.max_x = 1000 * gmap_.scale_factor;
 		gmap_.max_z = 1600 * gmap_.scale_factor;
@@ -70,6 +70,9 @@ namespace ORB_SLAM2
 
 		gmap_.size_x = gmap_.max_x - gmap_.min_x;
 		gmap_.size_z = gmap_.max_z - gmap_.min_z;
+
+		gmap_.norm_factor_x = float(gmap_.size_x - 1) / float(gmap_.size_x);
+		gmap_.norm_factor_z = float(gmap_.size_z - 1) / float(gmap_.size_z);
 
 		gmap_.data.create(gmap_.size_z, gmap_.size_x, CV_32FC1);
 		gmap_.occupied_counter.create(gmap_.size_z, gmap_.size_x, CV_32SC1);
@@ -93,10 +96,10 @@ namespace ORB_SLAM2
 
 	void GridMapping::UpdateGridMap()
 	{
-		float kf_pose_x = pose_.position.x;
-		float kf_pose_z = pose_.position.z;
-		int kf_pose_grid_x = int(floor(kf_pose_x - gmap_.min_x));
-		int kf_pose_grid_z = int(floor(kf_pose_z - gmap_.min_z));
+		float kf_pose_x = pose_.position.x * gmap_.scale_factor;
+		float kf_pose_z = pose_.position.z * gmap_.scale_factor;
+		int kf_pose_grid_x = int(floor((kf_pose_x - gmap_.min_x) * gmap_.norm_factor_x));
+		int kf_pose_grid_z = int(floor((kf_pose_z - gmap_.min_z) * gmap_.norm_factor_z));
 
 		if (kf_pose_grid_x < 0 || kf_pose_grid_z < 0 || kf_pose_grid_x >= gmap_.size_x
 			|| kf_pose_grid_z >= gmap_.size_z)
@@ -104,11 +107,11 @@ namespace ORB_SLAM2
 
 		for (auto mp : kf_mps_)
 		{
-			float mp_pos_x = mp->GetWorldPos().at<float>(0);
-			float mp_pos_z = mp->GetWorldPos().at<float>(2);
+			float mp_pos_x = mp->GetWorldPos().at<float>(0) * gmap_.scale_factor;
+			float mp_pos_z = mp->GetWorldPos().at<float>(2) * gmap_.scale_factor;
 
-			int mp_pos_grid_x = int(floor(mp_pos_x - gmap_.min_x));
-			int mp_pos_grid_z = int(floor(mp_pos_z - gmap_.min_z));
+			int mp_pos_grid_x = int(floor((mp_pos_x - gmap_.min_x) * gmap_.norm_factor_x));
+			int mp_pos_grid_z = int(floor((mp_pos_z - gmap_.min_z) * gmap_.norm_factor_z));
 
 			if (mp_pos_grid_x < 0 || mp_pos_grid_z < 0 || mp_pos_grid_x >= gmap_.size_x
 				|| mp_pos_grid_z >= gmap_.size_z)
@@ -129,9 +132,9 @@ namespace ORB_SLAM2
 				int oc = gmap_.occupied_counter.at<int>(i, j);
 
 				if (vc <= gmap_.visit_threshold)
-					gmap_.data.at<float>(i, j) = 50;
+					gmap_.data.at<float>(i, j) = 0.5;
 				else
-					gmap_.data.at<float>(i, j) = 1 - float(oc / vc);
+					gmap_.data.at<float>(i, j) = 1 - (float(oc) / float(vc));
 
 				grid_map_int_.at<char>(i, j) = (1 - gmap_.data.at<float>(i, j)) * 100;
 			}
@@ -183,30 +186,28 @@ namespace ORB_SLAM2
 		pose_.orientation.w = q[3];
 	}
 
-	void GridMapping::CastBeam(int& x1, int& y1, int& x2, int& y2)
+	void GridMapping::CastBeam(int& x0, int& y0, int& x1, int& y1)
 	{
-		// Bresenham's line algorithm
-		const bool steep = (fabs(y2 - y1) > fabs(x2 - x1));
+		bool steep = (abs(y1 - y0) > abs(x1 - x0));
 		if (steep)
 		{
-			std::swap(x1, y1);
-			std::swap(x2, y2);
+			swap(x0, y0);
+			swap(x1, y1);
 		}
-
-		if (x1 > x2)
+		if (x0 > x1)
 		{
-			std::swap(x1, x2);
-			std::swap(y1, y2);
+			swap(x0, x1);
+			swap(y0, y1);
 		}
+		int dx = x1 - x0;
+		int dy = abs(y1 - y0);
 
-		const int dx = x2 - x1;
-		const int dy = abs(y2 - y1);
+		double error = 0;
+		double deltaerr = ((double)dy) / ((double)dx);
 
-		auto error = dx / 2;
-		const int y_step = (y1 < y2) ? 1 : -1;
-		int y = y1;
-
-		for (int x = x1; x <= x2; x++)
+		int y = y0;
+		int ystep = (y0 < y1) ? 1 : -1;
+		for (int x = x0; x <= x1; ++x)
 		{
 			if (steep)
 			{
@@ -216,12 +217,11 @@ namespace ORB_SLAM2
 			{
 				++gmap_.visit_counter.at<int>(y, x);
 			}
-
-			error -= dy;
-			if (error < 0)
+			error = error + deltaerr;
+			if (error >= 0.5)
 			{
-				y += y_step;
-				error += dx;
+				y = y + ystep;
+				error = error - 1.0;
 			}
 		}
 	}

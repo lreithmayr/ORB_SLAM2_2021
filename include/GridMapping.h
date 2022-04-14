@@ -103,6 +103,8 @@ namespace ORB_SLAM2
 			double size_x;
 			double size_z;
 			int scale_factor;
+			float norm_factor_x;
+			float norm_factor_z;
 		};
 
 		// Class data members

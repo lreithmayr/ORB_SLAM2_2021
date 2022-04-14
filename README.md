@@ -4,16 +4,17 @@
 
 * Tested under **Ubuntu 20.04**
 * PR #970 implemented: Support for **OpenCV 4** (tested with OpenCV 4.5.4)
-* Support for **compilers newer than C++11** implemented (tested with GCC 9.3.0)
+* Support for **C++11 and higher** implemented (tested with GCC 9.3.0)
   * **Pangolin v0.6** now supported
   * **Eigen 3.4** supported
-* **Camera calibration** tools added
-* **Map saving and loading** thanks to Alkaid Benetnash "https://github.com/Alkaid-Benetnash/ORB_SLAM2"
+* **Camera calibration** using the ROS calibration toolbox 
+* **Map saving and loading** thanks to [Alkaid Benetnash]("https://github.com/Alkaid-Benetnash/ORB_SLAM2")
 * **Grid map generation** from point clouds in binary map for **navigation and path planning**
 
 **WIP:**
 
-* **Concurrent construction** of and localization in grid map in **additional thread**.   
+* **Concurrent construction** of and localization in grid map in **seperate thread**.   
+  * Adapting the grid mapping algorithm by [Singh and Jahani](https://github.com/abhineet123/ORB_SLAM2) to run in a fourth thread of OS2 and publish a ROS OccupancyGrid message.
 
 ## Related Publications:
 
