@@ -86,7 +86,6 @@ namespace ORB_SLAM2
 		gmap_.occ_threshold = 0.5;
 
 		// Initialize ROS Occupancy Grid message
-		grid_map_msg_.header.frame_id = "map";
 		grid_map_msg_.data.resize(gmap_.size_z * gmap_.size_x);
 		grid_map_msg_.info.width = gmap_.size_x;
 		grid_map_msg_.info.height = gmap_.size_z;
@@ -158,17 +157,18 @@ namespace ORB_SLAM2
 	void GridMapping::PublishGridMap()
 	{
 		grid_map_msg_.info.map_load_time = ros::Time::now();
+		grid_map_msg_.header.frame_id = "gridmap";
 
 		if (counter_ == 1)
 		{
 			grid_map_msg_.info.origin.position.x = pose_.position.x * gmap_.scale_factor;
-			grid_map_msg_.info.origin.position.y = 0;
-			grid_map_msg_.info.origin.position.z = pose_.position.z * gmap_.scale_factor;
+			grid_map_msg_.info.origin.position.y = pose_.position.y * gmap_.scale_factor;
+			grid_map_msg_.info.origin.position.z = 0;
 
-			grid_map_msg_.info.origin.orientation.x = pose_.orientation.x;
+			grid_map_msg_.info.origin.orientation.x = 0;
 			grid_map_msg_.info.origin.orientation.y = 0;
-			grid_map_msg_.info.origin.orientation.z = pose_.orientation.z;
-			grid_map_msg_.info.origin.orientation.w = pose_.orientation.w;
+			grid_map_msg_.info.origin.orientation.z = 0;
+			grid_map_msg_.info.origin.orientation.w = 1;
 		}
 
 		gridmap_pub_.publish(grid_map_msg_);
@@ -268,7 +268,7 @@ namespace ORB_SLAM2
 		sensor_msgs::PointCloud2 pc2_cld;
 		pcl::toROSMsg(pub_cld, pc2_cld);
 
-		pc2_cld.header.frame_id = "map";
+		pc2_cld.header.frame_id = "gridmap";
 		pc2_cld.header.stamp = ros::Time::now();
 		pc2_cld.row_step = (pc2_cld.point_step * pc2_cld.width);
 		pc2_cld.data.resize(pc2_cld.height * pc2_cld.row_step);
@@ -280,7 +280,7 @@ namespace ORB_SLAM2
 	{
 		geometry_msgs::PoseStamped pose_msg;
 		pose_msg.header.stamp = ros::Time::now();
-		pose_msg.header.frame_id = "map";
+		pose_msg.header.frame_id = "gridmap";
 
 		// Define R and t via tf, convert to Pose message and publish
 		// tf::Transform new_transform;
@@ -292,11 +292,11 @@ namespace ORB_SLAM2
 		// tf::poseTFToMsg(new_transform, pose_msg.pose);
 
 		pose_msg.pose.position.x = pose_.position.x;
-		pose_msg.pose.position.y = 0;
+		pose_msg.pose.position.y = pose_.position.y;
 		pose_msg.pose.position.z = pose_.position.z;
 
 		pose_msg.pose.orientation.x = pose_.orientation.x;
-		pose_msg.pose.orientation.y = 0;
+		pose_msg.pose.orientation.y = pose_.orientation.y;
 		pose_msg.pose.orientation.z = pose_.orientation.z;
 		pose_msg.pose.orientation.w = pose_.orientation.w;
 
