@@ -1,5 +1,8 @@
 # Modification of [ORB SLAM 2](https://github.com/raulmur/ORB_SLAM2) by Mur-Artal et. al.
 
+* **Concurrent construction** of and localization in grid map in **seperate thread**.   
+  * Adapting the grid mapping algorithm by [Singh and Jahani](https://github.com/abhineet123/ORB_SLAM2) to run in a fourth thread of OS2 and publish a ROS OccupancyGrid message.
+
 **Changelog and Additions:**
 
 * Tested under **Ubuntu 20.04**
@@ -9,12 +12,6 @@
   * **Eigen 3.4** supported
 * **Camera calibration** using the ROS calibration toolbox 
 * **Map saving and loading** thanks to [Alkaid Benetnash]("https://github.com/Alkaid-Benetnash/ORB_SLAM2")
-* **Grid map generation** from point clouds in binary map for **navigation and path planning**
-
-**WIP:**
-
-* **Concurrent construction** of and localization in grid map in **seperate thread**.   
-  * Adapting the grid mapping algorithm by [Singh and Jahani](https://github.com/abhineet123/ORB_SLAM2) to run in a fourth thread of OS2 and publish a ROS OccupancyGrid message.
 
 ## Related Publications:
 
