@@ -40,7 +40,8 @@ namespace ORB_SLAM2
 		void GetPose();
 
 		// Cast laser beam from point (x1,y1) to point (x2,y2) using Bresenham's line drawing algorithm
-		void CastBeam(int& x1, int& y1, int& x2, int& y2);
+		// and increment occupied and visit counters
+		void CastLaserBeam(int& x1, int& y1, int& x2, int& y2);
 
 		void InitGridMap();
 		void UpdateGridMap();
@@ -51,7 +52,7 @@ namespace ORB_SLAM2
 		template<typename T>
 		pcl::PointCloud<pcl::PointXYZ> ConvertToPCL(T& mps);
 
-		static void PublishPC(pcl::PointCloud<pcl::PointXYZ>& pub_cld, ros::Publisher& pub);
+		void PublishPC();
 		void PublishPose();
 		void PublishGridMap();
 
@@ -114,13 +115,14 @@ namespace ORB_SLAM2
 		std::vector<MapPoint*> all_mps_{};
 		std::vector<MapPoint*> kf_mps_{};
 		cv::Mat grid_map_int_;
+		int counter_{0};
 
 		// ROS variables
-		ros::NodeHandle nh_;
 		uint32_t queue_size_;
 		nav_msgs::OccupancyGrid grid_map_msg_;
 		ros::Publisher gridmap_pub_;
 		ros::Publisher pose_pub_;
+		ros::Publisher pc_pub_;
 
 		// Thread pointers
 		Tracking* Tracker_{};

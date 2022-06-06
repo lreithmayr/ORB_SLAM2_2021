@@ -56,7 +56,7 @@ namespace ORB_SLAM2
 
 		void SetTracker(Tracking* pTracker);
 		void SetLocalMapper(LocalMapping* pLocalMapper);
-		void SetGridMapper(GridMapping* GridMapper);
+		void SetGridMapper(shared_ptr<GridMapping> GridMapper);
 
 		// Main function
 		void Run();
@@ -117,7 +117,7 @@ namespace ORB_SLAM2
 
 		Tracking* mpTracker;
 		LocalMapping* mpLocalMapper;
-		GridMapping* GridMapper_;
+		shared_ptr<GridMapping> GridMapper_;
 
 		std::list<KeyFrame*> mlpLoopKeyFrameQueue;
 

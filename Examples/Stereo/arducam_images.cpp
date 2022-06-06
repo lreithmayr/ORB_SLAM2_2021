@@ -90,7 +90,8 @@ int main(int argc, char** argv)
 
 	// Create SLAM system. It initializes all system threads and gets ready to process frames.
 	bool mapping = false;
-	ORB_SLAM2::System SLAM(argv[1], argv[2], ORB_SLAM2::System::STEREO, true, mapping, nh);
+	bool viewer = false;
+	ORB_SLAM2::System SLAM(argv[1], argv[2], ORB_SLAM2::System::STEREO, viewer, mapping, nh);
 
 	// Vector for tracking time statistics
 	vector<float> vTimesTrack;

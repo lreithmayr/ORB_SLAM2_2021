@@ -34,22 +34,25 @@ static bool has_suffix(const std::string& str, const std::string& suffix)
 
 namespace ORB_SLAM2
 {
-	System::System(const string& strVocFile, const string& strSettingsFile, const eSensor sensor,
-		const bool bUseViewer, bool is_save_map_, const ros::NodeHandle& nh):
-		mSensor(sensor),
-		is_save_map(is_save_map_),
-		nh_(nh),
-		mpViewer(static_cast<Viewer*>(nullptr)),
-		mbReset(false),
-		mbActivateLocalizationMode(false),
-		mbDeactivateLocalizationMode(false)
+	System::System(const string& strVocFile,
+		const string& strSettingsFile,
+		const eSensor sensor,
+		const bool bUseViewer,
+		bool is_save_map_,
+		const ros::NodeHandle& nh)
+		: mSensor(sensor),
+		  is_save_map(is_save_map_),
+		  nh_(nh),
+		  mpViewer(static_cast<Viewer*>(nullptr)),
+		  mbReset(false),
+		  mbActivateLocalizationMode(false),
+		  mbDeactivateLocalizationMode(false)
 	{
 		// Output welcome message
-		cout << endl <<
-			 "ORB-SLAM2 Copyright (C) 2014-2016 Raul Mur-Artal, University of Zaragoza." << endl <<
-			 "This program comes with ABSOLUTELY NO WARRANTY;" << endl <<
-			 "This is free software, and you are welcome to redistribute it" << endl <<
-			 "under certain conditions. See LICENSE.txt." << endl << endl;
+		cout << endl << "ORB-SLAM2 Copyright (C) 2014-2016 Raul Mur-Artal, University of Zaragoza." << endl
+		     << "This program comes with ABSOLUTELY NO WARRANTY;" << endl
+		     << "This is free software, and you are welcome to redistribute it" << endl
+		     << "under certain conditions. See LICENSE.txt." << endl << endl;
 
 		cout << "Input sensor was set to: ";
 
@@ -89,7 +92,7 @@ namespace ORB_SLAM2
 		if (!bVocLoad)
 		{
 			cerr << "Wrong path to vocabulary. " << endl;
-			cerr << "Falied to open at: " << strVocFile << endl;
+			cerr << "Failed to open at: " << strVocFile << endl;
 			exit(-1);
 		}
 		cout << "Vocabulary loaded!" << endl << endl;
@@ -113,8 +116,15 @@ namespace ORB_SLAM2
 
 		//Initialize the Tracking thread
 		//(it will live in the main thread of execution, the one that called this constructor)
-		mpTracker = new Tracking(this, mpVocabulary, mpFrameDrawer, mpMapDrawer,
-			mpMap, mpKeyFrameDatabase, strSettingsFile, mSensor, bReuseMap);
+		mpTracker = new Tracking(this,
+			mpVocabulary,
+			mpFrameDrawer,
+			mpMapDrawer,
+			mpMap,
+			mpKeyFrameDatabase,
+			strSettingsFile,
+			mSensor,
+			bReuseMap);
 
 		//Initialize the Local Mapping thread and launch
 		mpLocalMapper = new LocalMapping(mpMap, mSensor == MONOCULAR);
@@ -125,8 +135,8 @@ namespace ORB_SLAM2
 		mptLoopClosing = new thread(&ORB_SLAM2::LoopClosing::Run, mpLoopCloser);
 
 		// Initialize Grid Mapper and launch the thread
-		GridMapper = new GridMapping(mpMap, nh_);
-		GridMapperThread = new thread(&ORB_SLAM2::GridMapping::Run, GridMapper);
+		GridMapper_ = std::make_shared<GridMapping>(mpMap, nh_);
+		GridMapperThread_ = std::make_shared<std::thread>(&ORB_SLAM2::GridMapping::Run, GridMapper_);
 
 		//Initialize the Viewer thread and launch
 		if (bUseViewer)
@@ -139,19 +149,19 @@ namespace ORB_SLAM2
 		//Set pointers between threads
 		mpTracker->SetLocalMapper(mpLocalMapper);
 		mpTracker->SetLoopClosing(mpLoopCloser);
-		mpTracker->SetGridMapper(GridMapper);
+		mpTracker->SetGridMapper(GridMapper_);
 
 		mpLocalMapper->SetTracker(mpTracker);
 		mpLocalMapper->SetLoopCloser(mpLoopCloser);
-		mpLocalMapper->SetGridMapper(GridMapper);
+		mpLocalMapper->SetGridMapper(GridMapper_);
 
-		GridMapper->SetTracker(mpTracker);
-		GridMapper->SetLoopCloser(mpLoopCloser);
-		GridMapper->SetLocalMapper(mpLocalMapper);
+		GridMapper_->SetTracker(mpTracker);
+		GridMapper_->SetLoopCloser(mpLoopCloser);
+		GridMapper_->SetLocalMapper(mpLocalMapper);
 
 		mpLoopCloser->SetTracker(mpTracker);
 		mpLoopCloser->SetLocalMapper(mpLocalMapper);
-		mpLoopCloser->SetGridMapper(GridMapper);
+		mpLoopCloser->SetGridMapper(GridMapper_);
 	}
 
 	cv::Mat System::TrackStereo(const cv::Mat& imLeft, const cv::Mat& imRight, const double& timestamp)
@@ -341,7 +351,7 @@ namespace ORB_SLAM2
 
 	void System::Shutdown()
 	{
-		GridMapper->RequestFinish();
+		GridMapper_->RequestFinish();
 		mpLocalMapper->RequestFinish();
 		mpLoopCloser->RequestFinish();
 		if (mpViewer)
@@ -393,8 +403,8 @@ namespace ORB_SLAM2
 		auto lRit = mpTracker->mlpReferences.begin();
 		auto lT = mpTracker->mlFrameTimes.begin();
 		auto lbL = mpTracker->mlbLost.begin();
-		for (auto lit = mpTracker->mlRelativeFramePoses.begin(),
-				 lend = mpTracker->mlRelativeFramePoses.end(); lit != lend; lit++, lRit++, lT++, lbL++)
+		for (auto lit = mpTracker->mlRelativeFramePoses.begin(), lend = mpTracker->mlRelativeFramePoses.end();
+		     lit != lend; lit++, lRit++, lT++, lbL++)
 		{
 			if (*lbL)
 				continue;
@@ -442,7 +452,7 @@ namespace ORB_SLAM2
 
 		for (auto pKF : vpKFs)
 		{
-				// pKF->SetPose(pKF->GetPose()*Two);
+			// pKF->SetPose(pKF->GetPose()*Two);
 
 			if (pKF->isBad())
 				continue;
@@ -451,8 +461,7 @@ namespace ORB_SLAM2
 			vector<float> q = Converter::toQuaternion(R);
 			cv::Mat t = pKF->GetCameraCenter();
 			f << setprecision(6) << pKF->mTimeStamp << setprecision(7) << " " << t.at<float>(0) << " " << t.at<float>(1)
-			  << " " << t.at<float>(2)
-			  << " " << q[0] << " " << q[1] << " " << q[2] << " " << q[3] << endl;
+			  << " " << t.at<float>(2) << " " << q[0] << " " << q[1] << " " << q[2] << " " << q[3] << endl;
 
 		}
 
@@ -488,8 +497,8 @@ namespace ORB_SLAM2
 		// which is true when tracking failed (lbL).
 		auto lRit = mpTracker->mlpReferences.begin();
 		auto lT = mpTracker->mlFrameTimes.begin();
-		for (auto lit = mpTracker->mlRelativeFramePoses.begin(),
-				 lend = mpTracker->mlRelativeFramePoses.end(); lit != lend; lit++, lRit++, lT++)
+		for (auto lit = mpTracker->mlRelativeFramePoses.begin(), lend = mpTracker->mlRelativeFramePoses.end();
+		     lit != lend; lit++, lRit++, lT++)
 		{
 			// Get reference KF
 			ORB_SLAM2::KeyFrame* pKF = *lRit;
@@ -511,11 +520,9 @@ namespace ORB_SLAM2
 			cv::Mat twc = -Rwc * Tcw.rowRange(0, 3).col(3);
 
 			f << setprecision(9) << Rwc.at<float>(0, 0) << " " << Rwc.at<float>(0, 1) << " " << Rwc.at<float>(0, 2)
-			  << " " << twc.at<float>(0) << " " <<
-			  Rwc.at<float>(1, 0) << " " << Rwc.at<float>(1, 1) << " " << Rwc.at<float>(1, 2) << " " << twc.at<float>(1)
-			  << " " <<
-			  Rwc.at<float>(2, 0) << " " << Rwc.at<float>(2, 1) << " " << Rwc.at<float>(2, 2) << " " << twc.at<float>(2)
-			  << endl;
+			  << " " << twc.at<float>(0) << " " << Rwc.at<float>(1, 0) << " " << Rwc.at<float>(1, 1) << " "
+			  << Rwc.at<float>(1, 2) << " " << twc.at<float>(1) << " " << Rwc.at<float>(2, 0) << " "
+			  << Rwc.at<float>(2, 1) << " " << Rwc.at<float>(2, 2) << " " << twc.at<float>(2) << endl;
 		}
 		f.close();
 		cout << endl << "trajectory saved!" << endl;

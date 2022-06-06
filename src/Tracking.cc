@@ -165,7 +165,7 @@ namespace ORB_SLAM2
 		mpLoopClosing = pLoopClosing;
 	}
 
-	void Tracking::SetGridMapper(GridMapping* GridMapper)
+	void Tracking::SetGridMapper(shared_ptr<GridMapping> GridMapper)
 	{
 		GridMapper_ = GridMapper;
 	}

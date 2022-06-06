@@ -67,7 +67,7 @@ namespace ORB_SLAM2
 
 		void SetLocalMapper(LocalMapping* pLocalMapper);
 		void SetLoopClosing(LoopClosing* pLoopClosing);
-		void SetGridMapper(GridMapping* GridMapper);
+		void SetGridMapper(shared_ptr<GridMapping> GridMapper);
 		void SetViewer(Viewer* pViewer);
 
 		// Load new settings
@@ -157,7 +157,7 @@ namespace ORB_SLAM2
 		//Other Thread Pointers
 		LocalMapping* mpLocalMapper;
 		LoopClosing* mpLoopClosing;
-		GridMapping* GridMapper_;
+		shared_ptr<GridMapping> GridMapper_;
 
 		//ORB
 		ORBextractor* mpORBextractorLeft, * mpORBextractorRight;

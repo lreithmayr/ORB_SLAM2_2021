@@ -45,7 +45,7 @@ namespace ORB_SLAM2
 
 		void SetLoopCloser(LoopClosing* pLoopCloser);
 		void SetTracker(Tracking* pTracker);
-		void SetGridMapper(GridMapping* GridMapper);
+		void SetGridMapper(shared_ptr<GridMapping> GridMapper);
 
 		// Main function
 		void Run();
@@ -105,7 +105,7 @@ namespace ORB_SLAM2
 
 		// Thread Pointers
 		LoopClosing* mpLoopCloser{};
-		GridMapping* GridMapper_;
+		shared_ptr<GridMapping> GridMapper_;
 		Tracking* mpTracker{};
 
 		std::list<KeyFrame*> mlNewKeyFrames;

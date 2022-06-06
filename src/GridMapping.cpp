@@ -8,10 +8,10 @@ namespace ORB_SLAM2
 {
 	GridMapping::GridMapping(Map* map, ros::NodeHandle& nh) :
 		Map_(map),
-		nh_(nh),
 		queue_size_(1000),
-		gridmap_pub_(nh_.advertise<nav_msgs::OccupancyGrid>("os2_gm", queue_size_)),
-		pose_pub_(nh_.advertise<geometry_msgs::PoseStamped>("os2_pose", queue_size_)),
+		gridmap_pub_(nh.advertise<nav_msgs::OccupancyGrid>("os2_gm", queue_size_)),
+		pose_pub_(nh.advertise<geometry_msgs::PoseStamped>("os2_pose", queue_size_)),
+		pc_pub_(nh.advertise<sensor_msgs::PointCloud2>("os2_pointcloud", queue_size_)),
 		finished_(false),
 		stopped_(false),
 		finish_requested_(false)
@@ -31,13 +31,14 @@ namespace ORB_SLAM2
 			{
 				if (Tracker_->mCurrentFrame.is_keyframe_ && !LoopCloser_->loop_closed_)
 				{
+					counter_++;
+
 					GetPose();
 					GetMapPoints();
 					UpdateGridMap();
 					BuildOccupancyGridMsg();
 					PublishGridMap();
 					PublishPose();
-					// ShowGridMap();
 				}
 				else if (LoopCloser_->loop_closed_)
 				{
@@ -118,7 +119,7 @@ namespace ORB_SLAM2
 				return;
 
 			++gmap_.occupied_counter.at<int>(mp_pos_grid_z, mp_pos_grid_x);
-			CastBeam(kf_pose_grid_x, kf_pose_grid_z, mp_pos_grid_x, mp_pos_grid_z);
+			CastLaserBeam(kf_pose_grid_x, kf_pose_grid_z, mp_pos_grid_x, mp_pos_grid_z);
 		}
 	}
 
@@ -137,6 +138,7 @@ namespace ORB_SLAM2
 					gmap_.data.at<float>(i, j) = 1 - (float(oc) / float(vc));
 
 				grid_map_int_.at<char>(i, j) = (1 - gmap_.data.at<float>(i, j)) * 100;
+				// cout << grid_map_int_.at<char>(i, j) << endl;
 			}
 		}
 	}
@@ -149,6 +151,22 @@ namespace ORB_SLAM2
 	void GridMapping::PublishGridMap()
 	{
 		grid_map_msg_.info.map_load_time = ros::Time::now();
+
+		if (counter_ == 1)
+		{
+			grid_map_msg_.info.origin.position.x = pose_.position.x;
+			grid_map_msg_.info.origin.position.y = pose_.position.y;
+			grid_map_msg_.info.origin.position.z = pose_.position.z;
+
+			grid_map_msg_.info.origin.orientation.x = pose_.orientation.x;
+			grid_map_msg_.info.origin.orientation.y = pose_.orientation.y;
+			grid_map_msg_.info.origin.orientation.z = pose_.orientation.z;
+			grid_map_msg_.info.origin.orientation.w = pose_.orientation.w;
+		}
+
+		//grid_map_msg_.data = gmap_.data;
+
+
 		gridmap_pub_.publish(grid_map_msg_);
 	}
 
@@ -161,16 +179,8 @@ namespace ORB_SLAM2
 	void GridMapping::GetPose()
 	{
 		KeyFrame* current_KF = Tracker_->mCurrentFrame.mpReferenceKF;
-		cv::Mat Trw = cv::Mat::eye(4, 4, CV_32F);
 
-		vector<ORB_SLAM2::KeyFrame*> all_KFs = Map_->GetAllKeyFrames();
-		sort(all_KFs.begin(), all_KFs.end(), ORB_SLAM2::KeyFrame::lId);
-
-		cv::Mat Two = all_KFs[0]->GetPoseInverse();
-
-		Trw = Trw * current_KF->GetPose() * Two;
-		cv::Mat curr_rel_framepose = Tracker_->mlRelativeFramePoses.back();
-		cv::Mat Tcw = curr_rel_framepose * Trw;
+		cv::Mat Tcw = current_KF->GetPose();
 		cv::Mat Rwc = Tcw.rowRange(0, 3).colRange(0, 3).t();
 		cv::Mat twc = -Rwc * Tcw.rowRange(0, 3).col(3);
 
@@ -186,7 +196,7 @@ namespace ORB_SLAM2
 		pose_.orientation.w = q[3];
 	}
 
-	void GridMapping::CastBeam(int& x0, int& y0, int& x1, int& y1)
+	void GridMapping::CastLaserBeam(int& x0, int& y0, int& x1, int& y1)
 	{
 		bool steep = (abs(y1 - y0) > abs(x1 - x0));
 		if (steep)
@@ -247,8 +257,10 @@ namespace ORB_SLAM2
 		return pcl_cloud;
 	}
 
-	void GridMapping::PublishPC(pcl::PointCloud<pcl::PointXYZ>& pub_cld, ros::Publisher& pub)
+	void GridMapping::PublishPC()
 	{
+		pcl::PointCloud<pcl::PointXYZ> pub_cld = GridMapping::ConvertToPCL(kf_mps_);
+
 		sensor_msgs::PointCloud2 pc2_cld;
 		pcl::toROSMsg(pub_cld, pc2_cld);
 
@@ -257,7 +269,7 @@ namespace ORB_SLAM2
 		pc2_cld.row_step = (pc2_cld.point_step * pc2_cld.width);
 		pc2_cld.data.resize(pc2_cld.height * pc2_cld.row_step);
 
-		pub.publish(pc2_cld);
+		pc_pub_.publish(pc2_cld);
 	}
 
 	void GridMapping::PublishPose()
@@ -267,13 +279,23 @@ namespace ORB_SLAM2
 		pose_msg.header.frame_id = "map";
 
 		// Define R and t via tf, convert to Pose message and publish
-		tf::Transform new_transform;
-		tf::Quaternion quaternion(pose_.orientation.x, pose_.orientation.y, pose_.orientation.z, pose_.orientation.w);
+		// tf::Transform new_transform;
+		// tf::Quaternion quaternion(pose_.orientation.x, pose_.orientation.y, pose_.orientation.z, pose_.orientation.w);
 
-		new_transform.setOrigin(tf::Vector3(pose_.position.x,pose_.position.y, pose_.position.z));
-		new_transform.setRotation(quaternion);
+		// new_transform.setOrigin(tf::Vector3(pose_.position.x,pose_.position.y, pose_.position.z));
+		// new_transform.setRotation(quaternion);
 
-		tf::poseTFToMsg(new_transform, pose_msg.pose);
+		// tf::poseTFToMsg(new_transform, pose_msg.pose);
+
+		pose_msg.pose.position.x = pose_.position.x;
+		pose_msg.pose.position.y = 0;
+		pose_msg.pose.position.z = pose_.position.z;
+
+		pose_msg.pose.orientation.x = pose_.orientation.x;
+		pose_msg.pose.orientation.y = 0;
+		pose_msg.pose.orientation.z = pose_.orientation.z;
+		pose_msg.pose.orientation.w = pose_.orientation.w;
+
 		pose_pub_.publish(pose_msg);
 	}
 

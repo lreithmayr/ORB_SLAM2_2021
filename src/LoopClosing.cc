@@ -64,7 +64,7 @@ namespace ORB_SLAM2
 		mpLocalMapper = pLocalMapper;
 	}
 
-	void LoopClosing::SetGridMapper(GridMapping* GridMapper)
+	void LoopClosing::SetGridMapper(shared_ptr<GridMapping> GridMapper)
 	{
 		GridMapper_ = GridMapper;
 	}
