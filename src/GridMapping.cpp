@@ -82,7 +82,7 @@ namespace ORB_SLAM2
 		gmap_.visit_counter.setTo(cv::Scalar(0));
 
 		gmap_.visit_threshold = 0;
-		gmap_.free_threshold = 0.55;
+		gmap_.free_threshold = 0.7;
 		gmap_.occ_threshold = 0.5;
 
 		// Initialize ROS Occupancy Grid message
@@ -92,7 +92,7 @@ namespace ORB_SLAM2
 		grid_map_msg_.info.height = gmap_.size_z;
 		grid_map_msg_.info.resolution = 1.0 / gmap_.scale_factor;
 
-		grid_map_int_ = cv::Mat(gmap_.size_z, gmap_.size_x, CV_8SC1, (char*)(grid_map_msg_.data.data()));
+		grid_map_int_ = cv::Mat(gmap_.size_z, gmap_.size_x, CV_8SC1, grid_map_msg_.data.data());
 	}
 
 	void GridMapping::UpdateGridMap()
@@ -137,8 +137,15 @@ namespace ORB_SLAM2
 				else
 					gmap_.data.at<float>(i, j) = 1 - (float(oc) / float(vc));
 
-				grid_map_int_.at<char>(i, j) = (1 - gmap_.data.at<float>(i, j)) * 100;
-				// cout << grid_map_int_.at<char>(i, j) << endl;
+				// if (gmap_.data.at<float>(i, j) >= gmap_.free_threshold)
+				// 	grid_map_int_.at<char>(i, j) = 255;
+				// else if (gmap_.data.at<float>(i, j) < gmap_.free_threshold && gmap_.data.at<float>(i, j) >= gmap_
+				// .occ_threshold)
+				// 	grid_map_int_.at<char>(i, j) = 128;
+				// else
+				// 	grid_map_int_.at<char>(i, j) = 0;
+
+				grid_map_int_.at<int8_t>(i, j) = (1 - gmap_.data.at<float>(i, j)) * 100;
 			}
 		}
 	}
@@ -154,18 +161,15 @@ namespace ORB_SLAM2
 
 		if (counter_ == 1)
 		{
-			grid_map_msg_.info.origin.position.x = pose_.position.x;
-			grid_map_msg_.info.origin.position.y = pose_.position.y;
-			grid_map_msg_.info.origin.position.z = pose_.position.z;
+			grid_map_msg_.info.origin.position.x = pose_.position.x * gmap_.scale_factor;
+			grid_map_msg_.info.origin.position.y = 0;
+			grid_map_msg_.info.origin.position.z = pose_.position.z * gmap_.scale_factor;
 
 			grid_map_msg_.info.origin.orientation.x = pose_.orientation.x;
-			grid_map_msg_.info.origin.orientation.y = pose_.orientation.y;
+			grid_map_msg_.info.origin.orientation.y = 0;
 			grid_map_msg_.info.origin.orientation.z = pose_.orientation.z;
 			grid_map_msg_.info.origin.orientation.w = pose_.orientation.w;
 		}
-
-		//grid_map_msg_.data = gmap_.data;
-
 
 		gridmap_pub_.publish(grid_map_msg_);
 	}
