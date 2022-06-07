@@ -90,7 +90,7 @@ int main(int argc, char** argv)
 
 	// Create SLAM system. It initializes all system threads and gets ready to process frames.
 	bool mapping = false;
-	bool viewer = true;
+	bool viewer = false;
 	ORB_SLAM2::System SLAM(argv[1], argv[2], ORB_SLAM2::System::STEREO, viewer, mapping, nh);
 
 	// Vector for tracking time statistics
@@ -119,8 +119,6 @@ int main(int argc, char** argv)
 	cv::Mat img, imLeft, imRight, imLeftRect, imRightRect, imLeftRectCropped, imRightRectCropped;
 	for (uint32_t i = 0; i < nImages_var; i++)
 	{
-		if (i == 1)
-			cv::waitKey(10000);
 		// Read left and right images from file
 		img = cv::imread(vstrImages[i], CV_LOAD_IMAGE_UNCHANGED);
 		imLeft = img(cv::Rect(0, 0, width, height));

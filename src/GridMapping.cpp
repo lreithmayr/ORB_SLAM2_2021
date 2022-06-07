@@ -38,7 +38,7 @@ namespace ORB_SLAM2
 					UpdateGridMap();
 					BuildOccupancyGridMsg();
 					PublishGridMap();
-					PublishPose();
+					PublishGridMapPose();
 				}
 				else if (LoopCloser_->loop_closed_)
 				{
@@ -66,8 +66,8 @@ namespace ORB_SLAM2
 
 		gmap_.max_x = 1000 * gmap_.scale_factor;
 		gmap_.max_z = 1600 * gmap_.scale_factor;
-		gmap_.min_x = -10 * gmap_.scale_factor;
-		gmap_.min_z = -5 * gmap_.scale_factor;
+		gmap_.min_x = -1000 * gmap_.scale_factor;
+		gmap_.min_z = -500 * gmap_.scale_factor;
 
 		gmap_.size_x = gmap_.max_x - gmap_.min_x;
 		gmap_.size_z = gmap_.max_z - gmap_.min_z;
@@ -98,11 +98,11 @@ namespace ORB_SLAM2
 	{
 		float kf_pose_x = pose_.position.x * gmap_.scale_factor;
 		float kf_pose_z = pose_.position.z * gmap_.scale_factor;
-		int kf_pose_grid_x = int(floor((kf_pose_x - gmap_.min_x) * gmap_.norm_factor_x));
-		int kf_pose_grid_z = int(floor((kf_pose_z - gmap_.min_z) * gmap_.norm_factor_z));
+		pose_.position.kf_pose_grid_x = int(floor((kf_pose_x - gmap_.min_x) * gmap_.norm_factor_x));
+		pose_.position.kf_pose_grid_z = int(floor((kf_pose_z - gmap_.min_z) * gmap_.norm_factor_z));
 
-		if (kf_pose_grid_x < 0 || kf_pose_grid_z < 0 || kf_pose_grid_x >= gmap_.size_x
-			|| kf_pose_grid_z >= gmap_.size_z)
+		if (pose_.position.kf_pose_grid_x < 0 || pose_.position.kf_pose_grid_z < 0 || pose_.position.kf_pose_grid_x >= gmap_.size_x
+			|| pose_.position.kf_pose_grid_z >= gmap_.size_z)
 			return;
 
 		for (auto mp : kf_mps_)
@@ -118,7 +118,7 @@ namespace ORB_SLAM2
 				return;
 
 			++gmap_.occupied_counter.at<int>(mp_pos_grid_z, mp_pos_grid_x);
-			CastLaserBeam(kf_pose_grid_x, kf_pose_grid_z, mp_pos_grid_x, mp_pos_grid_z);
+			CastLaserBeam(pose_.position.kf_pose_grid_x, pose_.position.kf_pose_grid_z, mp_pos_grid_x, mp_pos_grid_z);
 		}
 	}
 
@@ -161,8 +161,8 @@ namespace ORB_SLAM2
 
 		if (counter_ == 1)
 		{
-			grid_map_msg_.info.origin.position.x = pose_.position.x * gmap_.scale_factor;
-			grid_map_msg_.info.origin.position.y = pose_.position.y * gmap_.scale_factor;
+			grid_map_msg_.info.origin.position.x = pose_.position.kf_pose_grid_x;
+			grid_map_msg_.info.origin.position.y = pose_.position.kf_pose_grid_z;
 			grid_map_msg_.info.origin.position.z = 0;
 
 			grid_map_msg_.info.origin.orientation.x = 0;
@@ -276,7 +276,7 @@ namespace ORB_SLAM2
 		pc_pub_.publish(pc2_cld);
 	}
 
-	void GridMapping::PublishPose()
+	void GridMapping::PublishGridMapPose()
 	{
 		geometry_msgs::PoseStamped pose_msg;
 		pose_msg.header.stamp = ros::Time::now();
@@ -291,14 +291,19 @@ namespace ORB_SLAM2
 
 		// tf::poseTFToMsg(new_transform, pose_msg.pose);
 
-		pose_msg.pose.position.x = pose_.position.x;
-		pose_msg.pose.position.y = pose_.position.y;
-		pose_msg.pose.position.z = pose_.position.z;
+		pose_msg.pose.position.x = pose_.position.kf_pose_grid_x;
+		pose_msg.pose.position.y = 0;
+		pose_msg.pose.position.z = pose_.position.kf_pose_grid_z;
 
-		pose_msg.pose.orientation.x = pose_.orientation.x;
-		pose_msg.pose.orientation.y = pose_.orientation.y;
-		pose_msg.pose.orientation.z = pose_.orientation.z;
-		pose_msg.pose.orientation.w = pose_.orientation.w;
+		// pose_msg.pose.orientation.x = pose_.orientation.x;
+		// pose_msg.pose.orientation.y = pose_.orientation.y;
+		// pose_msg.pose.orientation.z = pose_.orientation.z;
+		// pose_msg.pose.orientation.w = pose_.orientation.w;
+
+		pose_msg.pose.orientation.x = 0;
+		pose_msg.pose.orientation.y = 0;
+		pose_msg.pose.orientation.z = 0;
+		pose_msg.pose.orientation.w = 1;
 
 		pose_pub_.publish(pose_msg);
 	}

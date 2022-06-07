@@ -53,7 +53,7 @@ namespace ORB_SLAM2
 		pcl::PointCloud<pcl::PointXYZ> ConvertToPCL(T& mps);
 
 		void PublishPC();
-		void PublishPose();
+		void PublishGridMapPose();
 		void PublishGridMap();
 
 		// Set thread pointers
@@ -74,6 +74,9 @@ namespace ORB_SLAM2
 				float x;
 				float y;
 				float z;
+
+				int kf_pose_grid_x;
+				int kf_pose_grid_z;
 			};
 			Position position;
 
