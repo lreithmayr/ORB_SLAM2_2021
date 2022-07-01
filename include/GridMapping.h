@@ -37,7 +37,9 @@ namespace ORB_SLAM2
 		void Run();
 
 		void GetMapPoints();
+		void GetMapPoints(KeyFrame* kf);
 		void GetPose();
+		void GetPose(KeyFrame* kf);
 
 		// Cast laser beam from point (x1,y1) to point (x2,y2) using Bresenham's line drawing algorithm
 		// and increment occupied and visit counters
@@ -46,7 +48,6 @@ namespace ORB_SLAM2
 		void InitGridMap();
 		void UpdateGridMap();
 		void BuildOccupancyGridMsg();
-		void ShowGridMap();
 
 		// PCL conversion and ROS publishers
 		template<typename T>
@@ -55,6 +56,7 @@ namespace ORB_SLAM2
 		void PublishPC();
 		void PublishGridMapPose();
 		void PublishGridMap();
+		void ResetGridMap();
 
 		// Set thread pointers
 		void SetTracker(Tracking* Tracker);

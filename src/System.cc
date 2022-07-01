@@ -364,7 +364,8 @@ namespace ORB_SLAM2
 		}
 
 		// Wait until all thread have effectively stopped
-		while (!mpLocalMapper->isFinished() || !mpLoopCloser->isFinished() || mpLoopCloser->isRunningGBA())
+		while (!mpLocalMapper->isFinished() || !mpLoopCloser->isFinished() || mpLoopCloser->isRunningGBA() ||
+		!GridMapper_->IsFinished())
 		{
 			std::this_thread::sleep_for(std::chrono::microseconds(5000));
 		}

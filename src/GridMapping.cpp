@@ -42,9 +42,21 @@ namespace ORB_SLAM2
 				}
 				else if (LoopCloser_->loop_closed_)
 				{
-					// TODO: Republish all updated KF poses and MP locations and update grid map
-					std::cout << "Loop detected!" << endl;
-					break;
+					LoopCloser_->loop_closed_ = false;
+					ResetGridMap();
+					std::vector<KeyFrame*> all_KFs = Map_->GetAllKeyFrames();
+
+					cout << "Counter_ = " << counter_ << endl;
+					cout << "Size of all_KFs = " << all_KFs.size() << endl;
+
+					for (auto kf: all_KFs)
+					{
+						GetPose(kf);
+						GetMapPoints(kf);
+						UpdateGridMap();
+						BuildOccupancyGridMsg();
+						PublishGridMap();
+					}
 				}
 			}
 
@@ -136,22 +148,9 @@ namespace ORB_SLAM2
 				else
 					gmap_.data.at<float>(i, j) = 1 - (float(oc) / float(vc));
 
-				// if (gmap_.data.at<float>(i, j) >= gmap_.free_threshold)
-				// 	grid_map_int_.at<char>(i, j) = 255;
-				// else if (gmap_.data.at<float>(i, j) < gmap_.free_threshold && gmap_.data.at<float>(i, j) >= gmap_
-				// .occ_threshold)
-				// 	grid_map_int_.at<char>(i, j) = 128;
-				// else
-				// 	grid_map_int_.at<char>(i, j) = 0;
-
 				grid_map_int_.at<int8_t>(i, j) = (1 - gmap_.data.at<float>(i, j)) * 100;
 			}
 		}
-	}
-
-	void GridMapping::ShowGridMap()
-	{
-		cv::imshow("grid_map_msg", cv::Mat(gmap_.size_z, gmap_.size_x, CV_8SC1, (char*)(grid_map_msg_.data.data())));
 	}
 
 	void GridMapping::PublishGridMap()
@@ -161,17 +160,24 @@ namespace ORB_SLAM2
 
 		if (counter_ == 1)
 		{
-			grid_map_msg_.info.origin.position.x = pose_.position.kf_pose_grid_x;
-			grid_map_msg_.info.origin.position.y = pose_.position.kf_pose_grid_z;
-			grid_map_msg_.info.origin.position.z = 0;
+			grid_map_msg_.info.origin.position.x = pose_.position.x * gmap_.scale_factor;
+			grid_map_msg_.info.origin.position.y = pose_.position.z * gmap_.scale_factor;
+			grid_map_msg_.info.origin.position.z = pose_.position.y * gmap_.scale_factor;
 
-			grid_map_msg_.info.origin.orientation.x = 0;
-			grid_map_msg_.info.origin.orientation.y = 0;
-			grid_map_msg_.info.origin.orientation.z = 0;
-			grid_map_msg_.info.origin.orientation.w = 1;
+			grid_map_msg_.info.origin.orientation.x = pose_.orientation.x * gmap_.scale_factor;
+			grid_map_msg_.info.origin.orientation.y = pose_.orientation.y * gmap_.scale_factor;
+			grid_map_msg_.info.origin.orientation.z = pose_.orientation.z * gmap_.scale_factor;
+			grid_map_msg_.info.origin.orientation.w = pose_.orientation.w * gmap_.scale_factor;
 		}
 
 		gridmap_pub_.publish(grid_map_msg_);
+	}
+
+	void GridMapping::ResetGridMap()
+	{
+		cout << "Loop detected. Resetting grid map!" << endl;
+		gmap_.visit_counter.setTo(0);
+		gmap_.occupied_counter.setTo(0);
 	}
 
 	void GridMapping::GetMapPoints()
@@ -180,11 +186,34 @@ namespace ORB_SLAM2
 		kf_mps_ = current_KF->GetMPs();
 	}
 
+	void GridMapping::GetMapPoints(KeyFrame* kf)
+	{
+		kf_mps_ = kf->GetMPs();
+	}
+
 	void GridMapping::GetPose()
 	{
 		KeyFrame* current_KF = Tracker_->mCurrentFrame.mpReferenceKF;
 
 		cv::Mat Tcw = current_KF->GetPose();
+		cv::Mat Rwc = Tcw.rowRange(0, 3).colRange(0, 3).t();
+		cv::Mat twc = -Rwc * Tcw.rowRange(0, 3).col(3);
+
+		vector<float> q = ORB_SLAM2::Converter::toQuaternion(Rwc);
+
+		pose_.position.x = twc.at<float>(0);
+		pose_.position.y = twc.at<float>(1);
+		pose_.position.z = twc.at<float>(2);
+
+		pose_.orientation.x = q[0];
+		pose_.orientation.y = q[1];
+		pose_.orientation.z = q[2];
+		pose_.orientation.w = q[3];
+	}
+
+	void GridMapping::GetPose(KeyFrame* kf)
+	{
+		cv::Mat Tcw = kf->GetPose();
 		cv::Mat Rwc = Tcw.rowRange(0, 3).colRange(0, 3).t();
 		cv::Mat twc = -Rwc * Tcw.rowRange(0, 3).col(3);
 
@@ -282,28 +311,14 @@ namespace ORB_SLAM2
 		pose_msg.header.stamp = ros::Time::now();
 		pose_msg.header.frame_id = "gridmap";
 
-		// Define R and t via tf, convert to Pose message and publish
-		// tf::Transform new_transform;
-		// tf::Quaternion quaternion(pose_.orientation.x, pose_.orientation.y, pose_.orientation.z, pose_.orientation.w);
-
-		// new_transform.setOrigin(tf::Vector3(pose_.position.x,pose_.position.y, pose_.position.z));
-		// new_transform.setRotation(quaternion);
-
-		// tf::poseTFToMsg(new_transform, pose_msg.pose);
-
 		pose_msg.pose.position.x = pose_.position.kf_pose_grid_x;
-		pose_msg.pose.position.y = 0;
-		pose_msg.pose.position.z = pose_.position.kf_pose_grid_z;
+		pose_msg.pose.position.y = pose_.position.kf_pose_grid_z;
+		pose_msg.pose.position.z = 0;
 
-		// pose_msg.pose.orientation.x = pose_.orientation.x;
-		// pose_msg.pose.orientation.y = pose_.orientation.y;
-		// pose_msg.pose.orientation.z = pose_.orientation.z;
-		// pose_msg.pose.orientation.w = pose_.orientation.w;
-
-		pose_msg.pose.orientation.x = 0;
-		pose_msg.pose.orientation.y = 0;
-		pose_msg.pose.orientation.z = 0;
-		pose_msg.pose.orientation.w = 1;
+		pose_msg.pose.orientation.x = pose_.orientation.x * gmap_.scale_factor;
+		pose_msg.pose.orientation.y = pose_.orientation.y * gmap_.scale_factor;
+		pose_msg.pose.orientation.z = pose_.orientation.z * gmap_.scale_factor;
+		pose_msg.pose.orientation.w = pose_.orientation.w * gmap_.scale_factor;
 
 		pose_pub_.publish(pose_msg);
 	}
