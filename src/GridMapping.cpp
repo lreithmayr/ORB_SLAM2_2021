@@ -144,7 +144,7 @@ namespace ORB_SLAM2
 				int oc = gmap_.occupied_counter.at<int>(i, j);
 
 				if (vc <= gmap_.visit_threshold)
-					gmap_.data.at<float>(i, j) = 0.5;
+					gmap_.data.at<float>(i, j) = 1;
 				else
 					gmap_.data.at<float>(i, j) = 1 - (float(oc) / float(vc));
 
